@@ -4,10 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Clock, Search, User } from "lucide-react";
+import { Clock, Search, User, Calendar, TrendingUp, Star, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import { blogPosts, getLatestPosts, getPostsByCategory, getPostsBySearch, BlogPost } from "@/data/blogPosts";
+import { format } from "date-fns";
 
 const Blog = () => {
   const [displayedPosts, setDisplayedPosts] = useState<BlogPost[]>([]);
@@ -15,18 +16,18 @@ const Blog = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const postsPerPage = 6;
+  const postsPerPage = 9;
 
   const categories = [
-    "All",
-    "Lifestyle",
-    "Health", 
-    "Entertainment",
-    "Science & Technology",
-    "News",
-    "Sports",
-    "Travel",
-    "Videos"
+    { name: "All", icon: "🌟", color: "from-blue-500 to-purple-500" },
+    { name: "Lifestyle", icon: "✨", color: "from-pink-500 to-rose-500" },
+    { name: "Health", icon: "💚", color: "from-green-500 to-emerald-500" }, 
+    { name: "Entertainment", icon: "🎬", color: "from-purple-500 to-violet-500" },
+    { name: "Science & Technology", icon: "🚀", color: "from-blue-500 to-cyan-500" },
+    { name: "News", icon: "📰", color: "from-red-500 to-orange-500" },
+    { name: "Sports", icon: "⚽", color: "from-orange-500 to-yellow-500" },
+    { name: "Travel", icon: "✈️", color: "from-teal-500 to-green-500" },
+    { name: "Videos", icon: "🎥", color: "from-indigo-500 to-purple-500" }
   ];
 
   useEffect(() => {
@@ -76,99 +77,159 @@ const Blog = () => {
     return displayedPosts.length < totalPosts;
   };
 
-  const latestPosts = getLatestPosts(3);
+  const latestPosts = getLatestPosts(4);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
       <Header />
       
-      {/* Hero Banner */}
-      <section className="pt-24 pb-16 bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Discover Amazing Stories
+      {/* Hero Section */}
+      <section className="pt-32 pb-20 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white overflow-hidden relative">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-10 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+        
+        <div className="max-w-6xl mx-auto px-4 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 mb-8">
+            <TrendingUp className="w-5 h-5" />
+            <span className="text-sm font-medium">Trending Stories & Insights</span>
+          </div>
+          
+          <h1 className="text-6xl md:text-7xl font-bold mb-8 leading-tight">
+            Discover
+            <span className="block bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+              Amazing Stories
+            </span>
           </h1>
-          <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
-            Explore our collection of insightful articles, expert opinions, and trending topics across various categories.
+          
+          <p className="text-xl md:text-2xl mb-12 text-blue-100 max-w-4xl mx-auto leading-relaxed">
+            Explore our curated collection of insightful articles, expert opinions, and trending topics from writers around the world.
           </p>
           
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+          {/* Enhanced Search Bar */}
+          <div className="max-w-2xl mx-auto relative group">
+            <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 h-6 w-6 group-focus-within:text-blue-500 transition-colors" />
             <Input
               type="text"
-              placeholder="Search articles..."
+              placeholder="Search for articles, topics, or authors..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-4 py-6 text-lg bg-white/90 backdrop-blur-sm border-0 text-gray-900 placeholder-gray-500"
+              className="pl-16 pr-6 py-8 text-lg bg-white/95 backdrop-blur-sm border-0 text-gray-900 placeholder-gray-500 rounded-2xl shadow-2xl focus:shadow-3xl transition-all duration-300 focus:ring-4 focus:ring-white/30"
             />
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-8 shadow-lg">
+                Search
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <div className="grid lg:grid-cols-4 gap-12">
           {/* Main Content */}
           <div className="lg:col-span-3">
-            {/* Category Filter */}
-            <div className="flex flex-wrap gap-2 mb-8">
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category || (category === "All" && !selectedCategory) ? "default" : "outline"}
-                  onClick={() => setSelectedCategory(category === "All" ? null : category)}
-                  className="mb-2"
-                >
-                  {category}
-                </Button>
-              ))}
+            {/* Category Pills */}
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></div>
+                Browse by Category
+              </h2>
+              <div className="flex flex-wrap gap-3">
+                {categories.map((category) => (
+                  <Button
+                    key={category.name}
+                    variant={selectedCategory === category.name || (category.name === "All" && !selectedCategory) ? "default" : "outline"}
+                    onClick={() => setSelectedCategory(category.name === "All" ? null : category.name)}
+                    className={`h-12 px-6 rounded-xl font-medium transition-all duration-300 ${
+                      selectedCategory === category.name || (category.name === "All" && !selectedCategory)
+                        ? `bg-gradient-to-r ${category.color} text-white shadow-lg hover:shadow-xl transform hover:scale-105`
+                        : "hover:bg-gray-50 border-2 hover:border-gray-300"
+                    }`}
+                  >
+                    <span className="mr-2 text-lg">{category.icon}</span>
+                    {category.name}
+                  </Button>
+                ))}
+              </div>
             </div>
 
-            {/* Blog Posts Grid */}
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
-              {displayedPosts.map((post) => (
-                <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="aspect-video overflow-hidden">
-                    <img
-                      src={post.imageUrl}
-                      alt={post.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Badge variant="secondary">{post.category}</Badge>
-                      {post.subCategory && (
-                        <Badge variant="outline">{post.subCategory}</Badge>
-                      )}
-                    </div>
-                    
-                    <Link to={`/blog/post/${post.id}`}>
-                      <h3 className="text-xl font-bold mb-2 hover:text-blue-600 transition-colors line-clamp-2">
-                        {post.title}
-                      </h3>
-                    </Link>
-                    
-                    <p className="text-gray-600 mb-4 line-clamp-3">
-                      {post.excerpt}
-                    </p>
-                    
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-1">
-                          <User className="h-4 w-4" />
-                          <span>{post.author}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          <span>{post.readTime} min read</span>
+            {/* Featured Posts Grid */}
+            <div className="mb-16">
+              <h2 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                <Star className="w-8 h-8 text-yellow-500" />
+                Featured Articles
+              </h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {displayedPosts.map((post, index) => (
+                  <Card key={post.id} className={`overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:scale-105 group border-0 shadow-lg ${
+                    index === 0 ? 'md:col-span-2 lg:col-span-2 lg:row-span-2' : ''
+                  }`}>
+                    <div className={`relative overflow-hidden ${index === 0 ? 'aspect-[16/10]' : 'aspect-video'}`}>
+                      <img
+                        src={post.imageUrl}
+                        alt={post.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                      <div className="absolute top-4 left-4 flex gap-2">
+                        <Badge className={`bg-gradient-to-r ${categories.find(c => c.name === post.category)?.color || 'from-blue-500 to-purple-500'} text-white border-0 px-3 py-1 font-medium`}>
+                          {post.category}
+                        </Badge>
+                        {post.subCategory && (
+                          <Badge variant="secondary" className="bg-white/90 text-gray-800 border-0 px-3 py-1">
+                            {post.subCategory}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <Link to={`/blog/post/${post.id}`}>
+                          <h3 className={`font-bold text-white mb-2 line-clamp-2 hover:text-blue-200 transition-colors ${
+                            index === 0 ? 'text-2xl' : 'text-lg'
+                          }`}>
+                            {post.title}
+                          </h3>
+                        </Link>
+                        <div className="flex items-center gap-4 text-white/80 text-sm">
+                          <div className="flex items-center gap-1">
+                            <User className="w-4 h-4" />
+                            <span>{post.author}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            <span>{post.readTime}m</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Eye className="w-4 h-4" />
+                            <span>{Math.floor(Math.random() * 1000 + 100)}</span>
+                          </div>
                         </div>
                       </div>
-                      <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    {index !== 0 && (
+                      <CardContent className="p-6">
+                        <p className="text-gray-600 line-clamp-3 mb-4 leading-relaxed">
+                          {post.excerpt}
+                        </p>
+                        
+                        <div className="flex items-center justify-between text-sm text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>{format(new Date(post.publishedAt), 'MMM d, yyyy')}</span>
+                          </div>
+                          <Link to={`/blog/post/${post.id}`}>
+                            <Button variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-2">
+                              Read More →
+                            </Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+                ))}
+              </div>
             </div>
 
             {/* Load More Button */}
@@ -178,7 +239,7 @@ const Blog = () => {
                   onClick={loadMorePosts}
                   disabled={loading}
                   size="lg"
-                  className="px-8"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
                   {loading ? "Loading..." : "Load More Articles"}
                 </Button>
@@ -186,48 +247,92 @@ const Blog = () => {
             )}
           </div>
 
-          {/* Sidebar */}
+          {/* Enhanced Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-8">
+            <div className="sticky top-32 space-y-8">
               {/* Latest Posts */}
-              <Card className="p-6">
-                <h3 className="text-xl font-bold mb-4">Latest Posts</h3>
-                <div className="space-y-4">
-                  {latestPosts.map((post) => (
-                    <div key={post.id} className="border-b border-gray-200 last:border-b-0 pb-4 last:pb-0">
-                      <Link to={`/blog/post/${post.id}`}>
-                        <h4 className="font-medium hover:text-blue-600 transition-colors line-clamp-2 mb-1">
-                          {post.title}
-                        </h4>
-                      </Link>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span>{post.author}</span>
-                        <span>•</span>
-                        <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
+              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <div className="w-2 h-8 bg-gradient-to-b from-green-500 to-emerald-500 rounded-full"></div>
+                    Latest Posts
+                  </h3>
+                  <div className="space-y-6">
+                    {latestPosts.map((post) => (
+                      <div key={post.id} className="group">
+                        <Link to={`/blog/post/${post.id}`} className="block">
+                          <div className="flex gap-4">
+                            <img 
+                              src={post.imageUrl} 
+                              alt={post.title}
+                              className="w-16 h-16 rounded-xl object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
+                                {post.title}
+                              </h4>
+                              <div className="flex items-center gap-3 text-sm text-gray-500">
+                                <span>{post.author}</span>
+                                <span>•</span>
+                                <span>{format(new Date(post.publishedAt), 'MMM d')}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                </CardContent>
               </Card>
 
-              {/* Categories */}
-              <Card className="p-6">
-                <h3 className="text-xl font-bold mb-4">Categories</h3>
-                <div className="space-y-2">
-                  {categories.slice(1).map((category) => {
-                    const count = getPostsByCategory(category).length;
-                    return (
-                      <button
-                        key={category}
-                        onClick={() => setSelectedCategory(category)}
-                        className="flex items-center justify-between w-full text-left hover:text-blue-600 transition-colors"
-                      >
-                        <span>{category}</span>
-                        <Badge variant="outline">{count}</Badge>
-                      </button>
-                    );
-                  })}
-                </div>
+              {/* Category Stats */}
+              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <CardContent className="p-8">
+                  <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <div className="w-2 h-8 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></div>
+                    Categories
+                  </h3>
+                  <div className="space-y-4">
+                    {categories.slice(1).map((category) => {
+                      const count = getPostsByCategory(category.name).length;
+                      return (
+                        <button
+                          key={category.name}
+                          onClick={() => setSelectedCategory(category.name)}
+                          className="flex items-center justify-between w-full text-left p-4 rounded-xl hover:bg-gray-50 transition-all duration-300 group"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${category.color} flex items-center justify-center text-white text-lg shadow-md group-hover:shadow-lg transition-shadow`}>
+                              {category.icon}
+                            </div>
+                            <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                              {category.name}
+                            </span>
+                          </div>
+                          <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200 px-3 py-1">
+                            {count}
+                          </Badge>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Newsletter Signup */}
+              <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-gradient-to-br from-blue-600 to-purple-600 text-white">
+                <CardContent className="p-8 text-center">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Star className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-4">Stay Updated</h3>
+                  <p className="text-blue-100 mb-6 leading-relaxed">
+                    Get the latest articles and insights delivered to your inbox.
+                  </p>
+                  <Button className="w-full bg-white text-blue-600 hover:bg-gray-100 rounded-xl py-3 font-medium shadow-lg hover:shadow-xl transition-all duration-300">
+                    Subscribe Now
+                  </Button>
+                </CardContent>
               </Card>
             </div>
           </div>
