@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,14 +38,14 @@ const UsersManagement = () => {
           email,
           full_name,
           created_at,
-          user_roles!inner(role)
+          user_roles(role)
         `);
 
       if (error) throw error;
 
       const formattedUsers = data?.map(user => ({
         ...user,
-        role: user.user_roles[0]?.role || 'user'
+        role: (user.user_roles as any)?.[0]?.role || 'user' as 'admin' | 'user'
       })) || [];
 
       setUsers(formattedUsers);
