@@ -2,12 +2,17 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Menu, X, ChevronDown } from "lucide-react";
-import MegaMenu from "./MegaMenu";
+import { Menu, X } from "lucide-react";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
 
   const categories = [
     "Lifestyle",
@@ -19,6 +24,20 @@ const Header = () => {
     "Travel",
     "Videos"
   ];
+
+  const getSubCategories = (category: string) => {
+    const subCategories: Record<string, string[]> = {
+      "Lifestyle": ["Fashion", "Food & Drink", "Home & Garden", "Personal Development"],
+      "Health": ["Fitness", "Nutrition", "Mental Health", "Medical News"],
+      "Entertainment": ["Movies", "Music", "Gaming", "Celebrity News"],
+      "Science & Technology": ["AI & Machine Learning", "Gadgets", "Software", "Research"],
+      "News": ["Business", "Politics", "World News", "Local News"],
+      "Sports": ["Football", "Basketball", "Soccer", "Tennis"],
+      "Travel": ["Destinations", "Travel Tips", "Adventure", "Budget Travel"],
+      "Videos": ["Tutorials", "Reviews", "Entertainment", "Educational"]
+    };
+    return subCategories[category] || [];
+  };
 
   return (
     <header className="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-sm z-50 border-b">
@@ -33,28 +52,51 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-1">
-            {categories.map((category) => (
-              <div
-                key={category}
-                className="relative"
-                onMouseEnter={() => setActiveMegaMenu(category)}
-                onMouseLeave={() => setActiveMegaMenu(null)}
-              >
-                <Button
-                  variant="ghost"
-                  className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                >
-                  <span>{category}</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-                
-                {activeMegaMenu === category && (
-                  <MegaMenu category={category} />
-                )}
-              </div>
-            ))}
-          </nav>
+          <NavigationMenu className="hidden lg:flex">
+            <NavigationMenuList className="space-x-2">
+              <NavigationMenuItem>
+                <Link to="/blog" className="px-4 py-2 text-gray-700 hover:text-blue-600 transition-colors rounded-md hover:bg-blue-50">
+                  All Blogs
+                </Link>
+              </NavigationMenuItem>
+              
+              {categories.map((category) => (
+                <NavigationMenuItem key={category}>
+                  <NavigationMenuTrigger className="text-gray-700 hover:text-blue-600 hover:bg-blue-50">
+                    {category}
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="grid w-[400px] gap-3 p-4">
+                      <div className="row-span-3">
+                        <Link
+                          to={`/blog/category/${category.toLowerCase().replace(/\s+/g, '-')}`}
+                          className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-blue-500/50 to-blue-600/50 p-6 no-underline outline-none focus:shadow-md"
+                        >
+                          <div className="mb-2 mt-4 text-lg font-medium text-white">
+                            {category}
+                          </div>
+                          <p className="text-sm leading-tight text-white/90">
+                            Explore all {category.toLowerCase()} articles
+                          </p>
+                        </Link>
+                      </div>
+                      <div className="grid gap-2">
+                        {getSubCategories(category).slice(0, 4).map((subCategory) => (
+                          <Link
+                            key={subCategory}
+                            to={`/blog/category/${category.toLowerCase().replace(/\s+/g, '-')}/${subCategory.toLowerCase().replace(/\s+/g, '-')}`}
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none">{subCategory}</div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
 
           {/* Auth Buttons */}
           <div className="hidden lg:flex items-center space-x-3">
@@ -87,10 +129,17 @@ const Header = () => {
         {isMenuOpen && (
           <div className="lg:hidden py-4 border-t bg-white">
             <nav className="space-y-2">
+              <Link
+                to="/blog"
+                className="block px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                All Blogs
+              </Link>
               {categories.map((category) => (
                 <Link
                   key={category}
-                  to={`/category/${category.toLowerCase().replace(/\s+/g, '-')}`}
+                  to={`/blog/category/${category.toLowerCase().replace(/\s+/g, '-')}`}
                   className="block px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
