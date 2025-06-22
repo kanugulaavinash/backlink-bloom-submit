@@ -114,7 +114,6 @@ const PricingSection = () => {
           ))}
         </div>
 
-        {/* Pricing Guarantee */}
         <div className="text-center mt-16">
           <div className="inline-flex items-center bg-green-50 border border-green-200 rounded-2xl px-8 py-4">
             <Shield className="h-8 w-8 text-green-600 mr-4" />
