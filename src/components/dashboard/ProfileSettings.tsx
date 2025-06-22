@@ -39,7 +39,8 @@ const ProfileSettings = () => {
     
     if (!validation.success) {
       const errors: Record<string, string> = {};
-      validation.errors.forEach(error => {
+      const validationErrors = (validation as { success: false; errors: string[] }).errors;
+      validationErrors.forEach(error => {
         if (error.includes("First name")) errors.firstName = error;
         if (error.includes("Last name")) errors.lastName = error;
         if (error.includes("Email")) errors.email = error;
@@ -89,7 +90,8 @@ const ProfileSettings = () => {
     
     if (!validation.success) {
       const errors: Record<string, string> = {};
-      validation.errors.forEach(error => {
+      const validationErrors = (validation as { success: false; errors: string[] }).errors;
+      validationErrors.forEach(error => {
         if (error.includes("Current password")) errors.currentPassword = error;
         if (error.includes("New password") && !error.includes("match")) errors.newPassword = error;
         if (error.includes("match")) errors.confirmNewPassword = error;

@@ -33,7 +33,8 @@ const SignUp = () => {
     
     if (!validation.success) {
       const errors: Record<string, string> = {};
-      validation.errors.forEach(error => {
+      const validationErrors = (validation as { success: false; errors: string[] }).errors;
+      validationErrors.forEach(error => {
         if (error.includes("Name")) errors.name = error;
         if (error.includes("Email")) errors.email = error;
         if (error.includes("Password") && !error.includes("confirm")) errors.password = error;
