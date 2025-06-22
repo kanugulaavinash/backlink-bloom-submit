@@ -7,6 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
+import BlogCategory from "./pages/BlogCategory";
 import Dashboard from "./pages/Dashboard";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -25,6 +28,10 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/post/:id" element={<BlogPost />} />
+            <Route path="/blog/category/:category" element={<BlogCategory />} />
+            <Route path="/blog/category/:category/:subcategory" element={<BlogCategory />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route 

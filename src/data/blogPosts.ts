@@ -1,4 +1,3 @@
-
 export interface BlogPost {
   id: string;
   title: string;
@@ -107,7 +106,7 @@ export const blogPosts: BlogPost[] = [
     category: "Science & Technology",
     subCategory: "AI & Machine Learning",
     author: "Dr. Lisa Zhang",
-    publishDate: "2024-01-10",
+    publishedAt: "2024-01-10",
     readTime: 12,
     imageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=400&fit=crop",
     tags: ["AI", "Machine Learning", "Technology", "Innovation"]

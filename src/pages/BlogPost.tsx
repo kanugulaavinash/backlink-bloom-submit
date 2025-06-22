@@ -1,0 +1,111 @@
+
+import { useParams, Link } from "react-router-dom";
+import { getPostById } from "@/data/blogPosts";
+import { Calendar, Clock, User, ArrowLeft } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import Header from "@/components/Header";
+import { format } from "date-fns";
+
+const BlogPost = () => {
+  const { id } = useParams<{ id: string }>();
+  const post = id ? getPostById(id) : null;
+
+  if (!post) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="pt-20 max-w-4xl mx-auto px-4 py-16 text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Post Not Found</h1>
+          <p className="text-gray-600 mb-8">The blog post you're looking for doesn't exist.</p>
+          <Link to="/blog">
+            <Button>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Blog
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <div className="pt-20">
+        <article className="max-w-4xl mx-auto px-4 py-8">
+          {/* Back Button */}
+          <Link to="/blog" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Blog
+          </Link>
+
+          {/* Article Header */}
+          <header className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Badge variant="secondary">{post.category}</Badge>
+              {post.subCategory && (
+                <Badge variant="outline">{post.subCategory}</Badge>
+              )}
+            </div>
+            
+            <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+              {post.title}
+            </h1>
+            
+            <div className="flex items-center gap-6 text-gray-600 mb-6">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                <span>{post.author}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                <span>{format(new Date(post.publishedAt), 'MMM d, yyyy')}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span>{post.readTime} min read</span>
+              </div>
+            </div>
+
+            <p className="text-xl text-gray-700 leading-relaxed">
+              {post.excerpt}
+            </p>
+          </header>
+
+          {/* Featured Image */}
+          <div className="mb-8">
+            <img
+              src={post.imageUrl}
+              alt={post.title}
+              className="w-full h-64 sm:h-96 object-cover rounded-lg shadow-lg"
+            />
+          </div>
+
+          {/* Article Content */}
+          <div className="prose prose-lg max-w-none mb-8">
+            <div className="text-gray-800 leading-relaxed space-y-4">
+              {post.content.split('\n').map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3">Tags</h3>
+            <div className="flex flex-wrap gap-2">
+              {post.tags.map((tag) => (
+                <Badge key={tag} variant="secondary" className="hover:bg-blue-100">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  );
+};
+
+export default BlogPost;
