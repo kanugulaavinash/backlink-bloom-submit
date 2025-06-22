@@ -8,6 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { signUpSchema, validateAndSanitize, sanitizeInput } from "@/lib/validationSchemas";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -17,30 +18,47 @@ const SignUp = () => {
     confirmPassword: ""
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match.",
-        variant: "destructive"
+    // Clear previous errors
+    setFieldErrors({});
+    
+    // Validate form data
+    const validation = validateAndSanitize(signUpSchema, formData);
+    
+    if (!validation.success) {
+      const errors: Record<string, string> = {};
+      validation.errors.forEach(error => {
+        if (error.includes("Name")) errors.name = error;
+        if (error.includes("Email")) errors.email = error;
+        if (error.includes("Password") && !error.includes("confirm")) errors.password = error;
+        if (error.includes("match")) errors.confirmPassword = error;
       });
+      setFieldErrors(errors);
       return;
     }
 
     setIsLoading(true);
 
     try {
+      // Sanitize inputs
+      const sanitizedData = {
+        name: sanitizeInput(validation.data.name),
+        email: validation.data.email.toLowerCase().trim(),
+        password: validation.data.password
+      };
+
       const { error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
+        email: sanitizedData.email,
+        password: sanitizedData.password,
         options: {
           data: {
-            full_name: formData.name,
+            full_name: sanitizedData.name,
           }
         }
       });
@@ -71,10 +89,19 @@ const SignUp = () => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+    
+    // Clear field error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors({
+        ...fieldErrors,
+        [name]: ""
+      });
+    }
   };
 
   return (
@@ -106,10 +133,13 @@ const SignUp = () => {
                     placeholder="Enter your full name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="pl-10 h-12"
+                    className={`pl-10 h-12 ${fieldErrors.name ? 'border-red-500' : ''}`}
                     required
                   />
                 </div>
+                {fieldErrors.name && (
+                  <p className="text-sm text-red-600">{fieldErrors.name}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -123,10 +153,13 @@ const SignUp = () => {
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="pl-10 h-12"
+                    className={`pl-10 h-12 ${fieldErrors.email ? 'border-red-500' : ''}`}
                     required
                   />
                 </div>
+                {fieldErrors.email && (
+                  <p className="text-sm text-red-600">{fieldErrors.email}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -140,10 +173,18 @@ const SignUp = () => {
                     placeholder="Create a password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="pl-10 h-12"
+                    className={`pl-10 h-12 ${fieldErrors.password ? 'border-red-500' : ''}`}
                     required
                   />
                 </div>
+                {fieldErrors.password && (
+                  <p className="text-sm text-red-600">{fieldErrors.password}</p>
+                )}
+                {!fieldErrors.password && (
+                  <p className="text-xs text-gray-500">
+                    Password must be at least 8 characters with uppercase, lowercase, number and special character
+                  </p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -157,10 +198,13 @@ const SignUp = () => {
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="pl-10 h-12"
+                    className={`pl-10 h-12 ${fieldErrors.confirmPassword ? 'border-red-500' : ''}`}
                     required
                   />
                 </div>
+                {fieldErrors.confirmPassword && (
+                  <p className="text-sm text-red-600">{fieldErrors.confirmPassword}</p>
+                )}
               </div>
               
               <div className="flex items-start space-x-2">

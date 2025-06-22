@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import { format } from "date-fns";
+import { createSafeHTML, sanitizer } from "@/lib/sanitization";
 
 const BlogPost = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +30,15 @@ const BlogPost = () => {
     );
   }
 
+  // Sanitize post data
+  const sanitizedPost = {
+    ...post,
+    title: sanitizer.sanitizeText(post.title),
+    excerpt: sanitizer.sanitizeText(post.excerpt),
+    author: sanitizer.sanitizeText(post.author),
+    content: post.content // This will be sanitized when rendering
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -43,20 +53,20 @@ const BlogPost = () => {
           {/* Article Header */}
           <header className="mb-8">
             <div className="flex items-center gap-2 mb-4">
-              <Badge variant="secondary">{post.category}</Badge>
+              <Badge variant="secondary">{sanitizer.sanitizeText(post.category)}</Badge>
               {post.subCategory && (
-                <Badge variant="outline">{post.subCategory}</Badge>
+                <Badge variant="outline">{sanitizer.sanitizeText(post.subCategory)}</Badge>
               )}
             </div>
             
             <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-              {post.title}
+              {sanitizedPost.title}
             </h1>
             
             <div className="flex items-center gap-6 text-gray-600 mb-6">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4" />
-                <span>{post.author}</span>
+                <span>{sanitizedPost.author}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
@@ -69,35 +79,34 @@ const BlogPost = () => {
             </div>
 
             <p className="text-xl text-gray-700 leading-relaxed">
-              {post.excerpt}
+              {sanitizedPost.excerpt}
             </p>
           </header>
 
           {/* Featured Image */}
           <div className="mb-8">
             <img
-              src={post.imageUrl}
-              alt={post.title}
+              src={sanitizer.sanitizeUrl(post.imageUrl)}
+              alt={sanitizedPost.title}
               className="w-full h-64 sm:h-96 object-cover rounded-lg shadow-lg"
             />
           </div>
 
           {/* Article Content */}
           <div className="prose prose-lg max-w-none mb-8">
-            <div className="text-gray-800 leading-relaxed space-y-4">
-              {post.content.split('\n').map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))}
-            </div>
+            <div 
+              className="text-gray-800 leading-relaxed space-y-4"
+              dangerouslySetInnerHTML={createSafeHTML(post.content, false)}
+            />
           </div>
 
           {/* Tags */}
           <div className="border-t pt-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">Tags</h3>
             <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="hover:bg-blue-100">
-                  {tag}
+              {post.tags.map((tag, index) => (
+                <Badge key={index} variant="secondary" className="hover:bg-blue-100">
+                  {sanitizer.sanitizeText(tag)}
                 </Badge>
               ))}
             </div>

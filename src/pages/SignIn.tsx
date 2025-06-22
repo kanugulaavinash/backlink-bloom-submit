@@ -8,22 +8,43 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { signInSchema, validateAndSanitize } from "@/lib/validationSchemas";
 
 const SignIn = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Clear previous errors
+    setFieldErrors({});
+    
+    // Validate form data
+    const validation = validateAndSanitize(signInSchema, formData);
+    
+    if (!validation.success) {
+      const errors: Record<string, string> = {};
+      validation.errors.forEach(error => {
+        if (error.includes("Email")) errors.email = error;
+        if (error.includes("Password")) errors.password = error;
+      });
+      setFieldErrors(errors);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: validation.data.email.toLowerCase().trim(),
+        password: validation.data.password,
       });
 
       if (error) {
@@ -64,6 +85,22 @@ const SignIn = () => {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+    
+    // Clear field error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors({
+        ...fieldErrors,
+        [name]: ""
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -88,14 +125,18 @@ const SignIn = () => {
                   <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                   <Input
                     id="email"
+                    name="email"
                     type="email"
                     placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 h-12"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={`pl-10 h-12 ${fieldErrors.email ? 'border-red-500' : ''}`}
                     required
                   />
                 </div>
+                {fieldErrors.email && (
+                  <p className="text-sm text-red-600">{fieldErrors.email}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -104,14 +145,18 @@ const SignIn = () => {
                   <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                   <Input
                     id="password"
+                    name="password"
                     type="password"
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 h-12"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={`pl-10 h-12 ${fieldErrors.password ? 'border-red-500' : ''}`}
                     required
                   />
                 </div>
+                {fieldErrors.password && (
+                  <p className="text-sm text-red-600">{fieldErrors.password}</p>
+                )}
               </div>
               
               <div className="flex items-center justify-between">
