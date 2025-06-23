@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,15 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { User, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { profileSettingsSchema, passwordChangeSchema, validateAndSanitize, sanitizeInput } from "@/lib/validationSchemas";
 import { sanitizer } from "@/lib/sanitization";
 
 const ProfileSettings = () => {
+  const { user } = useAuth();
   const [profileData, setProfileData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    bio: "Content writer and marketing enthusiast with 5+ years of experience in digital marketing."
+    firstName: "",
+    lastName: "",
+    email: "",
+    bio: ""
   });
   
   const [passwordData, setPasswordData] = useState({
@@ -28,9 +31,53 @@ const ProfileSettings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
+
+  const fetchProfile = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+
+      if (data) {
+        const nameParts = data.full_name?.split(' ') || ['', ''];
+        setProfileData({
+          firstName: nameParts[0] || '',
+          lastName: nameParts.slice(1).join(' ') || '',
+          email: data.email || user.email || '',
+          bio: '' // Add bio field to profiles table if needed
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to update your profile.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Clear previous errors
     setFieldErrors({});
     
@@ -61,14 +108,25 @@ const ProfileSettings = () => {
         bio: validation.data.bio ? sanitizer.sanitizeText(validation.data.bio) : ""
       };
 
-      // Here you would typically make an API call to update the profile
-      console.log("Updating profile with:", sanitizedData);
+      const fullName = `${sanitizedData.firstName} ${sanitizedData.lastName}`.trim();
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: fullName,
+          email: sanitizedData.email,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
       
       toast({
         title: "Success!",
         description: "Profile updated successfully.",
       });
     } catch (error) {
+      console.error('Error updating profile:', error);
       toast({
         title: "Error",
         description: "Failed to update profile.",
@@ -82,6 +140,15 @@ const ProfileSettings = () => {
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to change your password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Clear previous errors
     setFieldErrors({});
     
@@ -103,8 +170,11 @@ const ProfileSettings = () => {
     setIsLoading(true);
     
     try {
-      // Here you would typically make an API call to change the password
-      console.log("Changing password...");
+      const { error } = await supabase.auth.updateUser({
+        password: validation.data.newPassword
+      });
+
+      if (error) throw error;
       
       toast({
         title: "Success!",
@@ -117,10 +187,11 @@ const ProfileSettings = () => {
         newPassword: "",
         confirmNewPassword: ""
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error updating password:', error);
       toast({
         title: "Error",
-        description: "Failed to update password.",
+        description: error.message || "Failed to update password.",
         variant: "destructive",
       });
     } finally {
