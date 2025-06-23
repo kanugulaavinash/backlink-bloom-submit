@@ -5,12 +5,10 @@ import { ArrowRight, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
-import StatsSection from "@/components/StatsSection";
 import PricingSection from "@/components/PricingSection";
 import SamplePostsCarousel from "@/components/SamplePostsCarousel";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
-import FAQSection from "@/components/FAQSection";
 import FinalCTASection from "@/components/FinalCTASection";
 
 const Index = () => {
@@ -22,7 +20,6 @@ const Index = () => {
       <PricingSection />
       <SamplePostsCarousel />
       <TestimonialsSection />
-      <FAQSection />
       <FinalCTASection />
     </div>
   );
