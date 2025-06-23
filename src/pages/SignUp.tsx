@@ -5,10 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, User, ArrowLeft } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Mail, Lock, User, ArrowLeft, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { signUpSchema, validateAndSanitize, sanitizeInput } from "@/lib/validationSchemas";
+import { useAuthErrorHandler } from "@/components/auth/AuthErrorHandler";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -19,7 +19,7 @@ const SignUp = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const { toast } = useToast();
+  const { handleAuthError, handleSuccess } = useAuthErrorHandler();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,36 +54,39 @@ const SignUp = () => {
         password: validation.data.password
       };
 
-      const { error } = await supabase.auth.signUp({
+      console.log('Attempting to create user with email:', sanitizedData.email);
+
+      const { data, error } = await supabase.auth.signUp({
         email: sanitizedData.email,
         password: sanitizedData.password,
         options: {
           data: {
             full_name: sanitizedData.name,
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/`
         }
       });
 
+      console.log('SignUp response:', { data, error });
+
       if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive"
-        });
+        console.error('SignUp error details:', error);
+        handleAuthError(error);
         return;
       }
 
-      toast({
-        title: "Success!",
-        description: "Account created successfully. Please check your email for verification.",
-      });
+      if (data.user && !data.session) {
+        // Email confirmation required
+        handleSuccess("Account created successfully! Please check your email for verification.");
+      } else if (data.session) {
+        // User logged in immediately
+        handleSuccess("Account created and signed in successfully!");
+      }
+      
       navigate("/signin");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred.",
-        variant: "destructive"
-      });
+      console.error('Unexpected signup error:', error);
+      handleAuthError(error);
     } finally {
       setIsLoading(false);
     }
@@ -136,10 +139,14 @@ const SignUp = () => {
                     onChange={handleInputChange}
                     className={`pl-10 h-12 ${fieldErrors.name ? 'border-red-500' : ''}`}
                     required
+                    disabled={isLoading}
                   />
                 </div>
                 {fieldErrors.name && (
-                  <p className="text-sm text-red-600">{fieldErrors.name}</p>
+                  <div className="flex items-center text-sm text-red-600">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    {fieldErrors.name}
+                  </div>
                 )}
               </div>
               
@@ -156,10 +163,14 @@ const SignUp = () => {
                     onChange={handleInputChange}
                     className={`pl-10 h-12 ${fieldErrors.email ? 'border-red-500' : ''}`}
                     required
+                    disabled={isLoading}
                   />
                 </div>
                 {fieldErrors.email && (
-                  <p className="text-sm text-red-600">{fieldErrors.email}</p>
+                  <div className="flex items-center text-sm text-red-600">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    {fieldErrors.email}
+                  </div>
                 )}
               </div>
               
@@ -176,10 +187,14 @@ const SignUp = () => {
                     onChange={handleInputChange}
                     className={`pl-10 h-12 ${fieldErrors.password ? 'border-red-500' : ''}`}
                     required
+                    disabled={isLoading}
                   />
                 </div>
                 {fieldErrors.password && (
-                  <p className="text-sm text-red-600">{fieldErrors.password}</p>
+                  <div className="flex items-center text-sm text-red-600">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    {fieldErrors.password}
+                  </div>
                 )}
                 {!fieldErrors.password && (
                   <p className="text-xs text-gray-500">
@@ -201,15 +216,24 @@ const SignUp = () => {
                     onChange={handleInputChange}
                     className={`pl-10 h-12 ${fieldErrors.confirmPassword ? 'border-red-500' : ''}`}
                     required
+                    disabled={isLoading}
                   />
                 </div>
                 {fieldErrors.confirmPassword && (
-                  <p className="text-sm text-red-600">{fieldErrors.confirmPassword}</p>
+                  <div className="flex items-center text-sm text-red-600">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    {fieldErrors.confirmPassword}
+                  </div>
                 )}
               </div>
               
               <div className="flex items-start space-x-2">
-                <input type="checkbox" className="mt-1 rounded border-gray-300" required />
+                <input 
+                  type="checkbox" 
+                  className="mt-1 rounded border-gray-300" 
+                  required 
+                  disabled={isLoading}
+                />
                 <span className="text-sm text-gray-600">
                   I agree to the{" "}
                   <Link to="/terms" className="text-blue-600 hover:text-blue-700">
@@ -227,7 +251,14 @@ const SignUp = () => {
                 className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
                 disabled={isLoading}
               >
-                {isLoading ? "Creating Account..." : "Create Account"}
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Creating Account...
+                  </div>
+                ) : (
+                  "Create Account"
+                )}
               </Button>
             </form>
             
