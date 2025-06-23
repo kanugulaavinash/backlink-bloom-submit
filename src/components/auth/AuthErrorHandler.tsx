@@ -32,6 +32,12 @@ export const useAuthErrorHandler = () => {
       } else if (error.message.includes("Email not confirmed")) {
         title = "Email Verification Required";
         description = "Please check your email and click the confirmation link.";
+      } else if (error.message.includes("Database error saving new user")) {
+        title = "Account Setup Error";
+        description = "Your account was created but there was an issue setting up your profile. Please contact support if this persists.";
+      } else if (error.message.includes("Failed to create user profile")) {
+        title = "Profile Creation Failed";
+        description = "There was an issue creating your user profile. Please try again or contact support.";
       } else {
         description = error.message;
       }

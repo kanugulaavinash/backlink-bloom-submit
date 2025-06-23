@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,12 +77,29 @@ const SignUp = () => {
       if (data.user && !data.session) {
         // Email confirmation required
         handleSuccess("Account created successfully! Please check your email for verification.");
+        navigate("/signin");
       } else if (data.session) {
-        // User logged in immediately
+        // User logged in immediately - verify profile was created
+        console.log('User signed up and logged in immediately');
+        
+        // Check if profile was created properly
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (profileError) {
+          console.error('Profile verification failed:', profileError);
+          handleAuthError({ message: "Account created but profile setup incomplete. Please contact support." });
+          return;
+        }
+        
+        console.log('Profile verified:', profile);
         handleSuccess("Account created and signed in successfully!");
+        navigate("/dashboard");
       }
       
-      navigate("/signin");
     } catch (error) {
       console.error('Unexpected signup error:', error);
       handleAuthError(error);
