@@ -1,220 +1,274 @@
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+
 export interface BlogPost {
   id: string;
   title: string;
   excerpt: string;
   content: string;
-  category: string;
-  subCategory?: string;
   author: string;
   publishedAt: string;
   readTime: number;
-  imageUrl: string;
+  category: string;
+  subCategory?: string;
   tags: string[];
+  imageUrl: string;
+  slug: string;
+  views: number;
+  likes: number;
 }
 
 export const blogPosts: BlogPost[] = [
-  // Lifestyle Posts
   {
-    id: "latest-fashion-trends-2024",
-    title: "Latest Fashion Trends That Will Define 2024",
-    excerpt: "Discover the hottest fashion trends that are taking the world by storm this year.",
-    content: "Fashion is constantly evolving, and 2024 has brought us some incredible trends that are reshaping the industry. From sustainable fashion to bold colors, let's explore what's trending now...",
-    category: "Lifestyle",
-    subCategory: "Fashion",
-    author: "Emma Johnson",
+    id: "1",
+    title: "The Future of AI in Content Marketing",
+    excerpt: "Discover how artificial intelligence is reshaping the content marketing landscape and what it means for businesses.",
+    content: "Detailed article content about AI in content marketing...",
+    author: "Sarah Johnson",
     publishedAt: "2024-01-15",
     readTime: 5,
-    imageUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&h=400&fit=crop",
-    tags: ["Fashion", "Trends", "Style", "2024"]
+    category: "Technology",
+    imageUrl: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=250&fit=crop",
+    slug: "future-of-ai-in-content-marketing",
+    views: 523,
+    likes: 85,
+    tags: ["AI", "Content Marketing", "Future Trends"],
   },
   {
-    id: "healthy-meal-prep-ideas",
-    title: "10 Healthy Meal Prep Ideas for Busy Professionals",
-    excerpt: "Save time and eat healthy with these simple meal prep strategies.",
-    content: "Meal prepping is a game-changer for busy professionals who want to maintain a healthy diet. Here are 10 proven strategies to help you prepare nutritious meals in advance...",
-    category: "Lifestyle",
-    subCategory: "Food & Drink",
-    author: "Michael Chen",
-    publishedAt: "2024-01-20",
-    readTime: 7,
-    imageUrl: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=800&h=400&fit=crop",
-    tags: ["Health", "Meal Prep", "Nutrition", "Productivity"]
-  },
-
-  // Health Posts
-  {
-    id: "mental-health-in-digital-age",
-    title: "Protecting Your Mental Health in the Digital Age",
-    excerpt: "Learn how to maintain mental wellness while navigating our hyper-connected world.",
-    content: "The digital age has brought unprecedented connectivity, but it has also introduced new challenges for mental health. Here's how to protect your wellbeing in our always-on world...",
-    category: "Health",
-    subCategory: "Mental Health",
-    author: "Dr. Sarah Williams",
-    publishedAt: "2024-01-18",
-    readTime: 8,
-    imageUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop",
-    tags: ["Mental Health", "Digital Wellness", "Self Care", "Technology"]
-  },
-  {
-    id: "fitness-routine-beginners",
-    title: "Building Your First Fitness Routine: A Complete Guide",
-    excerpt: "Start your fitness journey with confidence using this beginner-friendly guide.",
-    content: "Starting a fitness routine can feel overwhelming, but it doesn't have to be. This comprehensive guide will help you build sustainable habits that last...",
-    category: "Health",
-    subCategory: "Fitness",
-    author: "Jake Thompson",
-    publishedAt: "2024-01-22",
-    readTime: 6,
-    imageUrl: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=800&h=400&fit=crop",
-    tags: ["Fitness", "Exercise", "Beginners", "Health"]
-  },
-
-  // Entertainment Posts
-  {
-    id: "streaming-wars-2024",
-    title: "The Streaming Wars: Who's Winning in 2024?",
-    excerpt: "An in-depth analysis of the current streaming landscape and market leaders.",
-    content: "The streaming industry continues to evolve rapidly, with new players entering the market and established platforms fighting for dominance. Let's examine who's leading the pack in 2024...",
-    category: "Entertainment",
-    subCategory: "Movies",
-    author: "Alex Rodriguez",
+    id: "2",
+    title: "Building Sustainable Health Habits That Last",
+    excerpt: "Learn proven strategies for creating health habits that stick and transform your lifestyle for the better.",
+    content: "In-depth guide on building sustainable health habits...",
+    author: "Dr. Michael Chen",
     publishedAt: "2024-01-12",
-    readTime: 9,
-    imageUrl: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=400&fit=crop",
-    tags: ["Streaming", "Entertainment", "Movies", "Industry Analysis"]
-  },
-  {
-    id: "indie-music-renaissance",
-    title: "The Indie Music Renaissance: Artists Changing the Game",
-    excerpt: "Explore how independent artists are revolutionizing the music industry.",
-    content: "Independent music has never been more accessible or influential. Thanks to digital platforms and social media, indie artists are finding new ways to connect with audiences and challenge the status quo...",
-    category: "Entertainment",
-    subCategory: "Music",
-    author: "Riley Parker",
-    publishedAt: "2024-01-25",
     readTime: 7,
-    imageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=400&fit=crop",
-    tags: ["Music", "Indie", "Artists", "Industry"]
+    category: "Health",
+    imageUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=250&fit=crop",
+    slug: "building-sustainable-health-habits",
+    views: 789,
+    likes: 120,
+    tags: ["Health", "Habits", "Wellness"],
   },
-
-  // Science & Technology Posts
   {
-    id: "ai-revolution-2024",
-    title: "The AI Revolution: How Machine Learning is Transforming Industries",
-    excerpt: "Discover how artificial intelligence is reshaping business and society.",
-    content: "Artificial Intelligence is no longer a concept of the future—it's here, and it's transforming every industry imaginable. From healthcare to finance, AI is creating new possibilities and challenges...",
-    category: "Science & Technology",
-    subCategory: "AI & Machine Learning",
-    author: "Dr. Lisa Zhang",
+    id: "3",
+    title: "Remote Work: The Ultimate Guide to Productivity",
+    excerpt: "Master the art of remote work with these essential tips and tools for staying productive from anywhere.",
+    content: "Comprehensive guide to maximizing productivity while working remotely...",
+    author: "Emma Williams",
     publishedAt: "2024-01-10",
-    readTime: 12,
-    imageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=400&fit=crop",
-    tags: ["AI", "Machine Learning", "Technology", "Innovation"]
+    readTime: 6,
+    category: "Lifestyle",
+    imageUrl: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=250&fit=crop",
+    slug: "remote-work-productivity-guide",
+    views: 634,
+    likes: 92,
+    tags: ["Remote Work", "Productivity", "Work From Home"],
   },
   {
-    id: "quantum-computing-breakthrough",
-    title: "Quantum Computing Breakthrough: What It Means for the Future",
-    excerpt: "Recent advances in quantum computing could change everything we know about technology.",
-    content: "A major breakthrough in quantum computing has the potential to revolutionize everything from cryptography to drug discovery. Let's explore what this means for our technological future...",
-    category: "Science & Technology",
-    subCategory: "Research",
-    author: "Prof. David Kumar",
-    publishedAt: "2024-01-28",
-    readTime: 10,
-    imageUrl: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=800&h=400&fit=crop",
-    tags: ["Quantum Computing", "Research", "Technology", "Future"]
-  },
-
-  // News Posts
-  {
-    id: "global-economy-outlook-2024",
-    title: "Global Economy Outlook: Trends and Predictions for 2024",
-    excerpt: "Expert analysis of economic trends shaping the global marketplace.",
-    content: "As we navigate through 2024, several key economic trends are emerging that will shape global markets. From inflation concerns to technological disruption, here's what experts are watching...",
-    category: "News",
-    subCategory: "Business",
-    author: "Robert Kim",
-    publishedAt: "2024-01-30",
-    readTime: 11,
-    imageUrl: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=400&fit=crop",
-    tags: ["Economy", "Business", "Finance", "Global Markets"]
-  },
-
-  // Sports Posts
-  {
-    id: "football-season-predictions",
-    title: "NFL Season Predictions: Dark Horses and Championship Contenders",
-    excerpt: "Our expert analysis of teams to watch in the upcoming NFL season.",
-    content: "As the new NFL season approaches, we're breaking down the teams that could surprise everyone and those positioned for championship runs. Here are our bold predictions...",
-    category: "Sports",
-    subCategory: "Football",
-    author: "Marcus Johnson",
-    publishedAt: "2024-01-14",
-    readTime: 8,
-    imageUrl: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=800&h=400&fit=crop",
-    tags: ["NFL", "Football", "Sports", "Predictions"]
-  },
-
-  // Travel Posts
-  {
-    id: "hidden-gems-europe-2024",
-    title: "Hidden Gems of Europe: 10 Underrated Destinations",
-    excerpt: "Discover Europe's best-kept secrets for your next adventure.",
-    content: "While Paris and Rome are beautiful, Europe has countless hidden gems waiting to be discovered. These 10 underrated destinations offer incredible experiences without the crowds...",
+    id: "4",
+    title: "The Art of Minimalist Travel: Pack Light, Travel Far",
+    excerpt: "Discover the secrets to minimalist travel and how to pack efficiently for your next adventure.",
+    content: "Detailed tips and tricks for minimalist travel...",
+    author: "Alex Thompson",
+    publishedAt: "2024-01-05",
+    readTime: 4,
     category: "Travel",
-    subCategory: "Destinations",
-    author: "Sophie Martinez",
-    publishedAt: "2024-01-16",
-    readTime: 9,
-    imageUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&h=400&fit=crop",
-    tags: ["Travel", "Europe", "Destinations", "Adventure"]
+    imageUrl: "https://images.unsplash.com/photo-1470770841072-f9738a67835c?w=400&h=250&fit=crop",
+    slug: "minimalist-travel-guide",
+    views: 456,
+    likes: 78,
+    tags: ["Travel", "Minimalism", "Packing Tips"],
   },
-
-  // Videos Posts
   {
-    id: "video-editing-tutorials-2024",
-    title: "Master Video Editing: Essential Tutorials for Beginners",
-    excerpt: "Start your video editing journey with these comprehensive tutorials.",
-    content: "Video editing is an essential skill in today's digital world. Whether you're creating content for social media or professional projects, these tutorials will get you started...",
-    category: "Videos",
-    subCategory: "Tutorials",
-    author: "Chris Taylor",
-    publishedAt: "2024-01-24",
-    readTime: 15,
-    imageUrl: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop",
-    tags: ["Video Editing", "Tutorials", "Creative", "Skills"]
-  }
+    id: "5",
+    title: "Unlocking the Power of Meditation for Mental Clarity",
+    excerpt: "Explore the benefits of meditation and mindfulness for improving mental clarity and reducing stress.",
+    content: "Step-by-step guide to meditation and its benefits...",
+    author: "Priya Patel",
+    publishedAt: "2023-12-28",
+    readTime: 8,
+    category: "Health",
+    imageUrl: "https://images.unsplash.com/photo-1506126613408-ca49d748e9a4?w=400&h=250&fit=crop",
+    slug: "meditation-for-mental-clarity",
+    views: 890,
+    likes: 145,
+    tags: ["Meditation", "Mindfulness", "Mental Health"],
+  },
+  {
+    id: "6",
+    title: "The Latest Trends in Sustainable Fashion",
+    excerpt: "Stay ahead of the curve with these emerging trends in sustainable and eco-friendly fashion.",
+    content: "Overview of the latest sustainable fashion trends...",
+    author: "Olivia Green",
+    publishedAt: "2023-12-20",
+    readTime: 6,
+    category: "Lifestyle",
+    imageUrl: "https://images.unsplash.com/photo-1543087980-b4f707a258f5?w=400&h=250&fit=crop",
+    slug: "sustainable-fashion-trends",
+    views: 678,
+    likes: 110,
+    tags: ["Fashion", "Sustainability", "Eco-Friendly"],
+  },
+  {
+    id: "7",
+    title: "Top 5 Must-See Destinations in Southeast Asia",
+    excerpt: "Plan your next adventure with these incredible destinations in Southeast Asia that you won't want to miss.",
+    content: "Detailed guide to the top destinations in Southeast Asia...",
+    author: "David Lee",
+    publishedAt: "2023-12-15",
+    readTime: 7,
+    category: "Travel",
+    imageUrl: "https://images.unsplash.com/photo-1494526585095-c41746248156?w=400&h=250&fit=crop",
+    slug: "southeast-asia-destinations",
+    views: 745,
+    likes: 123,
+    tags: ["Travel", "Southeast Asia", "Destinations"],
+  },
+  {
+    id: "8",
+    title: "How to Start Your Own Podcast: A Beginner's Guide",
+    excerpt: "Learn the basics of podcasting and how to launch your own successful podcast from scratch.",
+    content: "Step-by-step guide to starting a podcast...",
+    author: "Sophia Adams",
+    publishedAt: "2023-12-10",
+    readTime: 5,
+    category: "Technology",
+    imageUrl: "https://images.unsplash.com/photo-1517436044779-28f3203a6715?w=400&h=250&fit=crop",
+    slug: "start-your-own-podcast",
+    views: 589,
+    likes: 98,
+    tags: ["Podcasting", "Beginner's Guide", "Technology"],
+  },
+  {
+    id: "9",
+    title: "The Benefits of a Plant-Based Diet for Athletes",
+    excerpt: "Discover how a plant-based diet can enhance athletic performance and improve overall health.",
+    content: "Detailed analysis of the benefits of plant-based diets for athletes...",
+    author: "Liam Carter",
+    publishedAt: "2023-12-05",
+    readTime: 6,
+    category: "Health",
+    imageUrl: "https://images.unsplash.com/photo-1555081554-aa9a3ba59c18?w=400&h=250&fit=crop",
+    slug: "plant-based-diet-for-athletes",
+    views: 621,
+    likes: 105,
+    tags: ["Plant-Based Diet", "Athletes", "Nutrition"],
+  },
 ];
 
+// Function to fetch imported posts from Supabase
+export const getImportedPosts = async (): Promise<BlogPost[]> => {
+  try {
+    const { data: importedPosts, error } = await supabase
+      .from('imported_posts')
+      .select('*')
+      .eq('status', 'published')
+      .order('published_date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching imported posts:', error);
+      return [];
+    }
+
+    // Transform imported posts to match BlogPost interface
+    return importedPosts.map((post) => ({
+      id: `imported-${post.id}`,
+      title: post.title,
+      excerpt: post.excerpt || generateExcerpt(post.content),
+      content: post.content,
+      author: 'Imported Author', // You might want to extract this from content or add author field
+      publishedAt: post.published_date || post.created_at,
+      readTime: calculateReadTime(post.content),
+      category: post.categories?.[0] || 'General',
+      subCategory: post.categories?.[1] || undefined,
+      tags: post.tags || [],
+      imageUrl: post.featured_image_url || getRandomPlaceholderImage(),
+      slug: post.slug || generateSlug(post.title),
+      views: Math.floor(Math.random() * 1000) + 100,
+      likes: Math.floor(Math.random() * 100) + 10
+    }));
+  } catch (error) {
+    console.error('Error in getImportedPosts:', error);
+    return [];
+  }
+};
+
+// Function to get all posts (static + imported)
+export const getAllPosts = async (): Promise<BlogPost[]> => {
+  const importedPosts = await getImportedPosts();
+  const allPosts = [...blogPosts, ...importedPosts];
+  
+  // Sort by published date (newest first)
+  return allPosts.sort((a, b) => 
+    new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
+};
+
+// Function to get posts by category (including imported)
+export const getAllPostsByCategory = async (category: string): Promise<BlogPost[]> => {
+  const allPosts = await getAllPosts();
+  return allPosts.filter(post => 
+    post.category.toLowerCase() === category.toLowerCase()
+  );
+};
+
+// Function to get posts by subcategory (including imported)
+export const getAllPostsBySubCategory = async (category: string, subCategory: string): Promise<BlogPost[]> => {
+  const allPosts = await getAllPosts();
+  return allPosts.filter(post => 
+    post.category.toLowerCase() === category.toLowerCase() &&
+    post.subCategory?.toLowerCase() === subCategory.toLowerCase()
+  );
+};
+
+// Function to search posts (including imported)
+export const searchAllPosts = async (query: string): Promise<BlogPost[]> => {
+  const allPosts = await getAllPosts();
+  const searchLower = query.toLowerCase();
+  return allPosts.filter(post =>
+    post.title.toLowerCase().includes(searchLower) ||
+    post.excerpt.toLowerCase().includes(searchLower) ||
+    post.content.toLowerCase().includes(searchLower) ||
+    post.author.toLowerCase().includes(searchLower) ||
+    post.tags.some(tag => tag.toLowerCase().includes(searchLower))
+  );
+};
+
 // Helper functions
-export const getPostsByCategory = (category: string) => {
-  return blogPosts.filter(post => 
-    post.category.toLowerCase().replace(/\s+/g, '-') === category.toLowerCase()
-  );
+const generateExcerpt = (content: string): string => {
+  // Remove HTML tags and get first 150 characters
+  const plainText = content.replace(/<[^>]*>/g, '');
+  return plainText.length > 150 ? plainText.substring(0, 150) + '...' : plainText;
 };
 
-export const getPostsBySubCategory = (category: string, subCategory: string) => {
-  return blogPosts.filter(post => 
-    post.category.toLowerCase().replace(/\s+/g, '-') === category.toLowerCase() &&
-    post.subCategory?.toLowerCase().replace(/\s+/g, '-') === subCategory.toLowerCase()
-  );
+const calculateReadTime = (content: string): number => {
+  const wordsPerMinute = 200;
+  const plainText = content.replace(/<[^>]*>/g, '');
+  const wordCount = plainText.split(/\s+/).length;
+  return Math.ceil(wordCount / wordsPerMinute);
 };
 
-export const getPostById = (id: string) => {
-  return blogPosts.find(post => post.id === id);
+const generateSlug = (title: string): string => {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
 };
 
-export const getLatestPosts = (limit: number = 6) => {
-  return blogPosts
-    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-    .slice(0, limit);
+const getRandomPlaceholderImage = (): string => {
+  const placeholders = [
+    'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=250&fit=crop'
+  ];
+  return placeholders[Math.floor(Math.random() * placeholders.length)];
 };
 
-export const getPostsBySearch = (query: string) => {
-  const searchTerm = query.toLowerCase();
-  return blogPosts.filter(post =>
-    post.title.toLowerCase().includes(searchTerm) ||
-    post.excerpt.toLowerCase().includes(searchTerm) ||
-    post.tags.some(tag => tag.toLowerCase().includes(searchTerm))
-  );
+// Update existing functions to work with new async functions
+export const getLatestPosts = async (count: number = 5): Promise<BlogPost[]> => {
+  const allPosts = await getAllPosts();
+  return allPosts.slice(0, count);
 };

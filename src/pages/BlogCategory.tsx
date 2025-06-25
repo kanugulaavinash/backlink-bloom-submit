@@ -1,6 +1,7 @@
 
 import { useParams, Link } from "react-router-dom";
-import { getPostsByCategory, getPostsBySubCategory } from "@/data/blogPosts";
+import { useState, useEffect } from "react";
+import { getAllPostsByCategory, getAllPostsBySubCategory, BlogPost } from "@/data/blogPosts";
 import { Calendar, Clock, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,14 +10,50 @@ import { format } from "date-fns";
 
 const BlogCategory = () => {
   const { category, subcategory } = useParams<{ category: string; subcategory?: string }>();
-  
-  const posts = subcategory 
-    ? getPostsBySubCategory(category || '', subcategory)
-    : getPostsByCategory(category || '');
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadPosts();
+  }, [category, subcategory]);
+
+  const loadPosts = async () => {
+    try {
+      setLoading(true);
+      let fetchedPosts: BlogPost[] = [];
+      
+      if (subcategory && category) {
+        fetchedPosts = await getAllPostsBySubCategory(category, subcategory);
+      } else if (category) {
+        fetchedPosts = await getAllPostsByCategory(category);
+      }
+      
+      setPosts(fetchedPosts);
+    } catch (error) {
+      console.error('Error loading posts:', error);
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const displayTitle = subcategory 
     ? `${category?.replace(/-/g, ' ')} - ${subcategory.replace(/-/g, ' ')}`
     : category?.replace(/-/g, ' ');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-xl text-gray-600">Loading posts...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -56,6 +93,9 @@ const BlogCategory = () => {
                       <Badge variant="secondary">{post.category}</Badge>
                       {post.subCategory && (
                         <Badge variant="outline">{post.subCategory}</Badge>
+                      )}
+                      {post.id.startsWith('imported-') && (
+                        <Badge className="bg-green-500 text-white">Imported</Badge>
                       )}
                     </div>
                     

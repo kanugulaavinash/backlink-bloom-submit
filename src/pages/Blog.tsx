@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,15 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Clock, Search, User, Calendar, TrendingUp, Star, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
-import { blogPosts, getLatestPosts, getPostsByCategory, getPostsBySearch, BlogPost } from "@/data/blogPosts";
+import { getAllPosts, getAllPostsByCategory, searchAllPosts, getLatestPosts, BlogPost } from "@/data/blogPosts";
 import { format } from "date-fns";
 
 const Blog = () => {
   const [displayedPosts, setDisplayedPosts] = useState<BlogPost[]>([]);
+  const [latestPosts, setLatestPosts] = useState<BlogPost[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const postsPerPage = 9;
 
   const categories = [
@@ -31,53 +32,110 @@ const Blog = () => {
   ];
 
   useEffect(() => {
-    loadPosts();
-  }, [selectedCategory, searchQuery]);
+    loadInitialData();
+  }, []);
 
-  const loadPosts = () => {
-    let posts = blogPosts;
-    
-    if (searchQuery) {
-      posts = getPostsBySearch(searchQuery);
-    } else if (selectedCategory && selectedCategory !== "All") {
-      posts = getPostsByCategory(selectedCategory);
+  useEffect(() => {
+    if (!initialLoading) {
+      loadPosts();
     }
-    
-    setDisplayedPosts(posts.slice(0, postsPerPage));
-    setCurrentPage(1);
+  }, [selectedCategory, searchQuery, initialLoading]);
+
+  const loadInitialData = async () => {
+    try {
+      setInitialLoading(true);
+      const [allPosts, latest] = await Promise.all([
+        getAllPosts(),
+        getLatestPosts(4)
+      ]);
+      
+      setDisplayedPosts(allPosts.slice(0, postsPerPage));
+      setLatestPosts(latest);
+      setCurrentPage(1);
+    } catch (error) {
+      console.error('Error loading initial data:', error);
+    } finally {
+      setInitialLoading(false);
+    }
   };
 
-  const loadMorePosts = () => {
-    setLoading(true);
-    setTimeout(() => {
-      let posts = blogPosts;
+  const loadPosts = async () => {
+    try {
+      let posts: BlogPost[] = [];
       
       if (searchQuery) {
-        posts = getPostsBySearch(searchQuery);
+        posts = await searchAllPosts(searchQuery);
       } else if (selectedCategory && selectedCategory !== "All") {
-        posts = getPostsByCategory(selectedCategory);
+        posts = await getAllPostsByCategory(selectedCategory);
+      } else {
+        posts = await getAllPosts();
+      }
+      
+      setDisplayedPosts(posts.slice(0, postsPerPage));
+      setCurrentPage(1);
+    } catch (error) {
+      console.error('Error loading posts:', error);
+    }
+  };
+
+  const loadMorePosts = async () => {
+    try {
+      setLoading(true);
+      let posts: BlogPost[] = [];
+      
+      if (searchQuery) {
+        posts = await searchAllPosts(searchQuery);
+      } else if (selectedCategory && selectedCategory !== "All") {
+        posts = await getAllPostsByCategory(selectedCategory);
+      } else {
+        posts = await getAllPosts();
       }
       
       const nextPosts = posts.slice(0, (currentPage + 1) * postsPerPage);
       setDisplayedPosts(nextPosts);
       setCurrentPage(prev => prev + 1);
+    } catch (error) {
+      console.error('Error loading more posts:', error);
+    } finally {
       setLoading(false);
-    }, 500);
-  };
-
-  const hasMorePosts = () => {
-    let totalPosts = blogPosts.length;
-    
-    if (searchQuery) {
-      totalPosts = getPostsBySearch(searchQuery).length;
-    } else if (selectedCategory && selectedCategory !== "All") {
-      totalPosts = getPostsByCategory(selectedCategory).length;
     }
-    
-    return displayedPosts.length < totalPosts;
   };
 
-  const latestPosts = getLatestPosts(4);
+  const hasMorePosts = async () => {
+    try {
+      let totalPosts = 0;
+      
+      if (searchQuery) {
+        const posts = await searchAllPosts(searchQuery);
+        totalPosts = posts.length;
+      } else if (selectedCategory && selectedCategory !== "All") {
+        const posts = await getAllPostsByCategory(selectedCategory);
+        totalPosts = posts.length;
+      } else {
+        const posts = await getAllPosts();
+        totalPosts = posts.length;
+      }
+      
+      return displayedPosts.length < totalPosts;
+    } catch (error) {
+      console.error('Error checking more posts:', error);
+      return false;
+    }
+  };
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+        <Header />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-xl text-gray-600">Loading blog posts...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
@@ -183,6 +241,11 @@ const Blog = () => {
                             {post.subCategory}
                           </Badge>
                         )}
+                        {post.id.startsWith('imported-') && (
+                          <Badge className="bg-green-500 text-white border-0 px-3 py-1">
+                            Imported
+                          </Badge>
+                        )}
                       </div>
                       <div className="absolute bottom-4 left-4 right-4">
                         <Link to={`/blog/post/${post.id}`}>
@@ -203,7 +266,7 @@ const Blog = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <Eye className="w-4 h-4" />
-                            <span>{Math.floor(Math.random() * 1000 + 100)}</span>
+                            <span>{post.views || Math.floor(Math.random() * 1000 + 100)}</span>
                           </div>
                         </div>
                       </div>
@@ -233,18 +296,16 @@ const Blog = () => {
             </div>
 
             {/* Load More Button */}
-            {hasMorePosts() && (
-              <div className="text-center">
-                <Button
-                  onClick={loadMorePosts}
-                  disabled={loading}
-                  size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                >
-                  {loading ? "Loading..." : "Load More Articles"}
-                </Button>
-              </div>
-            )}
+            <div className="text-center">
+              <Button
+                onClick={loadMorePosts}
+                disabled={loading}
+                size="lg"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                {loading ? "Loading..." : "Load More Articles"}
+              </Button>
+            </div>
           </div>
 
           {/* Enhanced Sidebar */}
@@ -268,9 +329,16 @@ const Blog = () => {
                               className="w-16 h-16 rounded-xl object-cover group-hover:scale-110 transition-transform duration-300"
                             />
                             <div className="flex-1">
-                              <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
-                                {post.title}
-                              </h4>
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+                                  {post.title}
+                                </h4>
+                                {post.id.startsWith('imported-') && (
+                                  <Badge className="bg-green-100 text-green-700 text-xs px-1 py-0">
+                                    NEW
+                                  </Badge>
+                                )}
+                              </div>
                               <div className="flex items-center gap-3 text-sm text-gray-500">
                                 <span>{post.author}</span>
                                 <span>•</span>
@@ -294,7 +362,7 @@ const Blog = () => {
                   </h3>
                   <div className="space-y-4">
                     {categories.slice(1).map((category) => {
-                      const count = getPostsByCategory(category.name).length;
+                      const count = (getAllPostsByCategory(category.name) as any).length;
                       return (
                         <button
                           key={category.name}
