@@ -15,6 +15,7 @@ import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import SubmitPost from "./pages/SubmitPost";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,7 +39,7 @@ const App = () => (
               path="/dashboard" 
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <UserDashboard />
                 </ProtectedRoute>
               } 
             />
@@ -62,7 +63,7 @@ const App = () => (
               path="/submit-post" 
               element={
                 <ProtectedRoute>
-                  <UserDashboard />
+                  <SubmitPost />
                 </ProtectedRoute>
               } 
             />
