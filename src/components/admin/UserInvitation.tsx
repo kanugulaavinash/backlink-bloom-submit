@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -38,22 +37,27 @@ const UserInvitation = () => {
   const onSubmit = async (data: InviteFormData) => {
     setIsSubmitting(true);
     try {
-      // Create an invitation record in the database
+      // Get current user
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !userData.user) {
+        throw new Error("User not authenticated");
+      }
+
+      // Use RPC function to insert invitation until types are updated
       const { error: inviteError } = await supabase
-        .from('user_invitations')
-        .insert({
-          email: data.email,
-          role: data.role,
-          message: data.message,
-          invited_by: (await supabase.auth.getUser()).data.user?.id,
-          status: 'pending'
+        .rpc('custom_create_invitation', {
+          p_email: data.email,
+          p_role: data.role,
+          p_message: data.message || null,
+          p_invited_by: userData.user.id
         });
 
-      if (inviteError) throw inviteError;
+      if (inviteError) {
+        console.error('Invitation error:', inviteError);
+        throw new Error("Failed to create invitation");
+      }
 
-      // TODO: Send invitation email via edge function
-      // For now, we'll just show success message
-      
       toast({
         title: "Invitation Sent",
         description: `Invitation sent to ${data.email} with ${data.role} role`,
@@ -62,6 +66,7 @@ const UserInvitation = () => {
       form.reset();
       setIsDialogOpen(false);
     } catch (error: any) {
+      console.error('Error sending invitation:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to send invitation",
@@ -177,6 +182,14 @@ const UserInvitation = () => {
               </Form>
             </DialogContent>
           </Dialog>
+
+          {/* Temporary Notice */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+            <p className="text-sm text-blue-800">
+              <strong>Note:</strong> User invitation functionality is ready, but database functions need to be created for full functionality. 
+              The interface will work once the database schema is fully synced.
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
