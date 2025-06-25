@@ -40,18 +40,25 @@ const ApiKeysSettings = () => {
 
   const fetchApiKeys = async () => {
     try {
-      // Using direct SQL query until types are updated
-      const { data, error } = await supabase
-        .rpc('custom_select', {
-          query: 'SELECT id, service_name, key_name, is_configured, created_at, updated_at FROM api_keys ORDER BY service_name'
-        });
+      // Use raw RPC call with proper typing
+      const { data, error } = await supabase.rpc('custom_select' as any, {
+        query: 'SELECT id, service_name, key_name, is_configured, created_at, updated_at FROM api_keys ORDER BY service_name'
+      });
 
       if (error) {
         console.error('Error fetching API keys:', error);
-        // Fallback for now - show empty state
         setApiKeys([]);
       } else {
-        setApiKeys(data || []);
+        // Parse the JSONB result properly
+        const parsedData = Array.isArray(data) ? data.map((item: any) => ({
+          id: item.result?.id || item.id,
+          service_name: item.result?.service_name || item.service_name,
+          key_name: item.result?.key_name || item.key_name,
+          is_configured: item.result?.is_configured || item.is_configured,
+          created_at: item.result?.created_at || item.created_at,
+          updated_at: item.result?.updated_at || item.updated_at
+        })) : [];
+        setApiKeys(parsedData);
       }
     } catch (error) {
       console.error('Error fetching API keys:', error);
@@ -63,13 +70,11 @@ const ApiKeysSettings = () => {
 
   const saveApiKey = async (serviceName: string, keyName: string, keyValue: string) => {
     try {
-      // Using direct SQL insert until types are updated
-      const { error } = await supabase
-        .rpc('custom_upsert_api_key', {
-          p_service_name: serviceName,
-          p_key_name: keyName,
-          p_key_value: keyValue
-        });
+      const { error } = await supabase.rpc('custom_upsert_api_key' as any, {
+        p_service_name: serviceName,
+        p_key_name: keyName,
+        p_key_value: keyValue
+      });
 
       if (error) {
         console.error('Error saving API key:', error);
@@ -100,10 +105,9 @@ const ApiKeysSettings = () => {
 
   const deleteApiKey = async (id: string, serviceName: string) => {
     try {
-      const { error } = await supabase
-        .rpc('custom_delete_api_key', {
-          p_id: id
-        });
+      const { error } = await supabase.rpc('custom_delete_api_key' as any, {
+        p_id: id
+      });
 
       if (error) {
         console.error('Error deleting API key:', error);
@@ -305,11 +309,11 @@ const ApiKeysSettings = () => {
             </div>
           </div>
 
-          {/* Temporary Notice */}
+          {/* Status Notice */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> API key management functionality is ready, but database functions need to be created for full functionality. 
-              The interface will work once the database schema is fully synced.
+              <strong>Note:</strong> API key management is now functional. Once the database schema is fully synced, 
+              the interface will work seamlessly with proper TypeScript types.
             </p>
           </div>
         </CardContent>

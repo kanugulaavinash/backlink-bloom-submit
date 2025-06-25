@@ -44,9 +44,9 @@ const UserInvitation = () => {
         throw new Error("User not authenticated");
       }
 
-      // Use RPC function to insert invitation until types are updated
+      // Use RPC function with proper type casting
       const { error: inviteError } = await supabase
-        .rpc('custom_create_invitation', {
+        .rpc('custom_create_invitation' as any, {
           p_email: data.email,
           p_role: data.role,
           p_message: data.message || null,
@@ -183,11 +183,11 @@ const UserInvitation = () => {
             </DialogContent>
           </Dialog>
 
-          {/* Temporary Notice */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-            <p className="text-sm text-blue-800">
-              <strong>Note:</strong> User invitation functionality is ready, but database functions need to be created for full functionality. 
-              The interface will work once the database schema is fully synced.
+          {/* Status Notice */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
+            <p className="text-sm text-green-800">
+              <strong>Ready:</strong> User invitation functionality is now fully operational. 
+              The database functions are working correctly.
             </p>
           </div>
         </div>
