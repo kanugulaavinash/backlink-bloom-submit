@@ -1,7 +1,7 @@
 
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getPostById, BlogPost } from "@/data/blogPosts";
+import { getPostById, type BlogPost } from "@/data/blogPosts";
 import { Calendar, Clock, User, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import Header from "@/components/Header";
 import { format } from "date-fns";
 import { createSafeHTML, sanitizer } from "@/lib/sanitization";
 
-const BlogPost = () => {
+const BlogPostPage = () => {
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
@@ -159,4 +159,4 @@ const BlogPost = () => {
   );
 };
 
-export default BlogPost;
+export default BlogPostPage;

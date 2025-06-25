@@ -156,6 +156,39 @@ export const blogPosts: BlogPost[] = [
   },
 ];
 
+// Helper functions
+const generateExcerpt = (content: string): string => {
+  // Remove HTML tags and get first 150 characters
+  const plainText = content.replace(/<[^>]*>/g, '');
+  return plainText.length > 150 ? plainText.substring(0, 150) + '...' : plainText;
+};
+
+const calculateReadTime = (content: string): number => {
+  const wordsPerMinute = 200;
+  const plainText = content.replace(/<[^>]*>/g, '');
+  const wordCount = plainText.split(/\s+/).length;
+  return Math.ceil(wordCount / wordsPerMinute);
+};
+
+const generateSlug = (title: string): string => {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+};
+
+const getRandomPlaceholderImage = (): string => {
+  const placeholders = [
+    'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=250&fit=crop',
+    'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=250&fit=crop'
+  ];
+  return placeholders[Math.floor(Math.random() * placeholders.length)];
+};
+
 // Function to get a single post by ID (including imported posts)
 export const getPostById = async (id: string): Promise<BlogPost | null> => {
   // First check static posts
@@ -281,39 +314,6 @@ export const searchAllPosts = async (query: string): Promise<BlogPost[]> => {
     post.author.toLowerCase().includes(searchLower) ||
     post.tags.some(tag => tag.toLowerCase().includes(searchLower))
   );
-};
-
-// Helper functions
-const generateExcerpt = (content: string): string => {
-  // Remove HTML tags and get first 150 characters
-  const plainText = content.replace(/<[^>]*>/g, '');
-  return plainText.length > 150 ? plainText.substring(0, 150) + '...' : plainText;
-};
-
-const calculateReadTime = (content: string): number => {
-  const wordsPerMinute = 200;
-  const plainText = content.replace(/<[^>]*>/g, '');
-  const wordCount = plainText.split(/\s+/).length;
-  return Math.ceil(wordCount / wordsPerMinute);
-};
-
-const generateSlug = (title: string): string => {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim();
-};
-
-const getRandomPlaceholderImage = (): string => {
-  const placeholders = [
-    'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=250&fit=crop',
-    'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=250&fit=crop'
-  ];
-  return placeholders[Math.floor(Math.random() * placeholders.length)];
 };
 
 // Update existing functions to work with new async functions
