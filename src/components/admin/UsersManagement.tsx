@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,25 +33,32 @@ const UsersManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
+      // First get all profiles
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          id,
-          email,
-          full_name,
-          created_at,
-          user_roles(role)
-        `);
+        .select('id, email, full_name, created_at');
 
-      if (error) throw error;
+      if (profilesError) throw profilesError;
 
-      const formattedUsers = data?.map(user => ({
-        ...user,
-        role: (user.user_roles as any)?.[0]?.role || 'user' as 'admin' | 'user'
-      })) || [];
+      // Then get all user roles
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      // Combine the data
+      const formattedUsers = profiles?.map(profile => {
+        const userRole = roles?.find(role => role.user_id === profile.id);
+        return {
+          ...profile,
+          role: (userRole?.role || 'user') as 'admin' | 'user'
+        };
+      }) || [];
 
       setUsers(formattedUsers);
     } catch (error) {
+      console.error('Error fetching users:', error);
       toast({
         title: "Error",
         description: "Failed to fetch users",
@@ -104,12 +112,29 @@ const UsersManagement = () => {
 
   const updateUserRole = async (userId: string, newRole: 'admin' | 'user') => {
     try {
-      const { error } = await supabase
+      // First check if user has a role record
+      const { data: existingRole } = await supabase
         .from('user_roles')
-        .update({ role: newRole })
-        .eq('user_id', userId);
+        .select('id')
+        .eq('user_id', userId)
+        .single();
 
-      if (error) throw error;
+      if (existingRole) {
+        // Update existing role
+        const { error } = await supabase
+          .from('user_roles')
+          .update({ role: newRole })
+          .eq('user_id', userId);
+
+        if (error) throw error;
+      } else {
+        // Insert new role record
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role: newRole });
+
+        if (error) throw error;
+      }
 
       // Update local state
       setUsers(users.map(user => 
@@ -121,6 +146,7 @@ const UsersManagement = () => {
         description: `User role updated to ${newRole}`,
       });
     } catch (error) {
+      console.error('Error updating user role:', error);
       toast({
         title: "Error",
         description: "Failed to update user role",

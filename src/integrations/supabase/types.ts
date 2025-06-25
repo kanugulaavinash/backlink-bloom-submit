@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_configured: boolean | null
+          key_name: string
+          key_value: string
+          service_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_configured?: boolean | null
+          key_name: string
+          key_value: string
+          service_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_configured?: boolean | null
+          key_name?: string
+          key_value?: string
+          service_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       guest_posts: {
         Row: {
           author_bio: string | null
@@ -111,6 +141,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_invitations: {
+        Row: {
+          created_at: string | null
+          email: string
+          expires_at: string | null
+          id: string
+          invited_by: string | null
+          message: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          status: string | null
+          token: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          expires_at?: string | null
+          id?: string
+          invited_by?: string | null
+          message?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: string | null
+          token?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          expires_at?: string | null
+          id?: string
+          invited_by?: string | null
+          message?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: string | null
+          token?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           assigned_at: string | null
@@ -140,6 +209,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      custom_create_invitation: {
+        Args: {
+          p_email: string
+          p_role: string
+          p_message: string
+          p_invited_by: string
+        }
+        Returns: undefined
+      }
+      custom_delete_api_key: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
+      custom_select: {
+        Args: { query: string }
+        Returns: {
+          result: Json
+        }[]
+      }
+      custom_upsert_api_key: {
+        Args: {
+          p_service_name: string
+          p_key_name: string
+          p_key_value: string
+        }
+        Returns: undefined
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: string
