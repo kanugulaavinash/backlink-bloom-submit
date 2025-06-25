@@ -5,7 +5,7 @@ import { parseString } from 'https://esm.sh/xml2js@0.6.2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-session-id',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
@@ -46,29 +46,31 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const sessionId = req.headers.get('X-Session-ID');
-    if (!sessionId) {
-      throw new Error('Session ID is required');
+    console.log('WordPress import function called');
+
+    const { xmlContent, sessionId, filename } = await req.json();
+    
+    if (!sessionId || !xmlContent) {
+      throw new Error('Session ID and XML content are required');
     }
 
-    const formData = await req.formData();
-    const file = formData.get('file') as File;
-    
-    if (!file) {
-      throw new Error('No file provided');
-    }
+    console.log('Processing XML content for session:', sessionId);
 
-    const xmlContent = await file.text();
-    
     // Parse XML
     const parseResult = await new Promise<any>((resolve, reject) => {
       parseString(xmlContent, (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
+        if (err) {
+          console.error('XML parsing error:', err);
+          reject(err);
+        } else {
+          resolve(result);
+        }
       });
     });
 
     const posts = parseResult?.rss?.channel?.[0]?.item || [];
+    console.log('Found', posts.length, 'items in XML');
+
     const validPosts: ParsedPost[] = [];
     const errors: any[] = [];
 
@@ -119,12 +121,15 @@ serve(async (req) => {
 
         validPosts.push(parsedPost);
       } catch (error) {
+        console.error('Error processing post:', error);
         errors.push({
           wordpress_id: post['wp:post_id']?.[0] || 'unknown',
           error: error.message
         });
       }
     }
+
+    console.log('Valid posts found:', validPosts.length);
 
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
@@ -137,8 +142,11 @@ serve(async (req) => {
     );
 
     if (authError || !user) {
+      console.error('Auth error:', authError);
       throw new Error('Invalid authentication');
     }
+
+    console.log('User authenticated:', user.id);
 
     // Insert posts into database
     let successfulImports = 0;
@@ -156,6 +164,7 @@ serve(async (req) => {
           });
 
         if (insertError) {
+          console.error('Insert error for post:', post.wordpress_id, insertError);
           importErrors.push({
             wordpress_id: post.wordpress_id,
             error: insertError.message
@@ -164,6 +173,7 @@ serve(async (req) => {
           successfulImports++;
         }
       } catch (error) {
+        console.error('Exception inserting post:', post.wordpress_id, error);
         importErrors.push({
           wordpress_id: post.wordpress_id,
           error: error.message
@@ -173,18 +183,28 @@ serve(async (req) => {
 
     const failedImports = validPosts.length - successfulImports;
 
+    console.log('Import results:', {
+      total: validPosts.length,
+      successful: successfulImports,
+      failed: failedImports
+    });
+
     // Update import session
-    await supabase
+    const { error: updateError } = await supabase
       .from('import_sessions')
       .update({
         total_posts: validPosts.length,
         successful_imports: successfulImports,
         failed_imports: failedImports,
         errors: importErrors,
-        status: failedImports > 0 ? 'completed' : 'completed',
+        status: 'completed',
         completed_at: new Date().toISOString()
       })
       .eq('id', sessionId);
+
+    if (updateError) {
+      console.error('Error updating session:', updateError);
+    }
 
     return new Response(
       JSON.stringify({
@@ -203,7 +223,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Import error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        success: false,
+        error: error.message 
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,

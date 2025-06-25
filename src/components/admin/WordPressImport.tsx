@@ -53,9 +53,6 @@ const WordPressImport = () => {
     setUploadProgress(0);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
       // Create import session
       const { data: session, error: sessionError } = await supabase
         .from('import_sessions')
@@ -69,20 +66,30 @@ const WordPressImport = () => {
 
       if (sessionError) throw sessionError;
 
-      // Upload and process the XML file
-      const response = await fetch('/api/wordpress-import', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Session-ID': session.id,
+      console.log('Created import session:', session.id);
+
+      // Create FormData and convert file to base64 for the edge function
+      const fileContent = await file.text();
+      
+      setUploadProgress(25);
+
+      // Call the edge function using supabase.functions.invoke
+      const { data: result, error: invokeError } = await supabase.functions.invoke('wordpress-import', {
+        body: {
+          xmlContent: fileContent,
+          sessionId: session.id,
+          filename: file.name
         }
       });
 
-      if (!response.ok) {
-        throw new Error('Import failed');
+      if (invokeError) {
+        console.error('Edge function error:', invokeError);
+        throw new Error(`Import failed: ${invokeError.message}`);
       }
 
-      const result = await response.json();
+      if (!result.success) {
+        throw new Error(`Import failed: ${result.error || 'Unknown error'}`);
+      }
       
       setUploadProgress(100);
       
@@ -103,7 +110,7 @@ const WordPressImport = () => {
       console.error('Import error:', error);
       toast({
         title: "Import failed",
-        description: "An error occurred while importing the WordPress file.",
+        description: error instanceof Error ? error.message : "An error occurred while importing the WordPress file.",
         variant: "destructive"
       });
     } finally {
