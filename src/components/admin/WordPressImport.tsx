@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Upload, FileText, CheckCircle, AlertCircle, Clock } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import type { Json } from "@/integrations/supabase/types";
 
 interface ImportSession {
   id: string;
@@ -18,7 +19,8 @@ interface ImportSession {
   failed_imports: number;
   status: string;
   created_at: string;
-  errors: any[];
+  completed_at: string | null;
+  errors: Json;
 }
 
 const WordPressImport = () => {
@@ -152,9 +154,9 @@ const WordPressImport = () => {
   };
 
   // Load import sessions on mount
-  useState(() => {
+  useEffect(() => {
     fetchImportSessions();
-  });
+  }, []);
 
   return (
     <div className="space-y-6">
