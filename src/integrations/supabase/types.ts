@@ -90,6 +90,102 @@ export type Database = {
         }
         Relationships: []
       }
+      import_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          errors: Json | null
+          failed_imports: number | null
+          filename: string
+          id: string
+          imported_by: string
+          status: string | null
+          successful_imports: number | null
+          total_posts: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          errors?: Json | null
+          failed_imports?: number | null
+          filename: string
+          id?: string
+          imported_by: string
+          status?: string | null
+          successful_imports?: number | null
+          total_posts?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          errors?: Json | null
+          failed_imports?: number | null
+          filename?: string
+          id?: string
+          imported_by?: string
+          status?: string | null
+          successful_imports?: number | null
+          total_posts?: number | null
+        }
+        Relationships: []
+      }
+      imported_posts: {
+        Row: {
+          categories: string[] | null
+          content: string
+          created_at: string | null
+          excerpt: string | null
+          featured_image_url: string | null
+          id: string
+          import_session_id: string
+          imported_by: string
+          published_date: string | null
+          slug: string | null
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          wordpress_id: string | null
+          wordpress_url: string | null
+        }
+        Insert: {
+          categories?: string[] | null
+          content: string
+          created_at?: string | null
+          excerpt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          import_session_id: string
+          imported_by: string
+          published_date?: string | null
+          slug?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          wordpress_id?: string | null
+          wordpress_url?: string | null
+        }
+        Update: {
+          categories?: string[] | null
+          content?: string
+          created_at?: string | null
+          excerpt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          import_session_id?: string
+          imported_by?: string
+          published_date?: string | null
+          slug?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          wordpress_id?: string | null
+          wordpress_url?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
