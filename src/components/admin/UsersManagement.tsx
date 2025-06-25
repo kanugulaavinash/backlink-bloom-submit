@@ -8,6 +8,7 @@ import { User, Shield, Ban, Search, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import UserInvitation from "./UserInvitation";
 
 interface UserProfile {
   id: string;
@@ -149,6 +150,9 @@ const UsersManagement = () => {
 
   return (
     <div className="space-y-6">
+      {/* User Invitation Component */}
+      <UserInvitation />
+
       {/* Default Role Setting */}
       <Card>
         <CardHeader>

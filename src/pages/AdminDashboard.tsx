@@ -9,6 +9,7 @@ import UsersManagement from "@/components/admin/UsersManagement";
 import PricingSettings from "@/components/admin/PricingSettings";
 import PaymentLogs from "@/components/admin/PaymentLogs";
 import ValidationQueue from "@/components/admin/ValidationQueue";
+import ApiKeysSettings from "@/components/admin/ApiKeysSettings";
 
 const AdminDashboard = () => {
   return (
@@ -28,10 +29,11 @@ const AdminDashboard = () => {
 
           {/* Main Content Tabs */}
           <Tabs defaultValue="posts" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="posts">Posts</TabsTrigger>
               <TabsTrigger value="users">Users</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="api-keys">API Keys</TabsTrigger>
               <TabsTrigger value="payments">Payments</TabsTrigger>
               <TabsTrigger value="validation">Validation</TabsTrigger>
               <TabsTrigger value="notifications">Notifications</TabsTrigger>
@@ -47,6 +49,10 @@ const AdminDashboard = () => {
             
             <TabsContent value="settings">
               <PricingSettings />
+            </TabsContent>
+            
+            <TabsContent value="api-keys">
+              <ApiKeysSettings />
             </TabsContent>
             
             <TabsContent value="payments">
