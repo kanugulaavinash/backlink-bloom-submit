@@ -35,6 +35,8 @@ interface ParsedPost {
   tags: string[];
 }
 
+const BATCH_SIZE = 10; // Process posts in smaller batches
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -48,7 +50,8 @@ serve(async (req) => {
 
     console.log('WordPress import function called');
 
-    const { xmlContent, sessionId, filename } = await req.json();
+    const requestBody = await req.json();
+    const { xmlContent, sessionId, filename } = requestBody;
     
     if (!sessionId || !xmlContent) {
       throw new Error('Session ID and XML content are required');
@@ -57,79 +60,25 @@ serve(async (req) => {
     console.log('Processing XML content for session:', sessionId);
 
     // Parse XML
-    const parseResult = await new Promise<any>((resolve, reject) => {
-      parseString(xmlContent, (err, result) => {
-        if (err) {
-          console.error('XML parsing error:', err);
-          reject(err);
-        } else {
-          resolve(result);
-        }
+    let parseResult;
+    try {
+      parseResult = await new Promise<any>((resolve, reject) => {
+        parseString(xmlContent, (err, result) => {
+          if (err) {
+            console.error('XML parsing error:', err);
+            reject(err);
+          } else {
+            resolve(result);
+          }
+        });
       });
-    });
+    } catch (error) {
+      console.error('Failed to parse XML:', error);
+      throw new Error(`XML parsing failed: ${error.message}`);
+    }
 
     const posts = parseResult?.rss?.channel?.[0]?.item || [];
     console.log('Found', posts.length, 'items in XML');
-
-    const validPosts: ParsedPost[] = [];
-    const errors: any[] = [];
-
-    // Process each post
-    for (const post of posts) {
-      try {
-        // Only process actual posts, not pages or other post types
-        const postType = post['wp:post_type']?.[0];
-        const status = post['wp:status']?.[0];
-        
-        if (postType !== 'post' || status === 'trash') {
-          continue;
-        }
-
-        const categories: string[] = [];
-        const tags: string[] = [];
-
-        // Extract categories and tags
-        if (post.category) {
-          post.category.forEach((cat: any) => {
-            if (cat.$.domain === 'category') {
-              categories.push(cat._);
-            } else if (cat.$.domain === 'post_tag') {
-              tags.push(cat._);
-            }
-          });
-        }
-
-        const parsedPost: ParsedPost = {
-          title: post.title?.[0] || 'Untitled',
-          content: post['content:encoded']?.[0] || '',
-          excerpt: post['excerpt:encoded']?.[0] || '',
-          slug: post['wp:post_name']?.[0] || '',
-          published_date: post['wp:post_date']?.[0] || new Date().toISOString(),
-          wordpress_id: post['wp:post_id']?.[0] || '',
-          categories,
-          tags,
-        };
-
-        // Validate required fields
-        if (!parsedPost.title || !parsedPost.content) {
-          errors.push({
-            wordpress_id: parsedPost.wordpress_id,
-            error: 'Missing required fields (title or content)'
-          });
-          continue;
-        }
-
-        validPosts.push(parsedPost);
-      } catch (error) {
-        console.error('Error processing post:', error);
-        errors.push({
-          wordpress_id: post['wp:post_id']?.[0] || 'unknown',
-          error: error.message
-        });
-      }
-    }
-
-    console.log('Valid posts found:', validPosts.length);
 
     // Get user from auth header
     const authHeader = req.headers.get('Authorization');
@@ -148,43 +97,104 @@ serve(async (req) => {
 
     console.log('User authenticated:', user.id);
 
-    // Insert posts into database
+    // Process posts in smaller batches to avoid memory issues
     let successfulImports = 0;
-    const importErrors: any[] = [...errors];
+    const errors: any[] = [];
+    let processedCount = 0;
 
-    for (const post of validPosts) {
-      try {
-        const { error: insertError } = await supabase
-          .from('imported_posts')
-          .insert({
-            ...post,
-            imported_by: user.id,
-            import_session_id: sessionId,
-            status: 'imported'
-          });
+    for (let i = 0; i < posts.length; i += BATCH_SIZE) {
+      const batch = posts.slice(i, i + BATCH_SIZE);
+      console.log(`Processing batch ${Math.floor(i / BATCH_SIZE) + 1} of ${Math.ceil(posts.length / BATCH_SIZE)}`);
 
-        if (insertError) {
-          console.error('Insert error for post:', post.wordpress_id, insertError);
-          importErrors.push({
-            wordpress_id: post.wordpress_id,
-            error: insertError.message
+      for (const post of batch) {
+        try {
+          processedCount++;
+          
+          // Only process actual posts, not pages or other post types
+          const postType = post['wp:post_type']?.[0];
+          const status = post['wp:status']?.[0];
+          
+          if (postType !== 'post' || status === 'trash') {
+            continue;
+          }
+
+          const categories: string[] = [];
+          const tags: string[] = [];
+
+          // Extract categories and tags
+          if (post.category && Array.isArray(post.category)) {
+            post.category.forEach((cat: any) => {
+              if (cat && cat.$ && cat._) {
+                if (cat.$.domain === 'category') {
+                  categories.push(cat._);
+                } else if (cat.$.domain === 'post_tag') {
+                  tags.push(cat._);
+                }
+              }
+            });
+          }
+
+          const parsedPost: ParsedPost = {
+            title: post.title?.[0] || 'Untitled',
+            content: post['content:encoded']?.[0] || '',
+            excerpt: post['excerpt:encoded']?.[0] || '',
+            slug: post['wp:post_name']?.[0] || '',
+            published_date: post['wp:post_date']?.[0] || new Date().toISOString(),
+            wordpress_id: post['wp:post_id']?.[0] || '',
+            categories,
+            tags,
+          };
+
+          // Validate required fields
+          if (!parsedPost.title || !parsedPost.content) {
+            errors.push({
+              wordpress_id: parsedPost.wordpress_id,
+              error: 'Missing required fields (title or content)'
+            });
+            continue;
+          }
+
+          // Insert post into database
+          const { error: insertError } = await supabase
+            .from('imported_posts')
+            .insert({
+              ...parsedPost,
+              imported_by: user.id,
+              import_session_id: sessionId,
+              status: 'imported'
+            });
+
+          if (insertError) {
+            console.error('Insert error for post:', parsedPost.wordpress_id, insertError);
+            errors.push({
+              wordpress_id: parsedPost.wordpress_id,
+              error: insertError.message
+            });
+          } else {
+            successfulImports++;
+          }
+
+        } catch (error) {
+          console.error('Exception processing post:', error);
+          const wordpressId = post['wp:post_id']?.[0] || 'unknown';
+          errors.push({
+            wordpress_id: wordpressId,
+            error: error.message
           });
-        } else {
-          successfulImports++;
         }
-      } catch (error) {
-        console.error('Exception inserting post:', post.wordpress_id, error);
-        importErrors.push({
-          wordpress_id: post.wordpress_id,
-          error: error.message
-        });
+      }
+
+      // Small delay between batches to prevent overwhelming the system
+      if (i + BATCH_SIZE < posts.length) {
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
     }
 
-    const failedImports = validPosts.length - successfulImports;
+    const totalValidPosts = processedCount;
+    const failedImports = errors.length;
 
     console.log('Import results:', {
-      total: validPosts.length,
+      total: totalValidPosts,
       successful: successfulImports,
       failed: failedImports
     });
@@ -193,10 +203,10 @@ serve(async (req) => {
     const { error: updateError } = await supabase
       .from('import_sessions')
       .update({
-        total_posts: validPosts.length,
+        total_posts: totalValidPosts,
         successful_imports: successfulImports,
         failed_imports: failedImports,
-        errors: importErrors,
+        errors: errors,
         status: 'completed',
         completed_at: new Date().toISOString()
       })
@@ -209,10 +219,10 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        total_posts: validPosts.length,
+        total_posts: totalValidPosts,
         successful_imports: successfulImports,
         failed_imports: failedImports,
-        errors: importErrors
+        errors: errors
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
