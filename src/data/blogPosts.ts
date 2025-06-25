@@ -156,6 +156,55 @@ export const blogPosts: BlogPost[] = [
   },
 ];
 
+// Function to get a single post by ID (including imported posts)
+export const getPostById = async (id: string): Promise<BlogPost | null> => {
+  // First check static posts
+  const staticPost = blogPosts.find(post => post.id === id);
+  if (staticPost) {
+    return staticPost;
+  }
+  
+  // If not found in static posts, check imported posts
+  if (id.startsWith('imported-')) {
+    const importedId = id.replace('imported-', '');
+    try {
+      const { data: importedPost, error } = await supabase
+        .from('imported_posts')
+        .select('*')
+        .eq('id', importedId)
+        .eq('status', 'published')
+        .single();
+
+      if (error || !importedPost) {
+        return null;
+      }
+
+      // Transform imported post to match BlogPost interface
+      return {
+        id: `imported-${importedPost.id}`,
+        title: importedPost.title,
+        excerpt: importedPost.excerpt || generateExcerpt(importedPost.content),
+        content: importedPost.content,
+        author: 'Imported Author',
+        publishedAt: importedPost.published_date || importedPost.created_at,
+        readTime: calculateReadTime(importedPost.content),
+        category: importedPost.categories?.[0] || 'General',
+        subCategory: importedPost.categories?.[1] || undefined,
+        tags: importedPost.tags || [],
+        imageUrl: importedPost.featured_image_url || getRandomPlaceholderImage(),
+        slug: importedPost.slug || generateSlug(importedPost.title),
+        views: Math.floor(Math.random() * 1000) + 100,
+        likes: Math.floor(Math.random() * 100) + 10
+      };
+    } catch (error) {
+      console.error('Error fetching imported post:', error);
+      return null;
+    }
+  }
+  
+  return null;
+};
+
 // Function to fetch imported posts from Supabase
 export const getImportedPosts = async (): Promise<BlogPost[]> => {
   try {

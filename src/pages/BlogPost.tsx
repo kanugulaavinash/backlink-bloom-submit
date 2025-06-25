@@ -1,6 +1,7 @@
 
 import { useParams, Link } from "react-router-dom";
-import { getPostById } from "@/data/blogPosts";
+import { useState, useEffect } from "react";
+import { getPostById, BlogPost } from "@/data/blogPosts";
 import { Calendar, Clock, User, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,45 @@ import { createSafeHTML, sanitizer } from "@/lib/sanitization";
 
 const BlogPost = () => {
   const { id } = useParams<{ id: string }>();
-  const post = id ? getPostById(id) : null;
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadPost();
+  }, [id]);
+
+  const loadPost = async () => {
+    if (!id) {
+      setPost(null);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const fetchedPost = await getPostById(id);
+      setPost(fetchedPost);
+    } catch (error) {
+      console.error('Error loading post:', error);
+      setPost(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="pt-20 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-xl text-gray-600">Loading post...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!post) {
     return (
@@ -56,6 +95,9 @@ const BlogPost = () => {
               <Badge variant="secondary">{sanitizer.sanitizeText(post.category)}</Badge>
               {post.subCategory && (
                 <Badge variant="outline">{sanitizer.sanitizeText(post.subCategory)}</Badge>
+              )}
+              {post.id.startsWith('imported-') && (
+                <Badge className="bg-green-500 text-white">Imported</Badge>
               )}
             </div>
             
