@@ -5,7 +5,61 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://jygfiiaonffnqzgsskzj.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5Z2ZpaWFvbmZmbnF6Z3Nza3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0MTQ2NjIsImV4cCI6MjA2NTk5MDY2Mn0.Y3e7dKxHcgKI6k3L2MBjptALyrg4K2sKQgw82QP_Bng";
 
+// Custom storage implementation for 48-hour session persistence
+class ExtendedLocalStorage {
+  getItem(key: string): string | null {
+    try {
+      const item = localStorage.getItem(key);
+      if (!item) return null;
+
+      const data = JSON.parse(item);
+      const now = new Date().getTime();
+      
+      // Check if item has expired (48 hours = 172800000 ms)
+      if (data.expiry && now > data.expiry) {
+        localStorage.removeItem(key);
+        return null;
+      }
+      
+      return data.value;
+    } catch {
+      return localStorage.getItem(key);
+    }
+  }
+
+  setItem(key: string, value: string): void {
+    try {
+      const now = new Date().getTime();
+      const expiry = now + (48 * 60 * 60 * 1000); // 48 hours from now
+      
+      const data = {
+        value: value,
+        expiry: expiry
+      };
+      
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch {
+      localStorage.setItem(key, value);
+    }
+  }
+
+  removeItem(key: string): void {
+    localStorage.removeItem(key);
+  }
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storage: new ExtendedLocalStorage(),
+    // Extended session settings
+    storageKey: 'supabase.auth.token',
+    // Custom session refresh settings
+    flowType: 'pkce'
+  }
+});

@@ -38,32 +38,58 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserRole(session.user.id);
-      } else {
-        setIsLoading(false);
-      }
-    });
-
-    // Listen for auth changes
+    // Set up auth state listener first to catch all events
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, session ? 'session exists' : 'no session');
       setSession(session);
       setUser(session?.user ?? null);
+      
       if (session?.user) {
-        fetchUserRole(session.user.id);
+        // Defer role fetching to prevent deadlock
+        setTimeout(() => {
+          fetchUserRole(session.user.id);
+        }, 0);
       } else {
         setUserRole(null);
         setIsLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session ? 'session exists' : 'no session');
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchUserRole(session.user.id);
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    // Set up session refresh monitoring
+    const refreshInterval = setInterval(() => {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          const expiresAt = session.expires_at ? new Date(session.expires_at * 1000) : null;
+          const now = new Date();
+          const timeUntilExpiry = expiresAt ? expiresAt.getTime() - now.getTime() : 0;
+          
+          // Refresh if session expires within 5 minutes
+          if (timeUntilExpiry < 5 * 60 * 1000 && timeUntilExpiry > 0) {
+            console.log('Refreshing session before expiry');
+            supabase.auth.refreshSession();
+          }
+        }
+      });
+    }, 60000); // Check every minute
+
+    return () => {
+      subscription.unsubscribe();
+      clearInterval(refreshInterval);
+    };
   }, []);
 
   const fetchUserRole = async (userId: string) => {

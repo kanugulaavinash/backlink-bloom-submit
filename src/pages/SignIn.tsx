@@ -162,8 +162,13 @@ const SignIn = () => {
               
               <div className="flex items-center justify-between">
                 <label className="flex items-center">
-                  <input type="checkbox" className="rounded border-gray-300" />
-                  <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                  <input 
+                    type="checkbox" 
+                    className="rounded border-gray-300"
+                    defaultChecked={true}
+                    title="Sessions will persist for 48 hours"
+                  />
+                  <span className="ml-2 text-sm text-gray-600">Remember me (48 hours)</span>
                 </label>
                 <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
                   Forgot password?
