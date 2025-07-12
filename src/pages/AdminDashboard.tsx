@@ -11,7 +11,7 @@ import PaymentLogs from "@/components/admin/PaymentLogs";
 import ValidationQueue from "@/components/admin/ValidationQueue";
 import ApiKeysSettings from "@/components/admin/ApiKeysSettings";
 import WordPressImport from "@/components/admin/WordPressImport";
-import ImportedPostsManagement from "@/components/admin/ImportedPostsManagement";
+
 
 const AdminDashboard = () => {
   return (
@@ -31,11 +31,10 @@ const AdminDashboard = () => {
 
           {/* Main Content Tabs */}
           <Tabs defaultValue="posts" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-9">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="posts">Posts</TabsTrigger>
               <TabsTrigger value="users">Users</TabsTrigger>
               <TabsTrigger value="import">Import</TabsTrigger>
-              <TabsTrigger value="imported">Imported</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
               <TabsTrigger value="api-keys">API Keys</TabsTrigger>
               <TabsTrigger value="payments">Payments</TabsTrigger>
@@ -55,9 +54,6 @@ const AdminDashboard = () => {
               <WordPressImport />
             </TabsContent>
             
-            <TabsContent value="imported">
-              <ImportedPostsManagement />
-            </TabsContent>
             
             <TabsContent value="settings">
               <PricingSettings />

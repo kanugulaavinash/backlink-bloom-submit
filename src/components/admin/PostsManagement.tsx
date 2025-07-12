@@ -13,7 +13,7 @@ import { Eye, Edit, Trash2, Check, X, Search, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-interface GuestPost {
+interface UnifiedPost {
   id: string;
   title: string;
   author_name: string;
@@ -25,12 +25,17 @@ interface GuestPost {
   author_bio?: string;
   author_website?: string;
   tags?: string[];
+  source: 'guest' | 'imported';
+  categories?: string[];
+  published_date?: string;
+  wordpress_url?: string;
 }
 
 const PostsManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [posts, setPosts] = useState<GuestPost[]>([]);
+  const [sourceFilter, setSourceFilter] = useState("all");
+  const [posts, setPosts] = useState<UnifiedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -39,20 +44,73 @@ const PostsManagement = () => {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      let query = supabase.from("guest_posts").select("*");
-
-      if (statusFilter !== "all") {
-        query = query.eq("status", statusFilter);
+      
+      // Fetch guest posts
+      let guestQuery = supabase.from("guest_posts").select("*");
+      if (sourceFilter === "all" || sourceFilter === "guest") {
+        if (statusFilter !== "all") {
+          guestQuery = guestQuery.eq("status", statusFilter);
+        }
+        if (searchTerm) {
+          guestQuery = guestQuery.or(`title.ilike.%${searchTerm}%,author_name.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`);
+        }
       }
 
-      if (searchTerm) {
-        query = query.or(`title.ilike.%${searchTerm}%,author_name.ilike.%${searchTerm}%,category.ilike.%${searchTerm}%`);
+      // Fetch imported posts
+      let importedQuery = supabase.from("imported_posts").select("*");
+      if (sourceFilter === "all" || sourceFilter === "imported") {
+        if (statusFilter !== "all") {
+          importedQuery = importedQuery.eq("status", statusFilter);
+        }
+        if (searchTerm) {
+          importedQuery = importedQuery.or(`title.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%`);
+        }
       }
 
-      const { data, error } = await query.order("created_at", { ascending: false });
+      const promises = [];
+      if (sourceFilter === "all" || sourceFilter === "guest") {
+        promises.push(guestQuery.order("created_at", { ascending: false }));
+      }
+      if (sourceFilter === "all" || sourceFilter === "imported") {
+        promises.push(importedQuery.order("created_at", { ascending: false }));
+      }
 
-      if (error) throw error;
-      setPosts(data || []);
+      const results = await Promise.all(promises);
+      
+      let allPosts: UnifiedPost[] = [];
+      
+      // Process guest posts
+      if (sourceFilter === "all" || sourceFilter === "guest") {
+        const guestData = results[sourceFilter === "guest" ? 0 : 0];
+        if (guestData.data) {
+          const guestPosts = guestData.data.map((post: any) => ({
+            ...post,
+            source: 'guest' as const,
+          }));
+          allPosts = [...allPosts, ...guestPosts];
+        }
+      }
+
+      // Process imported posts
+      if (sourceFilter === "all" || sourceFilter === "imported") {
+        const importedIndex = sourceFilter === "imported" ? 0 : sourceFilter === "all" ? 1 : 0;
+        const importedData = results[importedIndex];
+        if (importedData.data) {
+          const importedPosts = importedData.data.map((post: any) => ({
+            ...post,
+            source: 'imported' as const,
+            author_name: 'Imported Author',
+            category: post.categories?.[0] || 'Uncategorized',
+            content: post.content || '',
+          }));
+          allPosts = [...allPosts, ...importedPosts];
+        }
+      }
+
+      // Sort all posts by created_at
+      allPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      
+      setPosts(allPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
       toast({
@@ -67,13 +125,14 @@ const PostsManagement = () => {
 
   useEffect(() => {
     fetchPosts();
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter, sourceFilter]);
 
-  const handleStatusUpdate = async (postId: string, newStatus: string) => {
+  const handleStatusUpdate = async (postId: string, newStatus: string, source: 'guest' | 'imported') => {
     try {
       setActionLoading(postId);
+      const tableName = source === 'guest' ? 'guest_posts' : 'imported_posts';
       const { error } = await supabase
-        .from("guest_posts")
+        .from(tableName)
         .update({ status: newStatus, updated_at: new Date().toISOString() })
         .eq("id", postId);
 
@@ -97,11 +156,12 @@ const PostsManagement = () => {
     }
   };
 
-  const handleDelete = async (postId: string) => {
+  const handleDelete = async (postId: string, source: 'guest' | 'imported') => {
     try {
       setActionLoading(postId);
+      const tableName = source === 'guest' ? 'guest_posts' : 'imported_posts';
       const { error } = await supabase
-        .from("guest_posts")
+        .from(tableName)
         .delete()
         .eq("id", postId);
 
@@ -134,8 +194,15 @@ const PostsManagement = () => {
       case "approved": return "bg-green-100 text-green-800";
       case "pending": return "bg-yellow-100 text-yellow-800";
       case "rejected": return "bg-red-100 text-red-800";
+      case "published": return "bg-green-100 text-green-800";
+      case "draft": return "bg-gray-100 text-gray-800";
+      case "imported": return "bg-blue-100 text-blue-800";
       default: return "bg-gray-100 text-gray-800";
     }
+  };
+
+  const getSourceBadgeColor = (source: 'guest' | 'imported') => {
+    return source === 'imported' ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-gray-50 text-gray-700 border-gray-200";
   };
 
   return (
@@ -155,8 +222,18 @@ const PostsManagement = () => {
                 className="pl-10"
               />
             </div>
+            <Select value={sourceFilter} onValueChange={setSourceFilter}>
+              <SelectTrigger className="w-full sm:w-40">
+                <SelectValue placeholder="Filter by source" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Posts</SelectItem>
+                <SelectItem value="guest">Guest Posts</SelectItem>
+                <SelectItem value="imported">Imported</SelectItem>
+              </SelectContent>
+            </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-48">
+              <SelectTrigger className="w-full sm:w-40">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
@@ -164,6 +241,9 @@ const PostsManagement = () => {
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="approved">Approved</SelectItem>
                 <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="published">Published</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="imported">Imported</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -186,27 +266,60 @@ const PostsManagement = () => {
                   <TableHead>Title</TableHead>
                   <TableHead>Author</TableHead>
                   <TableHead>Category</TableHead>
+                  <TableHead>Source</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Submitted</TableHead>
+                  <TableHead>Date</TableHead>
                   <TableHead>Words</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {posts.map((post) => (
-                  <TableRow key={post.id}>
+                  <TableRow key={`${post.source}-${post.id}`}>
                     <TableCell className="font-medium max-w-xs">
                       <div className="truncate">{post.title}</div>
+                      {post.excerpt && (
+                        <div className="text-sm text-muted-foreground truncate mt-1">
+                          {post.excerpt}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>{post.author_name}</TableCell>
-                    <TableCell>{post.category}</TableCell>
+                    <TableCell>
+                      {post.source === 'imported' && post.categories?.length ? (
+                        <div className="flex flex-wrap gap-1">
+                          {post.categories.slice(0, 2).map((cat, idx) => (
+                            <Badge key={idx} variant="outline" className="text-xs">
+                              {cat}
+                            </Badge>
+                          ))}
+                          {post.categories.length > 2 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{post.categories.length - 2}
+                            </Badge>
+                          )}
+                        </div>
+                      ) : (
+                        post.category
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getSourceBadgeColor(post.source)}>
+                        {post.source === 'imported' ? 'Imported' : 'Guest'}
+                      </Badge>
+                    </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(post.status)}>
                         {post.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>{new Date(post.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>{getWordCount(post.content)}</TableCell>
+                    <TableCell>
+                      {post.source === 'imported' && post.published_date 
+                        ? new Date(post.published_date).toLocaleDateString()
+                        : new Date(post.created_at).toLocaleDateString()
+                      }
+                    </TableCell>
+                    <TableCell>{getWordCount(post.content || '')}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <Tooltip>
@@ -214,7 +327,10 @@ const PostsManagement = () => {
                             <Button 
                               variant="outline" 
                               size="sm"
-                              onClick={() => navigate(`/admin/posts/view/${post.id}`)}
+                              onClick={() => {
+                                const basePath = post.source === 'imported' ? '/admin/imported-posts' : '/admin/posts';
+                                navigate(`${basePath}/view/${post.id}`);
+                              }}
                               disabled={actionLoading === post.id}
                             >
                               <Eye className="h-4 w-4" />
@@ -225,7 +341,7 @@ const PostsManagement = () => {
                           </TooltipContent>
                         </Tooltip>
 
-                        {post.status === "pending" && (
+                        {post.source === 'guest' && post.status === "pending" && (
                           <>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -233,7 +349,7 @@ const PostsManagement = () => {
                                   variant="outline" 
                                   size="sm" 
                                   className="text-green-600 hover:text-green-700"
-                                  onClick={() => handleStatusUpdate(post.id, "approved")}
+                                  onClick={() => handleStatusUpdate(post.id, "approved", post.source)}
                                   disabled={actionLoading === post.id}
                                 >
                                   {actionLoading === post.id ? (
@@ -254,7 +370,7 @@ const PostsManagement = () => {
                                   variant="outline" 
                                   size="sm" 
                                   className="text-red-600 hover:text-red-700"
-                                  onClick={() => handleStatusUpdate(post.id, "rejected")}
+                                  onClick={() => handleStatusUpdate(post.id, "rejected", post.source)}
                                   disabled={actionLoading === post.id}
                                 >
                                   {actionLoading === post.id ? (
@@ -276,7 +392,10 @@ const PostsManagement = () => {
                             <Button 
                               variant="outline" 
                               size="sm"
-                              onClick={() => navigate(`/admin/posts/edit/${post.id}`)}
+                              onClick={() => {
+                                const basePath = post.source === 'imported' ? '/admin/imported-posts' : '/admin/posts';
+                                navigate(`${basePath}/edit/${post.id}`);
+                              }}
                               disabled={actionLoading === post.id}
                             >
                               <Edit className="h-4 w-4" />
@@ -286,6 +405,23 @@ const PostsManagement = () => {
                             <p>Edit Post</p>
                           </TooltipContent>
                         </Tooltip>
+
+                        {post.source === 'imported' && post.wordpress_url && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => window.open(post.wordpress_url, '_blank')}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>View Original</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
 
                         <AlertDialog>
                           <Tooltip>
@@ -316,7 +452,7 @@ const PostsManagement = () => {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => handleDelete(post.id)}
+                                onClick={() => handleDelete(post.id, post.source)}
                                 className="bg-red-600 hover:bg-red-700"
                               >
                                 Delete
