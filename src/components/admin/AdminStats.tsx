@@ -1,9 +1,46 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { FileText, Users, DollarSign, Clock, CheckCircle, AlertTriangle } from "lucide-react";
+import { useAdminStats } from "@/hooks/useAdminStats";
 
 const AdminStats = () => {
+  const { data: stats, isLoading, error } = useAdminStats();
+
+  if (isLoading) {
+    return (
+      <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <Card key={i}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-4 w-4" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-16 mb-2" />
+              <Skeleton className="h-3 w-24" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
+        <Card className="col-span-full">
+          <CardContent className="p-6">
+            <p className="text-muted-foreground">Failed to load statistics</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
+
   return (
     <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
       <Card>
@@ -12,9 +49,9 @@ const AdminStats = () => {
           <FileText className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">127</div>
+          <div className="text-2xl font-bold">{stats.totalPosts}</div>
           <p className="text-xs text-muted-foreground">
-            +12 this month
+            {stats.monthlyGrowth.posts >= 0 ? '+' : ''}{stats.monthlyGrowth.posts} this month
           </p>
         </CardContent>
       </Card>
@@ -25,7 +62,7 @@ const AdminStats = () => {
           <Clock className="h-4 w-4 text-yellow-600" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">8</div>
+          <div className="text-2xl font-bold">{stats.pendingPosts}</div>
           <p className="text-xs text-muted-foreground">
             Awaiting approval
           </p>
@@ -38,9 +75,9 @@ const AdminStats = () => {
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">45</div>
+          <div className="text-2xl font-bold">{stats.activeUsers}</div>
           <p className="text-xs text-muted-foreground">
-            +5 new this week
+            {stats.monthlyGrowth.users >= 0 ? '+' : ''}{stats.monthlyGrowth.users} new this month
           </p>
         </CardContent>
       </Card>
@@ -51,9 +88,9 @@ const AdminStats = () => {
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$635</div>
+          <div className="text-2xl font-bold">$0</div>
           <p className="text-xs text-muted-foreground">
-            This month
+            Payment system not configured
           </p>
         </CardContent>
       </Card>
@@ -64,7 +101,7 @@ const AdminStats = () => {
           <CheckCircle className="h-4 w-4 text-green-600" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">78%</div>
+          <div className="text-2xl font-bold">{stats.approvalRate}%</div>
           <p className="text-xs text-muted-foreground">
             Last 30 days
           </p>
@@ -77,7 +114,7 @@ const AdminStats = () => {
           <AlertTriangle className="h-4 w-4 text-red-600" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">3</div>
+          <div className="text-2xl font-bold">{stats.validationIssues}</div>
           <p className="text-xs text-muted-foreground">
             Need manual review
           </p>
