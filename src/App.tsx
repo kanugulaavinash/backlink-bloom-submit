@@ -20,6 +20,8 @@ import ProfileSettings from "./pages/ProfileSettings";
 import NotFound from "./pages/NotFound";
 import ImportedPostView from "./components/admin/ImportedPostView";
 import ImportedPostEdit from "./components/admin/ImportedPostEdit";
+import GuestPostView from "./components/admin/GuestPostView";
+import GuestPostEdit from "./components/admin/GuestPostEdit";
 
 const queryClient = new QueryClient();
 
@@ -91,6 +93,22 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin={true}>
                   <ImportedPostEdit />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/posts/view/:id" 
+              element={
+                <ProtectedRoute requireAdmin={true}>
+                  <GuestPostView />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/posts/edit/:id" 
+              element={
+                <ProtectedRoute requireAdmin={true}>
+                  <GuestPostEdit />
                 </ProtectedRoute>
               } 
             />
