@@ -251,10 +251,18 @@ const ImportedPostsManagement = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => window.open(`/admin/imported-posts/view/${post.id}`, '_blank')}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => window.open(`/admin/imported-posts/edit/${post.id}`, '_blank')}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       {post.wordpress_url && (

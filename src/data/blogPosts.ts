@@ -244,7 +244,7 @@ export const getImportedPosts = async (): Promise<BlogPost[]> => {
     const { data: importedPosts, error } = await supabase
       .from('imported_posts')
       .select('*')
-      .eq('status', 'published')
+      .in('status', ['published', 'imported'])
       .order('published_date', { ascending: false });
 
     if (error) {
