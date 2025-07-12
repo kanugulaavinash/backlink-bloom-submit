@@ -16,6 +16,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import SubmitPost from "./pages/SubmitPost";
+import ProfileSettings from "./pages/ProfileSettings";
 import NotFound from "./pages/NotFound";
 import ImportedPostView from "./components/admin/ImportedPostView";
 import ImportedPostEdit from "./components/admin/ImportedPostEdit";
@@ -66,6 +67,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <SubmitPost />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile-settings" 
+              element={
+                <ProtectedRoute>
+                  <ProfileSettings />
                 </ProtectedRoute>
               } 
             />

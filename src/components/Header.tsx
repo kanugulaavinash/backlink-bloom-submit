@@ -10,9 +10,12 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { useAuth } from "@/hooks/useAuth";
+import UserDropdown from "./UserDropdown";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, userRole, signOut } = useAuth();
 
   const categories = [
     { name: "Lifestyle", color: "from-pink-500 to-rose-500" },
@@ -108,18 +111,24 @@ const Header = () => {
             </NavigationMenuList>
           </NavigationMenu>
 
-          {/* Auth Buttons */}
-          <div className="hidden lg:flex items-center space-x-4">
-            <Link to="/signin">
-              <Button variant="ghost" className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-xl font-medium">
-                Sign In
-              </Button>
-            </Link>
-            <Link to="/signup">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                Get Started
-              </Button>
-            </Link>
+          {/* Auth Section */}
+          <div className="hidden lg:flex items-center">
+            {user ? (
+              <UserDropdown />
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Link to="/signin">
+                  <Button variant="ghost" className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-xl font-medium">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -166,20 +175,66 @@ const Header = () => {
               </div>
               
               <div className="border-t pt-4 mt-6 px-6 space-y-3">
-                <Link
-                  to="/signin"
-                  className="block w-full text-center px-6 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300 font-medium"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/signup"
-                  className="block w-full text-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-medium shadow-lg"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Get Started
-                </Link>
+                {user ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-xl">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">
+                          {user.user_metadata?.full_name ? 
+                            user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase() :
+                            user.email?.substring(0, 2).toUpperCase()
+                          }
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 truncate">
+                          {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                        </p>
+                        <p className="text-sm text-gray-500 truncate">{user.email}</p>
+                      </div>
+                    </div>
+                    <Link
+                      to={userRole === 'admin' ? '/admin-dashboard' : '/dashboard'}
+                      className="block w-full text-center px-6 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300 font-medium"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      to="/profile-settings"
+                      className="block w-full text-center px-6 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300 font-medium"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Profile Settings
+                    </Link>
+                    <button
+                      onClick={async () => {
+                        setIsMenuOpen(false);
+                        await signOut();
+                      }}
+                      className="block w-full text-center px-6 py-3 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all duration-300 font-medium"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <Link
+                      to="/signin"
+                      className="block w-full text-center px-6 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300 font-medium"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      to="/signup"
+                      className="block w-full text-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-medium shadow-lg"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Get Started
+                    </Link>
+                  </>
+                )}
               </div>
             </nav>
           </div>
