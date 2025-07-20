@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ReactQuill from 'react-quill';
@@ -25,6 +26,21 @@ interface Tag {
   id: string;
   name: string;
   slug: string;
+}
+
+interface BlogPostData {
+  id: string;
+  title: string;
+  content: string;
+  excerpt: string;
+  status: string;
+  visibility: string;
+  meta_title: string;
+  meta_description: string;
+  featured_image_alt: string;
+  featured_image_url: string;
+  category_ids: string[];
+  tag_ids: string[];
 }
 
 const CreateBlogPost = () => {
@@ -61,14 +77,13 @@ const CreateBlogPost = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase.rpc('custom_select', { 
-        query: 'SELECT id, name, slug FROM categories ORDER BY name' 
-      });
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name, slug')
+        .order('name');
+      
       if (error) throw error;
-      if (data) {
-        const categoryData = data.map((item: any) => item.result);
-        setCategories(categoryData);
-      }
+      setCategories(data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -76,14 +91,13 @@ const CreateBlogPost = () => {
 
   const fetchTags = async () => {
     try {
-      const { data, error } = await supabase.rpc('custom_select', { 
-        query: 'SELECT id, name, slug FROM tags ORDER BY usage_count DESC' 
-      });
+      const { data, error } = await supabase
+        .from('tags')
+        .select('id, name, slug')
+        .order('usage_count', { ascending: false });
+      
       if (error) throw error;
-      if (data) {
-        const tagData = data.map((item: any) => item.result);
-        setTags(tagData);
-      }
+      setTags(data || []);
     } catch (error) {
       console.error('Error fetching tags:', error);
     }
@@ -93,36 +107,55 @@ const CreateBlogPost = () => {
     if (!id) return;
     
     try {
-      const { data, error } = await supabase.rpc('custom_select', { 
-        query: `SELECT bp.*, 
-                array_agg(DISTINCT bpc.category_id) as category_ids,
-                array_agg(DISTINCT bpt.tag_id) as tag_ids
-                FROM blog_posts bp
-                LEFT JOIN blog_post_categories bpc ON bp.id = bpc.blog_post_id
-                LEFT JOIN blog_post_tags bpt ON bp.id = bpt.blog_post_id
-                WHERE bp.id = '${id}'
-                GROUP BY bp.id` 
-      });
+      // Fetch the blog post
+      const { data: postData, error: postError } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('id', id)
+        .single();
       
-      if (error) throw error;
-      if (data && data.length > 0) {
-        const post = data[0].result;
+      if (postError) throw postError;
+
+      if (postData) {
         setFormData({
-          title: post.title || '',
-          content: post.content || '',
-          excerpt: post.excerpt || '',
-          status: post.status || 'draft',
-          visibility: post.visibility || 'public',
-          meta_title: post.meta_title || '',
-          meta_description: post.meta_description || '',
-          featured_image_alt: post.featured_image_alt || ''
+          title: postData.title || '',
+          content: postData.content || '',
+          excerpt: postData.excerpt || '',
+          status: postData.status || 'draft',
+          visibility: postData.visibility || 'public',
+          meta_title: postData.meta_title || '',
+          meta_description: postData.meta_description || '',
+          featured_image_alt: postData.featured_image_alt || ''
         });
-        setFeaturedImageUrl(post.featured_image_url || '');
-        setSelectedCategories(post.category_ids || []);
-        setSelectedTags(post.tag_ids || []);
+        setFeaturedImageUrl(postData.featured_image_url || '');
+      }
+
+      // Fetch post categories
+      const { data: categoryData, error: catError } = await supabase
+        .from('blog_post_categories')
+        .select('category_id')
+        .eq('blog_post_id', id);
+      
+      if (!catError && categoryData) {
+        setSelectedCategories(categoryData.map(item => item.category_id));
+      }
+
+      // Fetch post tags
+      const { data: tagData, error: tagError } = await supabase
+        .from('blog_post_tags')
+        .select('tag_id')
+        .eq('blog_post_id', id);
+      
+      if (!tagError && tagData) {
+        setSelectedTags(tagData.map(item => item.tag_id));
       }
     } catch (error) {
       console.error('Error fetching blog post:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load blog post",
+        variant: "destructive"
+      });
     }
   };
 
@@ -155,16 +188,20 @@ const CreateBlogPost = () => {
 
     const slug = newTag.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
     try {
-      const { data, error } = await supabase.rpc('custom_select', { 
-        query: `INSERT INTO tags (name, slug) VALUES ('${newTag.trim()}', '${slug}') RETURNING *` 
-      });
+      const { data, error } = await supabase
+        .from('tags')
+        .insert({
+          name: newTag.trim(),
+          slug: slug
+        })
+        .select()
+        .single();
 
       if (error) throw error;
       
-      if (data && data.length > 0) {
-        const newTagData = data[0].result;
-        setTags([...tags, newTagData]);
-        setSelectedTags([...selectedTags, newTagData.id]);
+      if (data) {
+        setTags([...tags, data]);
+        setSelectedTags([...selectedTags, data.id]);
         setNewTag('');
         toast({
           title: "Tag created",
@@ -208,62 +245,62 @@ const CreateBlogPost = () => {
       };
 
       let postId = id;
-      let query = '';
 
       if (id) {
         // Update existing post
-        query = `UPDATE blog_posts SET 
-                 title = '${postData.title}',
-                 content = '${postData.content.replace(/'/g, "''")}',
-                 excerpt = '${postData.excerpt}',
-                 status = '${postData.status}',
-                 visibility = '${postData.visibility}',
-                 featured_image_url = '${postData.featured_image_url}',
-                 featured_image_alt = '${postData.featured_image_alt}',
-                 meta_title = '${postData.meta_title}',
-                 meta_description = '${postData.meta_description}',
-                 word_count = ${postData.word_count},
-                 reading_time = ${postData.reading_time},
-                 updated_at = now()
-                 WHERE id = '${id}'`;
+        const { error } = await supabase
+          .from('blog_posts')
+          .update(postData)
+          .eq('id', id);
+        
+        if (error) throw error;
       } else {
         // Create new post
-        query = `INSERT INTO blog_posts (title, content, excerpt, status, visibility, featured_image_url, featured_image_alt, meta_title, meta_description, word_count, reading_time, user_id, slug, published_at)
-                 VALUES ('${postData.title}', '${postData.content.replace(/'/g, "''")}', '${postData.excerpt}', '${postData.status}', '${postData.visibility}', '${postData.featured_image_url}', '${postData.featured_image_alt}', '${postData.meta_title}', '${postData.meta_description}', ${postData.word_count}, ${postData.reading_time}, '${postData.user_id}', '${postData.slug}', ${postData.published_at ? `'${postData.published_at}'` : 'NULL'})
-                 RETURNING id`;
-      }
-
-      const { data, error } = await supabase.rpc('custom_select', { query });
-      if (error) throw error;
-
-      if (!id && data && data.length > 0) {
-        postId = data[0].result.id;
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .insert(postData)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        postId = data.id;
       }
 
       // Update categories and tags
       if (postId) {
         // Clear existing relationships
-        await supabase.rpc('custom_select', { 
-          query: `DELETE FROM blog_post_categories WHERE blog_post_id = '${postId}'` 
-        });
-        await supabase.rpc('custom_select', { 
-          query: `DELETE FROM blog_post_tags WHERE blog_post_id = '${postId}'` 
-        });
+        await supabase
+          .from('blog_post_categories')
+          .delete()
+          .eq('blog_post_id', postId);
+        
+        await supabase
+          .from('blog_post_tags')
+          .delete()
+          .eq('blog_post_id', postId);
 
         // Add new category relationships
         if (selectedCategories.length > 0) {
-          const categoryValues = selectedCategories.map(catId => `('${postId}', '${catId}')`).join(', ');
-          await supabase.rpc('custom_select', { 
-            query: `INSERT INTO blog_post_categories (blog_post_id, category_id) VALUES ${categoryValues}` 
-          });
+          const categoryInserts = selectedCategories.map(catId => ({
+            blog_post_id: postId,
+            category_id: catId
+          }));
+          
+          await supabase
+            .from('blog_post_categories')
+            .insert(categoryInserts);
         }
 
         // Add new tag relationships
         if (selectedTags.length > 0) {
-          const tagValues = selectedTags.map(tagId => `('${postId}', '${tagId}')`).join(', ');
-          await supabase.rpc('custom_select', { 
-            query: `INSERT INTO blog_post_tags (blog_post_id, tag_id) VALUES ${tagValues}` 
-          });
+          const tagInserts = selectedTags.map(tagId => ({
+            blog_post_id: postId,
+            tag_id: tagId
+          }));
+          
+          await supabase
+            .from('blog_post_tags')
+            .insert(tagInserts);
         }
       }
 
@@ -272,7 +309,7 @@ const CreateBlogPost = () => {
         description: `Your blog post has been ${status === 'published' ? 'published' : 'saved as draft'}.`
       });
 
-      navigate('/dashboard');
+      navigate('/admin-dashboard');
     } catch (error: any) {
       toast({
         title: "Error saving post",
