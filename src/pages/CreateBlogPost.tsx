@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ReactQuill from 'react-quill';
@@ -10,106 +9,66 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Save, Eye, X, Plus } from 'lucide-react';
 
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-interface Tag {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-interface BlogPostData {
-  id: string;
-  title: string;
-  content: string;
-  excerpt: string;
-  status: string;
-  visibility: string;
-  meta_title: string;
-  meta_description: string;
-  featured_image_alt: string;
-  featured_image_url: string;
-  category_ids: string[];
-  tag_ids: string[];
-}
+// Pre-defined categories (can be moved to database later)
+const CATEGORIES = [
+  'Technology',
+  'Business', 
+  'Marketing',
+  'Design',
+  'Development',
+  'Lifestyle',
+  'Health',
+  'Travel',
+  'Food',
+  'Fashion',
+  'Sports',
+  'Entertainment',
+  'Education',
+  'Finance',
+  'Science',
+  'Politics',
+  'Art',
+  'Music',
+  'Photography',
+  'Gaming'
+];
 
 const CreateBlogPost = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState('');
-  const [featuredImage, setFeaturedImage] = useState<File | null>(null);
-  const [featuredImageUrl, setFeaturedImageUrl] = useState('');
 
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     excerpt: '',
-    status: 'draft',
-    visibility: 'public',
-    meta_title: '',
-    meta_description: '',
-    featured_image_alt: ''
+    category: '',
+    author_name: '',
+    author_bio: '',
+    author_website: '',
+    status: 'pending'
   });
 
   useEffect(() => {
-    fetchCategories();
-    fetchTags();
     if (id) {
       fetchBlogPost();
     }
   }, [id]);
 
-  const fetchCategories = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('id, name, slug')
-        .order('name');
-      
-      if (error) throw error;
-      setCategories(data || []);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
-  const fetchTags = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('tags')
-        .select('id, name, slug')
-        .order('usage_count', { ascending: false });
-      
-      if (error) throw error;
-      setTags(data || []);
-    } catch (error) {
-      console.error('Error fetching tags:', error);
-    }
-  };
-
   const fetchBlogPost = async () => {
     if (!id) return;
     
     try {
-      // Fetch the blog post
       const { data: postData, error: postError } = await supabase
-        .from('blog_posts')
+        .from('guest_posts')
         .select('*')
         .eq('id', id)
         .single();
@@ -121,33 +80,13 @@ const CreateBlogPost = () => {
           title: postData.title || '',
           content: postData.content || '',
           excerpt: postData.excerpt || '',
-          status: postData.status || 'draft',
-          visibility: postData.visibility || 'public',
-          meta_title: postData.meta_title || '',
-          meta_description: postData.meta_description || '',
-          featured_image_alt: postData.featured_image_alt || ''
+          category: postData.category || '',
+          author_name: postData.author_name || '',
+          author_bio: postData.author_bio || '',
+          author_website: postData.author_website || '',
+          status: postData.status || 'pending'
         });
-        setFeaturedImageUrl(postData.featured_image_url || '');
-      }
-
-      // Fetch post categories
-      const { data: categoryData, error: catError } = await supabase
-        .from('blog_post_categories')
-        .select('category_id')
-        .eq('blog_post_id', id);
-      
-      if (!catError && categoryData) {
-        setSelectedCategories(categoryData.map(item => item.category_id));
-      }
-
-      // Fetch post tags
-      const { data: tagData, error: tagError } = await supabase
-        .from('blog_post_tags')
-        .select('tag_id')
-        .eq('blog_post_id', id);
-      
-      if (!tagError && tagData) {
-        setSelectedTags(tagData.map(item => item.tag_id));
+        setSelectedTags(postData.tags || []);
       }
     } catch (error) {
       console.error('Error fetching blog post:', error);
@@ -159,62 +98,28 @@ const CreateBlogPost = () => {
     }
   };
 
-  const uploadFeaturedImage = async () => {
-    if (!featuredImage) return '';
-
-    const fileExt = featuredImage.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
-    const filePath = `featured-images/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('blog-media')
-      .upload(filePath, featuredImage);
-
-    if (uploadError) {
+  const addTag = () => {
+    if (!newTag.trim()) return;
+    
+    const tagToAdd = newTag.trim();
+    if (!selectedTags.includes(tagToAdd)) {
+      setSelectedTags([...selectedTags, tagToAdd]);
+      setNewTag('');
       toast({
-        title: "Upload failed",
-        description: uploadError.message,
+        title: "Tag added",
+        description: `Tag "${tagToAdd}" has been added.`
+      });
+    } else {
+      toast({
+        title: "Tag exists",
+        description: "This tag is already added.",
         variant: "destructive"
       });
-      return '';
     }
-
-    const { data } = supabase.storage.from('blog-media').getPublicUrl(filePath);
-    return data.publicUrl;
   };
 
-  const createTag = async () => {
-    if (!newTag.trim()) return;
-
-    const slug = newTag.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
-    try {
-      const { data, error } = await supabase
-        .from('tags')
-        .insert({
-          name: newTag.trim(),
-          slug: slug
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      
-      if (data) {
-        setTags([...tags, data]);
-        setSelectedTags([...selectedTags, data.id]);
-        setNewTag('');
-        toast({
-          title: "Tag created",
-          description: `Tag "${newTag}" has been created.`
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error creating tag",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
+  const removeTag = (tagToRemove: string) => {
+    setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
   };
 
   const saveBlogPost = async (status: string) => {
@@ -224,89 +129,38 @@ const CreateBlogPost = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      let imageUrl = featuredImageUrl;
-      if (featuredImage) {
-        imageUrl = await uploadFeaturedImage();
-      }
-
-      const slug = formData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
-      const wordCount = formData.content.replace(/<[^>]*>/g, '').split(/\s+/).length;
-      const readingTime = Math.ceil(wordCount / 200);
-
-      const postData = {
+      const postData: any = {
         ...formData,
         status,
-        slug,
-        featured_image_url: imageUrl,
-        word_count: wordCount,
-        reading_time: readingTime,
-        published_at: status === 'published' ? new Date().toISOString() : null,
-        user_id: user.id
+        tags: selectedTags,
+        user_id: user.id,
+        updated_at: new Date().toISOString()
       };
 
-      let postId = id;
+      if (status === 'published') {
+        postData.published_at = new Date().toISOString();
+      }
 
       if (id) {
         // Update existing post
         const { error } = await supabase
-          .from('blog_posts')
+          .from('guest_posts')
           .update(postData)
           .eq('id', id);
         
         if (error) throw error;
       } else {
         // Create new post
-        const { data, error } = await supabase
-          .from('blog_posts')
-          .insert(postData)
-          .select()
-          .single();
+        const { error } = await supabase
+          .from('guest_posts')
+          .insert(postData);
         
         if (error) throw error;
-        postId = data.id;
-      }
-
-      // Update categories and tags
-      if (postId) {
-        // Clear existing relationships
-        await supabase
-          .from('blog_post_categories')
-          .delete()
-          .eq('blog_post_id', postId);
-        
-        await supabase
-          .from('blog_post_tags')
-          .delete()
-          .eq('blog_post_id', postId);
-
-        // Add new category relationships
-        if (selectedCategories.length > 0) {
-          const categoryInserts = selectedCategories.map(catId => ({
-            blog_post_id: postId,
-            category_id: catId
-          }));
-          
-          await supabase
-            .from('blog_post_categories')
-            .insert(categoryInserts);
-        }
-
-        // Add new tag relationships
-        if (selectedTags.length > 0) {
-          const tagInserts = selectedTags.map(tagId => ({
-            blog_post_id: postId,
-            tag_id: tagId
-          }));
-          
-          await supabase
-            .from('blog_post_tags')
-            .insert(tagInserts);
-        }
       }
 
       toast({
         title: status === 'published' ? "Post published!" : "Post saved!",
-        description: `Your blog post has been ${status === 'published' ? 'published' : 'saved as draft'}.`
+        description: `Your blog post has been ${status === 'published' ? 'published' : 'saved'}.`
       });
 
       navigate('/admin-dashboard');
@@ -347,7 +201,7 @@ const CreateBlogPost = () => {
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
-                      onClick={() => saveBlogPost('draft')}
+                      onClick={() => saveBlogPost('pending')}
                       disabled={loading}
                     >
                       <Save className="w-4 h-4 mr-2" />
@@ -401,29 +255,38 @@ const CreateBlogPost = () => {
               </CardContent>
             </Card>
 
-            {/* SEO Section */}
+            {/* Author Information */}
             <Card>
               <CardHeader>
-                <CardTitle>SEO Settings</CardTitle>
+                <CardTitle>Author Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="meta_title">Meta Title</Label>
+                  <Label htmlFor="author_name">Author Name</Label>
                   <Input
-                    id="meta_title"
-                    value={formData.meta_title}
-                    onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
-                    placeholder="SEO title (leave blank to use post title)"
+                    id="author_name"
+                    value={formData.author_name}
+                    onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
+                    placeholder="Author's full name"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="meta_description">Meta Description</Label>
+                  <Label htmlFor="author_bio">Author Bio</Label>
                   <Textarea
-                    id="meta_description"
-                    value={formData.meta_description}
-                    onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
-                    placeholder="SEO description (leave blank to use excerpt)"
+                    id="author_bio"
+                    value={formData.author_bio}
+                    onChange={(e) => setFormData({ ...formData, author_bio: e.target.value })}
+                    placeholder="Brief bio about the author"
                     rows={2}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="author_website">Author Website</Label>
+                  <Input
+                    id="author_website"
+                    value={formData.author_website}
+                    onChange={(e) => setFormData({ ...formData, author_website: e.target.value })}
+                    placeholder="https://authorwebsite.com"
                   />
                 </div>
               </CardContent>
@@ -445,89 +308,33 @@ const CreateBlogPost = () => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="pending">Pending Review</SelectItem>
                       <SelectItem value="published">Published</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Visibility</Label>
-                  <Select value={formData.visibility} onValueChange={(value) => setFormData({ ...formData, visibility: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="public">Public</SelectItem>
-                      <SelectItem value="private">Private</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Featured Image */}
+            {/* Category */}
             <Card>
               <CardHeader>
-                <CardTitle>Featured Image</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {featuredImageUrl && (
-                  <div className="relative">
-                    <img src={featuredImageUrl} alt="Featured" className="w-full h-32 object-cover rounded" />
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => setFeaturedImageUrl('')}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
-                <div>
-                  <Label htmlFor="featured-image">Upload Image</Label>
-                  <Input
-                    id="featured-image"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setFeaturedImage(e.target.files?.[0] || null)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="featured_image_alt">Alt Text</Label>
-                  <Input
-                    id="featured_image_alt"
-                    value={formData.featured_image_alt}
-                    onChange={(e) => setFormData({ ...formData, featured_image_alt: e.target.value })}
-                    placeholder="Describe the image..."
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Categories */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Categories</CardTitle>
+                <CardTitle>Category</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {categories.map((category) => (
-                    <div key={category.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        checked={selectedCategories.includes(category.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setSelectedCategories([...selectedCategories, category.id]);
-                          } else {
-                            setSelectedCategories(selectedCategories.filter(id => id !== category.id));
-                          }
-                        }}
-                      />
-                      <Label className="text-sm">{category.name}</Label>
-                    </div>
-                  ))}
-                </div>
+                <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </CardContent>
             </Card>
 
@@ -538,36 +345,17 @@ const CreateBlogPost = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-wrap gap-1">
-                  {selectedTags.map((tagId) => {
-                    const tag = tags.find(t => t.id === tagId);
-                    return tag ? (
-                      <Badge key={tagId} variant="secondary" className="flex items-center gap-1">
-                        {tag.name}
-                        <button
-                          onClick={() => setSelectedTags(selectedTags.filter(id => id !== tagId))}
-                          className="ml-1 hover:text-destructive"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </Badge>
-                    ) : null;
-                  })}
-                </div>
-                
-                <div className="space-y-2">
-                  <Label>Popular Tags</Label>
-                  <div className="flex flex-wrap gap-1">
-                    {tags.filter(tag => !selectedTags.includes(tag.id)).slice(0, 10).map((tag) => (
-                      <Badge
-                        key={tag.id}
-                        variant="outline"
-                        className="cursor-pointer hover:bg-secondary"
-                        onClick={() => setSelectedTags([...selectedTags, tag.id])}
+                  {selectedTags.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                      {tag}
+                      <button
+                        onClick={() => removeTag(tag)}
+                        className="ml-1 hover:text-destructive"
                       >
-                        {tag.name}
-                      </Badge>
-                    ))}
-                  </div>
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
                 </div>
 
                 <div className="flex gap-2">
@@ -575,9 +363,9 @@ const CreateBlogPost = () => {
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
                     placeholder="Add new tag..."
-                    onKeyPress={(e) => e.key === 'Enter' && createTag()}
+                    onKeyPress={(e) => e.key === 'Enter' && addTag()}
                   />
-                  <Button onClick={createTag} size="sm">
+                  <Button onClick={addTag} size="sm">
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
