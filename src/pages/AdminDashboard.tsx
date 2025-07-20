@@ -1,7 +1,10 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import Header from "@/components/Header";
 import AdminStats from "@/components/admin/AdminStats";
 import PostsManagement from "@/components/admin/PostsManagement";
@@ -14,6 +17,7 @@ import WordPressImport from "@/components/admin/WordPressImport";
 
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -21,9 +25,15 @@ const AdminDashboard = () => {
       <div className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-            <p className="text-gray-600">Manage posts, users, and platform settings</p>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+              <p className="text-gray-600">Manage posts, users, and platform settings</p>
+            </div>
+            <Button onClick={() => navigate('/create-blog-post')} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Add New Blog Post
+            </Button>
           </div>
 
           {/* Admin Overview Stats */}

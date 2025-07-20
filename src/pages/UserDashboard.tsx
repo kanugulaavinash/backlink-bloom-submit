@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ import ProfileSettings from "@/components/dashboard/ProfileSettings";
 import NotificationsList from "@/components/dashboard/NotificationsList";
 
 const UserDashboard = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -21,9 +23,15 @@ const UserDashboard = () => {
       <div className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Dashboard</h1>
-            <p className="text-gray-600">Manage your guest posts and account settings</p>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">My Dashboard</h1>
+              <p className="text-gray-600">Manage your guest posts and account settings</p>
+            </div>
+            <Button onClick={() => navigate('/create-blog-post')} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Add New Blog Post
+            </Button>
           </div>
 
           {/* Dashboard Overview Stats */}

@@ -22,6 +22,7 @@ import ImportedPostView from "./components/admin/ImportedPostView";
 import ImportedPostEdit from "./components/admin/ImportedPostEdit";
 import GuestPostView from "./components/admin/GuestPostView";
 import GuestPostEdit from "./components/admin/GuestPostEdit";
+import CreateBlogPost from "./pages/CreateBlogPost";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +110,22 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin={true}>
                   <GuestPostEdit />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/create-blog-post" 
+              element={
+                <ProtectedRoute>
+                  <CreateBlogPost />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/create-blog-post/:id" 
+              element={
+                <ProtectedRoute>
+                  <CreateBlogPost />
                 </ProtectedRoute>
               } 
             />
