@@ -15,7 +15,6 @@ import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import SubmitPost from "./pages/SubmitPost";
 import ProfileSettings from "./pages/ProfileSettings";
 import NotFound from "./pages/NotFound";
 import ImportedPostView from "./components/admin/ImportedPostView";
@@ -62,14 +61,6 @@ const App = () => (
               element={
                 <ProtectedRoute requireAdmin={true}>
                   <AdminDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/submit-post" 
-              element={
-                <ProtectedRoute>
-                  <SubmitPost />
                 </ProtectedRoute>
               } 
             />
