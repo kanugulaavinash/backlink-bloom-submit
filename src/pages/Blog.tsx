@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,12 +7,27 @@ import { Input } from "@/components/ui/input";
 import { Clock, Search, User, Calendar, TrendingUp, Star, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
-import { getAllPosts, getAllPostsByCategory, searchAllPosts, getLatestPosts, BlogPost } from "@/data/blogPosts";
+import { 
+  getAllPosts, 
+  getAllPostsByCategory, 
+  searchAllPosts, 
+  getLatestPosts, 
+  getDynamicCategories,
+  BlogPost 
+} from "@/data/blogPosts";
 import { format } from "date-fns";
+
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+}
 
 const Blog = () => {
   const [displayedPosts, setDisplayedPosts] = useState<BlogPost[]>([]);
   const [latestPosts, setLatestPosts] = useState<BlogPost[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -19,17 +35,29 @@ const Blog = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const postsPerPage = 9;
 
-  const categories = [
-    { name: "All", icon: "🌟", color: "from-blue-500 to-purple-500" },
-    { name: "Lifestyle", icon: "✨", color: "from-pink-500 to-rose-500" },
-    { name: "Health", icon: "💚", color: "from-green-500 to-emerald-500" }, 
-    { name: "Entertainment", icon: "🎬", color: "from-purple-500 to-violet-500" },
-    { name: "Science & Technology", icon: "🚀", color: "from-blue-500 to-cyan-500" },
-    { name: "News", icon: "📰", color: "from-red-500 to-orange-500" },
-    { name: "Sports", icon: "⚽", color: "from-orange-500 to-yellow-500" },
-    { name: "Travel", icon: "✈️", color: "from-teal-500 to-green-500" },
-    { name: "Videos", icon: "🎥", color: "from-indigo-500 to-purple-500" }
-  ];
+  // Fallback categories with emojis for display
+  const categoryIcons: Record<string, string> = {
+    'Technology': '🚀',
+    'Business': '💼',
+    'Marketing': '📈',
+    'Design': '🎨',
+    'Development': '💻',
+    'Lifestyle': '✨',
+    'Health': '💚',
+    'Travel': '✈️',
+    'Food': '🍳',
+    'Fashion': '👗',
+    'Sports': '⚽',
+    'Entertainment': '🎬',
+    'Education': '📚',
+    'Finance': '💰',
+    'Science': '🔬',
+    'Politics': '🏛️',
+    'Art': '🖼️',
+    'Music': '🎵',
+    'Photography': '📸',
+    'Gaming': '🎮'
+  };
 
   useEffect(() => {
     loadInitialData();
@@ -44,13 +72,23 @@ const Blog = () => {
   const loadInitialData = async () => {
     try {
       setInitialLoading(true);
-      const [allPosts, latest] = await Promise.all([
+      console.log('Loading initial blog data...');
+      
+      const [allPosts, latest, dynamicCategories] = await Promise.all([
         getAllPosts(),
-        getLatestPosts(4)
+        getLatestPosts(4),
+        getDynamicCategories()
       ]);
+      
+      console.log('Initial data loaded:', {
+        totalPosts: allPosts.length,
+        latestPosts: latest.length,
+        categories: dynamicCategories.length
+      });
       
       setDisplayedPosts(allPosts.slice(0, postsPerPage));
       setLatestPosts(latest);
+      setCategories(dynamicCategories);
       setCurrentPage(1);
     } catch (error) {
       console.error('Error loading initial data:', error);
@@ -120,6 +158,29 @@ const Blog = () => {
     } catch (error) {
       console.error('Error checking more posts:', error);
       return false;
+    }
+  };
+
+  const getCategoryCount = async (categoryName: string) => {
+    const posts = await getAllPostsByCategory(categoryName);
+    return posts.length;
+  };
+
+  const getPostTypeColor = (postType?: string) => {
+    switch (postType) {
+      case 'guest': return 'bg-green-500';
+      case 'imported': return 'bg-blue-500';
+      case 'static': return 'bg-purple-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getPostTypeLabel = (postType?: string) => {
+    switch (postType) {
+      case 'guest': return 'Guest Post';
+      case 'imported': return 'Imported';
+      case 'static': return 'Featured';
+      default: return 'Post';
     }
   };
 
@@ -196,18 +257,40 @@ const Blog = () => {
                 Browse by Category
               </h2>
               <div className="flex flex-wrap gap-3">
+                {/* All Category */}
+                <Button
+                  variant={!selectedCategory ? "default" : "outline"}
+                  onClick={() => setSelectedCategory(null)}
+                  className={`h-12 px-6 rounded-xl font-medium transition-all duration-300 ${
+                    !selectedCategory
+                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
+                      : "hover:bg-gray-50 border-2 hover:border-gray-300"
+                  }`}
+                >
+                  <span className="mr-2 text-lg">🌟</span>
+                  All
+                </Button>
+                
+                {/* Dynamic Categories */}
                 {categories.map((category) => (
                   <Button
-                    key={category.name}
-                    variant={selectedCategory === category.name || (category.name === "All" && !selectedCategory) ? "default" : "outline"}
-                    onClick={() => setSelectedCategory(category.name === "All" ? null : category.name)}
+                    key={category.id}
+                    variant={selectedCategory === category.name ? "default" : "outline"}
+                    onClick={() => setSelectedCategory(category.name)}
                     className={`h-12 px-6 rounded-xl font-medium transition-all duration-300 ${
-                      selectedCategory === category.name || (category.name === "All" && !selectedCategory)
-                        ? `bg-gradient-to-r ${category.color} text-white shadow-lg hover:shadow-xl transform hover:scale-105`
+                      selectedCategory === category.name
+                        ? `text-white shadow-lg hover:shadow-xl transform hover:scale-105`
                         : "hover:bg-gray-50 border-2 hover:border-gray-300"
                     }`}
+                    style={
+                      selectedCategory === category.name
+                        ? { background: `linear-gradient(to right, ${category.color}, ${category.color}dd)` }
+                        : {}
+                    }
                   >
-                    <span className="mr-2 text-lg">{category.icon}</span>
+                    <span className="mr-2 text-lg">
+                      {categoryIcons[category.name] || '📝'}
+                    </span>
                     {category.name}
                   </Button>
                 ))}
@@ -232,8 +315,11 @@ const Blog = () => {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                      <div className="absolute top-4 left-4 flex gap-2">
-                        <Badge className={`bg-gradient-to-r ${categories.find(c => c.name === post.category)?.color || 'from-blue-500 to-purple-500'} text-white border-0 px-3 py-1 font-medium`}>
+                      <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
+                        <Badge 
+                          className="text-white border-0 px-3 py-1 font-medium"
+                          style={{ backgroundColor: categories.find(c => c.name === post.category)?.color || '#3B82F6' }}
+                        >
                           {post.category}
                         </Badge>
                         {post.subCategory && (
@@ -241,11 +327,9 @@ const Blog = () => {
                             {post.subCategory}
                           </Badge>
                         )}
-                        {post.id.startsWith('imported-') && (
-                          <Badge className="bg-green-500 text-white border-0 px-3 py-1">
-                            Imported
-                          </Badge>
-                        )}
+                        <Badge className={`${getPostTypeColor(post.postType)} text-white border-0 px-3 py-1 text-xs`}>
+                          {getPostTypeLabel(post.postType)}
+                        </Badge>
                       </div>
                       <div className="absolute bottom-4 left-4 right-4">
                         <Link to={`/blog/post/${post.id}`}>
@@ -333,11 +417,9 @@ const Blog = () => {
                                 <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
                                   {post.title}
                                 </h4>
-                                {post.id.startsWith('imported-') && (
-                                  <Badge className="bg-green-100 text-green-700 text-xs px-1 py-0">
-                                    NEW
-                                  </Badge>
-                                )}
+                                <Badge className={`${getPostTypeColor(post.postType)} text-white text-xs px-1 py-0`}>
+                                  {post.postType === 'guest' ? 'NEW' : getPostTypeLabel(post.postType)}
+                                </Badge>
                               </div>
                               <div className="flex items-center gap-3 text-sm text-gray-500">
                                 <span>{post.author}</span>
@@ -361,28 +443,14 @@ const Blog = () => {
                     Categories
                   </h3>
                   <div className="space-y-4">
-                    {categories.slice(1).map((category) => {
-                      const count = (getAllPostsByCategory(category.name) as any).length;
-                      return (
-                        <button
-                          key={category.name}
-                          onClick={() => setSelectedCategory(category.name)}
-                          className="flex items-center justify-between w-full text-left p-4 rounded-xl hover:bg-gray-50 transition-all duration-300 group"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${category.color} flex items-center justify-center text-white text-lg shadow-md group-hover:shadow-lg transition-shadow`}>
-                              {category.icon}
-                            </div>
-                            <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
-                              {category.name}
-                            </span>
-                          </div>
-                          <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200 px-3 py-1">
-                            {count}
-                          </Badge>
-                        </button>
-                      );
-                    })}
+                    {categories.slice(0, 8).map((category) => (
+                      <CategoryItem
+                        key={category.id}
+                        category={category}
+                        icon={categoryIcons[category.name] || '📝'}
+                        onSelect={() => setSelectedCategory(category.name)}
+                      />
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -407,6 +475,49 @@ const Blog = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Category Item Component
+const CategoryItem = ({ 
+  category, 
+  icon, 
+  onSelect 
+}: { 
+  category: Category; 
+  icon: string; 
+  onSelect: () => void; 
+}) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const loadCount = async () => {
+      const posts = await getAllPostsByCategory(category.name);
+      setCount(posts.length);
+    };
+    loadCount();
+  }, [category.name]);
+
+  return (
+    <button
+      onClick={onSelect}
+      className="flex items-center justify-between w-full text-left p-4 rounded-xl hover:bg-gray-50 transition-all duration-300 group"
+    >
+      <div className="flex items-center gap-3">
+        <div 
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg shadow-md group-hover:shadow-lg transition-shadow"
+          style={{ backgroundColor: category.color }}
+        >
+          {icon}
+        </div>
+        <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+          {category.name}
+        </span>
+      </div>
+      <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200 px-3 py-1">
+        {count}
+      </Badge>
+    </button>
   );
 };
 

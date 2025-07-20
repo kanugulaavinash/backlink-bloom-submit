@@ -16,6 +16,7 @@ export interface BlogPost {
   slug: string;
   views: number;
   likes: number;
+  postType?: 'static' | 'imported' | 'guest';
 }
 
 export const blogPosts: BlogPost[] = [
@@ -189,15 +190,100 @@ const getRandomPlaceholderImage = (): string => {
   return placeholders[Math.floor(Math.random() * placeholders.length)];
 };
 
-// Function to get a single post by ID (including imported posts)
+// Function to fetch published guest posts from Supabase
+export const getGuestPosts = async (): Promise<BlogPost[]> => {
+  try {
+    console.log('Fetching published guest posts...');
+    const { data: guestPosts, error } = await supabase
+      .from('guest_posts')
+      .select('*')
+      .eq('status', 'published')
+      .order('published_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching guest posts:', error);
+      return [];
+    }
+
+    if (!guestPosts) {
+      console.log('No guest posts found');
+      return [];
+    }
+
+    console.log(`Found ${guestPosts.length} published guest posts`);
+
+    // Transform guest posts to match BlogPost interface
+    return guestPosts.map((post) => ({
+      id: `guest-${post.id}`,
+      title: post.title,
+      excerpt: post.excerpt || generateExcerpt(post.content),
+      content: post.content,
+      author: post.author_name,
+      publishedAt: post.published_at || post.created_at,
+      readTime: calculateReadTime(post.content),
+      category: post.category,
+      tags: post.tags || [],
+      imageUrl: getRandomPlaceholderImage(),
+      slug: generateSlug(post.title),
+      views: Math.floor(Math.random() * 1000) + 100,
+      likes: Math.floor(Math.random() * 100) + 10,
+      postType: 'guest'
+    }));
+  } catch (error) {
+    console.error('Error in getGuestPosts:', error);
+    return [];
+  }
+};
+
+// Function to get a single post by ID (including all post types)
 export const getPostById = async (id: string): Promise<BlogPost | null> => {
   console.log('Searching for post with ID:', id);
   
-  // First check static posts
+  // Check static posts first
   const staticPost = blogPosts.find(post => post.id === id);
   if (staticPost) {
     console.log('Found static post:', staticPost.title);
-    return staticPost;
+    return { ...staticPost, postType: 'static' };
+  }
+  
+  // Check guest posts
+  if (id.startsWith('guest-')) {
+    const guestId = id.replace('guest-', '');
+    try {
+      const { data: guestPost, error } = await supabase
+        .from('guest_posts')
+        .select('*')
+        .eq('id', guestId)
+        .eq('status', 'published')
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching guest post:', error);
+        return null;
+      }
+
+      if (guestPost) {
+        console.log('Found guest post:', guestPost.title);
+        return {
+          id: `guest-${guestPost.id}`,
+          title: guestPost.title,
+          excerpt: guestPost.excerpt || generateExcerpt(guestPost.content),
+          content: guestPost.content,
+          author: guestPost.author_name,
+          publishedAt: guestPost.published_at || guestPost.created_at,
+          readTime: calculateReadTime(guestPost.content),
+          category: guestPost.category,
+          tags: guestPost.tags || [],
+          imageUrl: getRandomPlaceholderImage(),
+          slug: generateSlug(guestPost.title),
+          views: Math.floor(Math.random() * 1000) + 100,
+          likes: Math.floor(Math.random() * 100) + 10,
+          postType: 'guest'
+        };
+      }
+    } catch (error) {
+      console.error('Error fetching guest post:', error);
+    }
   }
   
   // Check imported posts - handle both "imported-uuid" and raw "uuid" formats
@@ -220,34 +306,33 @@ export const getPostById = async (id: string): Promise<BlogPost | null> => {
       return null;
     }
 
-    if (!importedPost) {
-      console.log('No imported post found with ID:', importedId);
-      return null;
+    if (importedPost) {
+      console.log('Found imported post:', importedPost.title);
+      
+      return {
+        id: `imported-${importedPost.id}`,
+        title: importedPost.title,
+        excerpt: importedPost.excerpt || generateExcerpt(importedPost.content),
+        content: importedPost.content,
+        author: 'Imported Author',
+        publishedAt: importedPost.published_date || importedPost.created_at,
+        readTime: calculateReadTime(importedPost.content),
+        category: importedPost.categories?.[0] || 'General',
+        subCategory: importedPost.categories?.[1] || undefined,
+        tags: importedPost.tags || [],
+        imageUrl: importedPost.featured_image_url || getRandomPlaceholderImage(),
+        slug: importedPost.slug || generateSlug(importedPost.title),
+        views: Math.floor(Math.random() * 1000) + 100,
+        likes: Math.floor(Math.random() * 100) + 10,
+        postType: 'imported'
+      };
     }
-
-    console.log('Found imported post:', importedPost.title);
-    
-    // Transform imported post to match BlogPost interface
-    return {
-      id: `imported-${importedPost.id}`,
-      title: importedPost.title,
-      excerpt: importedPost.excerpt || generateExcerpt(importedPost.content),
-      content: importedPost.content,
-      author: 'Imported Author',
-      publishedAt: importedPost.published_date || importedPost.created_at,
-      readTime: calculateReadTime(importedPost.content),
-      category: importedPost.categories?.[0] || 'General',
-      subCategory: importedPost.categories?.[1] || undefined,
-      tags: importedPost.tags || [],
-      imageUrl: importedPost.featured_image_url || getRandomPlaceholderImage(),
-      slug: importedPost.slug || generateSlug(importedPost.title),
-      views: Math.floor(Math.random() * 1000) + 100,
-      likes: Math.floor(Math.random() * 100) + 10
-    };
   } catch (error) {
     console.error('Error fetching imported post:', error);
-    return null;
   }
+
+  console.log('No post found with ID:', id);
+  return null;
 };
 
 // Function to fetch imported posts from Supabase
@@ -270,7 +355,7 @@ export const getImportedPosts = async (): Promise<BlogPost[]> => {
       title: post.title,
       excerpt: post.excerpt || generateExcerpt(post.content),
       content: post.content,
-      author: 'Imported Author', // You might want to extract this from content or add author field
+      author: 'Imported Author',
       publishedAt: post.published_date || post.created_at,
       readTime: calculateReadTime(post.content),
       category: post.categories?.[0] || 'General',
@@ -279,7 +364,8 @@ export const getImportedPosts = async (): Promise<BlogPost[]> => {
       imageUrl: post.featured_image_url || getRandomPlaceholderImage(),
       slug: post.slug || generateSlug(post.title),
       views: Math.floor(Math.random() * 1000) + 100,
-      likes: Math.floor(Math.random() * 100) + 10
+      likes: Math.floor(Math.random() * 100) + 10,
+      postType: 'imported'
     }));
   } catch (error) {
     console.error('Error in getImportedPosts:', error);
@@ -287,10 +373,20 @@ export const getImportedPosts = async (): Promise<BlogPost[]> => {
   }
 };
 
-// Function to get all posts (static + imported)
+// Function to get all posts (static + imported + guest)
 export const getAllPosts = async (): Promise<BlogPost[]> => {
-  const importedPosts = await getImportedPosts();
-  const allPosts = [...blogPosts, ...importedPosts];
+  console.log('Fetching all posts...');
+  const [importedPosts, guestPosts] = await Promise.all([
+    getImportedPosts(),
+    getGuestPosts()
+  ]);
+  
+  // Add postType to static posts
+  const staticPostsWithType = blogPosts.map(post => ({ ...post, postType: 'static' as const }));
+  
+  const allPosts = [...staticPostsWithType, ...importedPosts, ...guestPosts];
+  
+  console.log(`Total posts found: ${allPosts.length} (Static: ${staticPostsWithType.length}, Imported: ${importedPosts.length}, Guest: ${guestPosts.length})`);
   
   // Sort by published date (newest first)
   return allPosts.sort((a, b) => 
@@ -298,7 +394,7 @@ export const getAllPosts = async (): Promise<BlogPost[]> => {
   );
 };
 
-// Function to get posts by category (including imported)
+// Function to get posts by category (including all post types)
 export const getAllPostsByCategory = async (category: string): Promise<BlogPost[]> => {
   const allPosts = await getAllPosts();
   return allPosts.filter(post => 
@@ -306,7 +402,7 @@ export const getAllPostsByCategory = async (category: string): Promise<BlogPost[
   );
 };
 
-// Function to get posts by subcategory (including imported)
+// Function to get posts by subcategory (including all post types)
 export const getAllPostsBySubCategory = async (category: string, subCategory: string): Promise<BlogPost[]> => {
   const allPosts = await getAllPosts();
   return allPosts.filter(post => 
@@ -315,7 +411,7 @@ export const getAllPostsBySubCategory = async (category: string, subCategory: st
   );
 };
 
-// Function to search posts (including imported)
+// Function to search posts (including all post types)
 export const searchAllPosts = async (query: string): Promise<BlogPost[]> => {
   const allPosts = await getAllPosts();
   const searchLower = query.toLowerCase();
@@ -326,6 +422,26 @@ export const searchAllPosts = async (query: string): Promise<BlogPost[]> => {
     post.author.toLowerCase().includes(searchLower) ||
     post.tags.some(tag => tag.toLowerCase().includes(searchLower))
   );
+};
+
+// Function to get dynamic categories from database
+export const getDynamicCategories = async () => {
+  try {
+    const { data: categories, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name');
+
+    if (error) {
+      console.error('Error fetching categories:', error);
+      return [];
+    }
+
+    return categories || [];
+  } catch (error) {
+    console.error('Error in getDynamicCategories:', error);
+    return [];
+  }
 };
 
 // Update existing functions to work with new async functions
