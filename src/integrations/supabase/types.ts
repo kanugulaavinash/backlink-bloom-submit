@@ -85,14 +85,17 @@ export type Database = {
           created_at: string | null
           excerpt: string | null
           id: string
+          payment_status: string | null
           published_at: string | null
           scheduled_for: string | null
           status: string
+          submission_step: number | null
           tags: string[] | null
           timezone: string | null
           title: string
           updated_at: string | null
           user_id: string
+          validation_status: string | null
         }
         Insert: {
           author_bio?: string | null
@@ -104,14 +107,17 @@ export type Database = {
           created_at?: string | null
           excerpt?: string | null
           id?: string
+          payment_status?: string | null
           published_at?: string | null
           scheduled_for?: string | null
           status?: string
+          submission_step?: number | null
           tags?: string[] | null
           timezone?: string | null
           title: string
           updated_at?: string | null
           user_id: string
+          validation_status?: string | null
         }
         Update: {
           author_bio?: string | null
@@ -123,14 +129,17 @@ export type Database = {
           created_at?: string | null
           excerpt?: string | null
           id?: string
+          payment_status?: string | null
           published_at?: string | null
           scheduled_for?: string | null
           status?: string
+          submission_step?: number | null
           tags?: string[] | null
           timezone?: string | null
           title?: string
           updated_at?: string | null
           user_id?: string
+          validation_status?: string | null
         }
         Relationships: []
       }
@@ -229,6 +238,53 @@ export type Database = {
           wordpress_url?: string | null
         }
         Relationships: []
+      }
+      payment_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          id: string
+          post_id: string | null
+          status: string | null
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          post_id?: string | null
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          post_id?: string | null
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "guest_posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -343,6 +399,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      validation_results: {
+        Row: {
+          ai_content_highlights: Json | null
+          ai_content_score: number | null
+          ai_detection_details: Json | null
+          created_at: string | null
+          id: string
+          plagiarism_details: Json | null
+          plagiarism_highlights: Json | null
+          plagiarism_score: number | null
+          post_id: string | null
+          updated_at: string | null
+          validation_status: string | null
+        }
+        Insert: {
+          ai_content_highlights?: Json | null
+          ai_content_score?: number | null
+          ai_detection_details?: Json | null
+          created_at?: string | null
+          id?: string
+          plagiarism_details?: Json | null
+          plagiarism_highlights?: Json | null
+          plagiarism_score?: number | null
+          post_id?: string | null
+          updated_at?: string | null
+          validation_status?: string | null
+        }
+        Update: {
+          ai_content_highlights?: Json | null
+          ai_content_score?: number | null
+          ai_detection_details?: Json | null
+          created_at?: string | null
+          id?: string
+          plagiarism_details?: Json | null
+          plagiarism_highlights?: Json | null
+          plagiarism_score?: number | null
+          post_id?: string | null
+          updated_at?: string | null
+          validation_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "validation_results_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "guest_posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

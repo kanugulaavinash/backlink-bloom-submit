@@ -1,24 +1,21 @@
-
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { Calendar, Clock, Loader2, Plus, X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import Header from '@/components/Header';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
-import { Save, Eye, X, Plus, Calendar as CalendarIcon, Clock, Send, ArrowLeft } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { ContentValidationResults } from "@/components/ContentValidationResults";
+import React, { useState, useEffect } from "react";
 
 interface Category {
   id: string;
@@ -32,31 +29,38 @@ const CreateBlogPost = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { userRole } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState('');
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [scheduledDate, setScheduledDate] = useState<Date>();
-  const [scheduledTime, setScheduledTime] = useState('');
-  const [publishType, setPublishType] = useState('now');
-
-  // Check if user is admin
   const isAdmin = userRole === 'admin';
 
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    excerpt: '',
-    category: '',
-    author_name: '',
-    author_bio: '',
-    author_website: '',
-    status: isAdmin ? 'published' : 'pending',
-    timezone: 'UTC'
+  const [post, setPost] = useState({
+    title: "",
+    content: "",
+    excerpt: "",
+    category: "",
+    author_name: "",
+    author_bio: "",
+    author_website: "",
+    status: "pending" as const,
+    scheduled_for: null as string | null,
+    timezone: "UTC",
+    auto_publish: false,
   });
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [scheduledDateTime, setScheduledDateTime] = useState("");
+  const [isScheduled, setIsScheduled] = useState(false);
+  
+  // New states for validation and payment flow
+  const [submissionStep, setSubmissionStep] = useState(1); // 1=form, 2=validation, 3=payment, 4=complete
+  const [validationResult, setValidationResult] = useState<any>(null);
+  const [isValidating, setIsValidating] = useState(false);
+  const [submissionFee, setSubmissionFee] = useState(500); // $5.00 in cents
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
 
   useEffect(() => {
     fetchCategories();
+    fetchSubmissionFee();
     if (id) {
       fetchBlogPost();
     }
@@ -65,14 +69,36 @@ const CreateBlogPost = () => {
   const fetchCategories = async () => {
     try {
       const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name');
+        .from("categories")
+        .select("*")
+        .order("name");
 
       if (error) throw error;
       setCategories(data || []);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch categories",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchSubmissionFee = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("system_settings")
+        .select("setting_value")
+        .eq("setting_key", "guest_post_submission_fee")
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setSubmissionFee(parseInt(data.setting_value));
+      }
+    } catch (error) {
+      console.error("Error fetching submission fee:", error);
     }
   };
 
@@ -80,41 +106,42 @@ const CreateBlogPost = () => {
     if (!id) return;
     
     try {
-      const { data: postData, error: postError } = await supabase
-        .from('guest_posts')
-        .select('*')
-        .eq('id', id)
+      const { data, error } = await supabase
+        .from("guest_posts")
+        .select("*")
+        .eq("id", id)
         .single();
-      
-      if (postError) throw postError;
 
-      if (postData) {
-        setFormData({
-          title: postData.title || '',
-          content: postData.content || '',
-          excerpt: postData.excerpt || '',
-          category: postData.category || '',
-          author_name: postData.author_name || '',
-          author_bio: postData.author_bio || '',
-          author_website: postData.author_website || '',
-          status: postData.status || 'pending',
-          timezone: postData.timezone || 'UTC'
+      if (error) throw error;
+
+      if (data) {
+        setPost({
+          title: data.title || "",
+          content: data.content || "",
+          excerpt: data.excerpt || "",
+          category: data.category || "",
+          author_name: data.author_name || "",
+          author_bio: data.author_bio || "",
+          author_website: data.author_website || "",
+          status: (data.status as "pending") || "pending",
+          scheduled_for: data.scheduled_for,
+          timezone: data.timezone || "UTC",
+          auto_publish: data.auto_publish || false,
         });
-        setSelectedTags(postData.tags || []);
+        setTags(data.tags || []);
+        setSubmissionStep(data.submission_step || 1);
         
-        if (postData.scheduled_for) {
-          const scheduledDate = new Date(postData.scheduled_for);
-          setScheduledDate(scheduledDate);
-          setScheduledTime(format(scheduledDate, 'HH:mm'));
-          setPublishType('schedule');
+        if (data.scheduled_for) {
+          setScheduledDateTime(data.scheduled_for);
+          setIsScheduled(true);
         }
       }
     } catch (error) {
-      console.error('Error fetching blog post:', error);
+      console.error("Error fetching blog post:", error);
       toast({
         title: "Error",
-        description: "Failed to load blog post",
-        variant: "destructive"
+        description: "Failed to fetch blog post",
+        variant: "destructive",
       });
     }
   };
@@ -122,128 +149,252 @@ const CreateBlogPost = () => {
   const addTag = () => {
     if (!newTag.trim()) return;
     
-    const tagToAdd = newTag.trim();
-    if (!selectedTags.includes(tagToAdd)) {
-      setSelectedTags([...selectedTags, tagToAdd]);
-      setNewTag('');
-      toast({
-        title: "Tag added",
-        description: `Tag "${tagToAdd}" has been added.`
-      });
-    } else {
-      toast({
-        title: "Tag exists",
-        description: "This tag is already added.",
-        variant: "destructive"
-      });
+    if (!tags.includes(newTag.trim())) {
+      setTags([...tags, newTag.trim()]);
+      setNewTag("");
     }
   };
 
   const removeTag = (tagToRemove: string) => {
-    setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const validateContent = async (postId: string) => {
+    setIsValidating(true);
+    try {
+      // Run both plagiarism and AI detection in parallel
+      const [plagiarismResponse, aiResponse] = await Promise.all([
+        supabase.functions.invoke('plagiarism-check', {
+          body: { postId, content: post.content }
+        }),
+        supabase.functions.invoke('ai-content-detection', {
+          body: { postId, content: post.content }
+        })
+      ]);
+
+      if (plagiarismResponse.error) throw new Error('Plagiarism check failed');
+      if (aiResponse.error) throw new Error('AI detection failed');
+
+      // Fetch combined validation results
+      const { data: validationData, error: fetchError } = await supabase
+        .from('validation_results')
+        .select('*')
+        .eq('post_id', postId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      setValidationResult(validationData);
+      
+      // Check if validation passed
+      const plagiarismPassed = (validationData.plagiarism_score || 0) <= 20;
+      const aiContentPassed = (validationData.ai_content_score || 0) <= 30;
+      
+      if (plagiarismPassed && aiContentPassed) {
+        setSubmissionStep(3); // Proceed to payment
+        toast({
+          title: "Validation Passed",
+          description: "Your content is ready for payment and submission!",
+        });
+      } else {
+        toast({
+          title: "Content Issues Found",
+          description: "Please review the highlighted content and make necessary edits.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Validation error:", error);
+      toast({
+        title: "Validation Error",
+        description: "Failed to validate content. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  const processPayment = async (postId: string) => {
+    setPaymentProcessing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: { 
+          postId, 
+          amount: submissionFee 
+        }
+      });
+
+      if (error) throw error;
+
+      // Redirect to Stripe checkout
+      if (data.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast({
+        title: "Payment Error",
+        description: "Failed to process payment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setPaymentProcessing(false);
+    }
   };
 
   const saveBlogPost = async (action: 'draft' | 'publish' | 'schedule' | 'submit') => {
     setLoading(true);
-
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) throw new Error('User not authenticated');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "Please sign in to continue",
+          variant: "destructive",
+        });
+        return;
+      }
 
       // Validation
-      if (!formData.title || !formData.content || !formData.category || !formData.author_name) {
-        throw new Error('Please fill in all required fields (title, content, category, and author name)');
+      if (!post.title.trim() || !post.content.trim() || !post.category.trim()) {
+        toast({
+          title: "Error",
+          description: "Please fill in all required fields",
+          variant: "destructive",
+        });
+        return;
       }
 
-      // Determine status based on action and user role
-      let status = 'pending';
-      let scheduledFor = null;
-      let publishedAt = null;
-
-      if (action === 'draft') {
-        status = 'pending';
-      } else if (action === 'publish' && isAdmin) {
-        status = 'published';
-        publishedAt = new Date().toISOString();
-      } else if (action === 'schedule' && isAdmin) {
-        if (!scheduledDate || !scheduledTime) {
-          throw new Error('Please select a date and time for scheduling');
-        }
-        
-        const [hours, minutes] = scheduledTime.split(':');
-        const combinedDateTime = new Date(scheduledDate);
-        combinedDateTime.setHours(parseInt(hours), parseInt(minutes));
-        
-        if (combinedDateTime <= new Date()) {
-          throw new Error('Scheduled time must be in the future');
-        }
-        
-        status = 'pending';
-        scheduledFor = combinedDateTime.toISOString();
-      } else if (action === 'submit') {
-        status = 'pending'; // Guest submissions always go to pending
+      if (!isAdmin && (!post.author_name.trim() || !post.author_bio.trim())) {
+        toast({
+          title: "Error",
+          description: "Please fill in author information",
+          variant: "destructive",
+        });
+        return;
       }
 
-      const postData: any = {
-        ...formData,
-        status,
-        tags: selectedTags,
-        user_id: session.user.id,
-        updated_at: new Date().toISOString(),
-        scheduled_for: scheduledFor,
-        auto_publish: action === 'schedule',
-        excerpt: formData.excerpt || formData.content.substring(0, 200) + "..."
+      // For guest submission, start validation flow
+      if (action === 'submit' && !isAdmin) {
+        // Determine status based on user role and action
+        let status = "pending";
+        
+        // Prepare post data for guest submission
+        const postData = {
+          title: post.title,
+          content: post.content,
+          excerpt: post.excerpt,
+          category: post.category,
+          tags: tags,
+          user_id: user.id,
+          status: status,
+          author_name: post.author_name,
+          author_bio: post.author_bio,
+          author_website: post.author_website,
+          submission_step: 2, // Start at validation step
+          validation_status: 'pending',
+          payment_status: 'pending',
+        };
+
+        let response;
+        if (id) {
+          response = await supabase
+            .from("guest_posts")
+            .update(postData)
+            .eq("id", id)
+            .select()
+            .single();
+        } else {
+          response = await supabase
+            .from("guest_posts")
+            .insert(postData)
+            .select()
+            .single();
+        }
+
+        if (response.error) throw response.error;
+
+        const postId = response.data.id;
+        setSubmissionStep(2);
+        
+        // If it's a new post, update the URL
+        if (!id) {
+          navigate(`/create-blog-post/${postId}`, { replace: true });
+        }
+
+        // Start content validation
+        await validateContent(postId);
+        return;
+      }
+
+      // Regular save/publish flow for admins
+      let status = "pending";
+      if (isAdmin) {
+        if (action === "publish") {
+          status = "published";
+        } else if (action === "schedule") {
+          status = "scheduled";
+        } else {
+          status = "draft";
+        }
+      }
+
+      const postData = {
+        title: post.title,
+        content: post.content,
+        excerpt: post.excerpt,
+        category: post.category,
+        tags: tags,
+        user_id: user.id,
+        status: status,
+        author_name: post.author_name,
+        author_bio: post.author_bio,
+        author_website: post.author_website,
+        scheduled_for: action === "schedule" && scheduledDateTime ? 
+          new Date(scheduledDateTime).toISOString() : null,
+        timezone: post.timezone,
+        auto_publish: post.auto_publish,
+        published_at: action === "publish" && isAdmin ? new Date().toISOString() : null,
       };
 
-      if (publishedAt) {
-        postData.published_at = publishedAt;
-      }
-
+      let response;
       if (id) {
-        const { error } = await supabase
-          .from('guest_posts')
+        response = await supabase
+          .from("guest_posts")
           .update(postData)
-          .eq('id', id);
-        
-        if (error) throw error;
+          .eq("id", id)
+          .select()
+          .single();
       } else {
-        const { error } = await supabase
-          .from('guest_posts')
-          .insert(postData);
-        
-        if (error) throw error;
+        response = await supabase
+          .from("guest_posts")
+          .insert(postData)
+          .select()
+          .single();
       }
 
-      let toastTitle = "Post saved!";
-      let toastDescription = "Your blog post has been saved as draft.";
-      
-      if (action === 'publish') {
-        if (isAdmin) {
-          toastTitle = "Post published!";
-          toastDescription = "Your blog post has been published.";
-        } else {
-          toastTitle = "Post submitted!";
-          toastDescription = "Your post has been submitted for review.";
-        }
-      } else if (action === 'schedule') {
-        toastTitle = "Post scheduled!";
-        toastDescription = `Your blog post has been scheduled for ${format(scheduledDate!, 'PPP')} at ${scheduledTime}.`;
-      } else if (action === 'submit') {
-        toastTitle = "Post Submitted Successfully!";
-        toastDescription = "Your guest post has been submitted for review. You'll be notified once it's approved.";
-      }
+      if (response.error) throw response.error;
+
+      const actionText = action === 'schedule' ? 'scheduled' : 
+                        action === 'publish' ? 'published' : 'saved as draft';
 
       toast({
-        title: toastTitle,
-        description: toastDescription
+        title: "Success",
+        description: `Blog post ${actionText} successfully!`,
       });
 
-      navigate(isAdmin ? '/admin-dashboard' : '/dashboard');
-    } catch (error: any) {
+      if (action === 'publish') {
+        navigate("/");
+      } else if (!id) {
+        navigate(`/create-blog-post/${response.data.id}`);
+      }
+    } catch (error) {
+      console.error("Error saving blog post:", error);
       toast({
-        title: "Error saving post",
-        description: error.message,
-        variant: "destructive"
+        title: "Error",
+        description: "Failed to save blog post. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -265,342 +416,225 @@ const CreateBlogPost = () => {
   const getActionButtons = () => {
     if (isAdmin) {
       return (
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Button
-            variant="outline"
-            onClick={() => saveBlogPost('draft')}
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => saveBlogPost('draft')} 
             disabled={loading}
-            className="w-full sm:w-auto"
+            variant="outline"
           >
-            <Save className="w-4 h-4 mr-2" />
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             Save Draft
           </Button>
-          {publishType === 'now' ? (
-            <Button
-              onClick={() => saveBlogPost('publish')}
+          <Button 
+            onClick={() => saveBlogPost('publish')} 
+            disabled={loading}
+          >
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Publish Now
+          </Button>
+          {isScheduled && (
+            <Button 
+              onClick={() => saveBlogPost('schedule')} 
               disabled={loading}
-              className="w-full sm:w-auto"
+              variant="secondary"
             >
-              <Eye className="w-4 h-4 mr-2" />
-              Publish Now
-            </Button>
-          ) : (
-            <Button
-              onClick={() => saveBlogPost('schedule')}
-              disabled={loading || !scheduledDate || !scheduledTime}
-              className="w-full sm:w-auto"
-            >
-              <Clock className="w-4 h-4 mr-2" />
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Schedule Post
             </Button>
           )}
         </div>
       );
     } else {
-      return (
-        <Button
-          onClick={() => saveBlogPost('submit')}
-          disabled={loading}
-          className="w-full"
-        >
-          {loading ? (
-            <div className="flex items-center">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Submitting...
+      // Guest submission flow based on step
+      switch (submissionStep) {
+        case 1:
+          return (
+            <Button 
+              onClick={() => saveBlogPost('submit')} 
+              disabled={loading}
+              className="w-full"
+            >
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Submit for Review
+            </Button>
+          );
+        case 2:
+          return (
+            <Button 
+              onClick={() => validateContent(id!)} 
+              disabled={isValidating}
+              className="w-full"
+            >
+              {isValidating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {isValidating ? "Validating Content..." : "Retry Validation"}
+            </Button>
+          );
+        case 3:
+          const canProceedToPayment = validationResult && 
+            (validationResult.plagiarism_score || 0) <= 20 && 
+            (validationResult.ai_content_score || 0) <= 30;
+          
+          return (
+            <div className="space-y-4">
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-2">
+                  Submission fee: <span className="font-semibold">${(submissionFee / 100).toFixed(2)}</span>
+                </p>
+              </div>
+              <Button 
+                onClick={() => processPayment(id!)} 
+                disabled={paymentProcessing || !canProceedToPayment}
+                className="w-full"
+              >
+                {paymentProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {paymentProcessing ? "Processing..." : `Pay $${(submissionFee / 100).toFixed(2)} & Submit`}
+              </Button>
             </div>
-          ) : (
-            <>
-              <Send className="h-4 w-4 mr-2" />
-              Submit Guest Post
-            </>
-          )}
-        </Button>
-      );
+          );
+        default:
+          return null;
+      }
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="container mx-auto py-4 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-6xl">
-        <div className="mb-6">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate(isAdmin ? "/admin-dashboard" : "/dashboard")}
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
-          
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-            {isAdmin 
-              ? (id ? 'Edit Blog Post' : 'Create New Blog Post')
-              : 'Submit Guest Post'
-            }
-          </h1>
-          <p className="text-muted-foreground">
-            {isAdmin 
-              ? 'Create and manage blog posts with full publishing controls'
-              : 'Share your expertise with our community'
-            }
-          </p>
-        </div>
+    <div className="container mx-auto py-8 px-4 max-w-4xl">
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            {id ? "Edit Blog Post" : "Create New Blog Post"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Content Section */}
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="title">Title *</Label>
+              <Input
+                id="title"
+                value={post.title}
+                onChange={(e) => setPost({ ...post, title: e.target.value })}
+                placeholder="Enter post title"
+                required
+              />
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  {isAdmin ? 'Post Content' : 'Create Your Guest Post'}
-                  {getActionButtons()}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <Label htmlFor="title">Post Title *</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="Enter an engaging title for your post"
-                    className="text-lg"
-                    required
-                  />
-                </div>
+            <div>
+              <Label htmlFor="content">Content *</Label>
+              <ReactQuill
+                theme="snow"
+                value={post.content}
+                onChange={(content) => setPost({ ...post, content })}
+                modules={modules}
+                style={{ height: '300px', marginBottom: '50px' }}
+              />
+            </div>
 
-                <div>
-                  <Label>Content *</Label>
-                  <div className="border rounded-md">
-                    <ReactQuill
-                      theme="snow"
-                      value={formData.content}
-                      onChange={(content) => setFormData({ ...formData, content })}
-                      modules={modules}
-                      style={{ minHeight: '400px' }}
-                      placeholder="Write your full post content here..."
-                    />
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Minimum 500 words recommended. Use the rich editor for formatting.
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="excerpt">Post Excerpt</Label>
-                  <Textarea
-                    id="excerpt"
-                    value={formData.excerpt}
-                    onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                    placeholder="Write a brief summary of your post (optional - will auto-generate if left empty)"
-                    rows={3}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Author Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Author Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="author_name">Author Name *</Label>
-                    <Input
-                      id="author_name"
-                      value={formData.author_name}
-                      onChange={(e) => setFormData({ ...formData, author_name: e.target.value })}
-                      placeholder="Your full name"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="author_website">Website/Portfolio</Label>
-                    <Input
-                      id="author_website"
-                      value={formData.author_website}
-                      onChange={(e) => setFormData({ ...formData, author_website: e.target.value })}
-                      placeholder="https://yourwebsite.com"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="author_bio">Author Bio</Label>
-                  <Textarea
-                    id="author_bio"
-                    value={formData.author_bio}
-                    onChange={(e) => setFormData({ ...formData, author_bio: e.target.value })}
-                    placeholder="Tell us about yourself in 2-3 sentences..."
-                    rows={3}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Submission Guidelines for non-admin users */}
-            {!isAdmin && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-primary">Submission Guidelines</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-primary/5 p-4 rounded-lg border border-primary/10">
-                    <ul className="text-sm text-muted-foreground space-y-2">
-                      <li>• Your post will be reviewed within 2-3 business days</li>
-                      <li>• Original content only - no plagiarism</li>
-                      <li>• Minimum 500 words for approval</li>
-                      <li>• Include relevant examples and actionable advice</li>
-                      <li>• Professional tone and proper grammar required</li>
-                      <li>• Use the rich text editor for proper formatting</li>
-                      <li>• Add relevant tags to help categorize your content</li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <div>
+              <Label htmlFor="excerpt">Excerpt</Label>
+              <Textarea
+                id="excerpt"
+                value={post.excerpt}
+                onChange={(e) => setPost({ ...post, excerpt: e.target.value })}
+                placeholder="Brief description of the post"
+                rows={3}
+              />
+            </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-4 sm:space-y-6">
-            {/* Publish Settings - Admin Only */}
-            {isAdmin && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Publish Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Publish Type</Label>
-                    <Select value={publishType} onValueChange={setPublishType}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="now">Publish Now</SelectItem>
-                        <SelectItem value="schedule">Schedule for Later</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+          <Separator />
 
-                  {publishType === 'schedule' && (
-                    <div className="space-y-4">
-                      <div>
-                        <Label>Scheduled Date</Label>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full justify-start text-left font-normal",
-                                !scheduledDate && "text-muted-foreground"
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {scheduledDate ? format(scheduledDate, "PPP") : "Pick a date"}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={scheduledDate}
-                              onSelect={setScheduledDate}
-                              disabled={(date) => date < new Date()}
-                              initialFocus
-                              className="pointer-events-auto"
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </div>
+          {/* Author Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Author Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="author_name">Author Name *</Label>
+                <Input
+                  id="author_name"
+                  value={post.author_name}
+                  onChange={(e) => setPost({ ...post, author_name: e.target.value })}
+                  placeholder="Author name"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="author_website">Author Website</Label>
+                <Input
+                  id="author_website"
+                  value={post.author_website}
+                  onChange={(e) => setPost({ ...post, author_website: e.target.value })}
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="author_bio">Author Bio *</Label>
+              <Textarea
+                id="author_bio"
+                value={post.author_bio}
+                onChange={(e) => setPost({ ...post, author_bio: e.target.value })}
+                placeholder="Brief bio of the author"
+                rows={3}
+                required
+              />
+            </div>
+          </div>
 
-                      <div>
-                        <Label htmlFor="scheduled-time">Scheduled Time</Label>
-                        <Input
-                          id="scheduled-time"
-                          type="time"
-                          value={scheduledTime}
-                          onChange={(e) => setScheduledTime(e.target.value)}
-                          className="w-full"
-                        />
-                      </div>
+          <Separator />
 
-                      <div>
-                        <Label>Timezone</Label>
-                        <Select value={formData.timezone} onValueChange={(value) => setFormData({ ...formData, timezone: value })}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="UTC">UTC</SelectItem>
-                            <SelectItem value="America/New_York">Eastern Time</SelectItem>
-                            <SelectItem value="America/Chicago">Central Time</SelectItem>
-                            <SelectItem value="America/Denver">Mountain Time</SelectItem>
-                            <SelectItem value="America/Los_Angeles">Pacific Time</SelectItem>
-                            <SelectItem value="Europe/London">London Time</SelectItem>
-                            <SelectItem value="Europe/Paris">Paris Time</SelectItem>
-                            <SelectItem value="Asia/Tokyo">Tokyo Time</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  )}
+          {/* Publishing Settings */}
+          {isAdmin && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Publishing Settings</h3>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="scheduled"
+                  checked={isScheduled}
+                  onCheckedChange={setIsScheduled}
+                />
+                <Label htmlFor="scheduled">Schedule for later</Label>
+              </div>
+              
+              {isScheduled && (
+                <div>
+                  <Label htmlFor="scheduled_datetime">Scheduled Date & Time</Label>
+                  <Input
+                    id="scheduled_datetime"
+                    type="datetime-local"
+                    value={scheduledDateTime}
+                    onChange={(e) => setScheduledDateTime(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
-                  {isAdmin && (
-                    <div>
-                      <Label>Current Status</Label>
-                      <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">Pending Review</SelectItem>
-                          <SelectItem value="published">Published</SelectItem>
-                          <SelectItem value="rejected">Rejected</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+          <Separator />
 
-            {/* Category */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Category *</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.name}>
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="w-3 h-3 rounded-full" 
-                            style={{ backgroundColor: category.color }}
-                          />
-                          {category.name}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
+          {/* Category and Tags */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="category">Category *</Label>
+              <Select value={post.category} onValueChange={(value) => setPost({ ...post, category: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.name}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-            {/* Tags */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Tags</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-wrap gap-1">
-                  {selectedTags.map((tag) => (
+            <div>
+              <Label>Tags</Label>
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag) => (
                     <Badge key={tag} variant="secondary" className="flex items-center gap-1">
                       {tag}
                       <button
@@ -612,25 +646,41 @@ const CreateBlogPost = () => {
                     </Badge>
                   ))}
                 </div>
-
                 <div className="flex gap-2">
                   <Input
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
-                    placeholder="Add new tag..."
+                    placeholder="Add tag"
                     onKeyPress={(e) => e.key === 'Enter' && addTag()}
                   />
                   <Button onClick={addTag} size="sm">
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Add relevant tags to help categorize your content (e.g., technology, innovation, startup)
-                </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
-        </div>
+
+          {/* Content Validation Results - only for guest users after submission */}
+          {!isAdmin && submissionStep >= 2 && (
+            <div className="mt-6">
+              <ContentValidationResults
+                validationResult={validationResult}
+                isValidating={isValidating}
+                onRetryValidation={() => id && validateContent(id)}
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons at Bottom */}
+      <div className="mt-6 sticky bottom-4">
+        <Card className="border-2 border-primary/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <CardContent className="p-4">
+            {getActionButtons()}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
