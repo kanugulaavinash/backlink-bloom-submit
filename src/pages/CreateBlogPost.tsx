@@ -147,8 +147,8 @@ const CreateBlogPost = () => {
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error('User not authenticated');
 
       // Validation
       if (!formData.title || !formData.content || !formData.category || !formData.author_name) {
@@ -188,7 +188,7 @@ const CreateBlogPost = () => {
         ...formData,
         status,
         tags: selectedTags,
-        user_id: user.id,
+        user_id: session.user.id,
         updated_at: new Date().toISOString(),
         scheduled_for: scheduledFor,
         auto_publish: action === 'schedule',
