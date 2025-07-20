@@ -44,19 +44,52 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       guest_posts: {
         Row: {
           author_bio: string | null
           author_name: string
           author_website: string | null
+          auto_publish: boolean | null
           category: string
           content: string
           created_at: string | null
           excerpt: string | null
           id: string
           published_at: string | null
+          scheduled_for: string | null
           status: string
           tags: string[] | null
+          timezone: string | null
           title: string
           updated_at: string | null
           user_id: string
@@ -65,14 +98,17 @@ export type Database = {
           author_bio?: string | null
           author_name: string
           author_website?: string | null
+          auto_publish?: boolean | null
           category: string
           content: string
           created_at?: string | null
           excerpt?: string | null
           id?: string
           published_at?: string | null
+          scheduled_for?: string | null
           status?: string
           tags?: string[] | null
+          timezone?: string | null
           title: string
           updated_at?: string | null
           user_id: string
@@ -81,14 +117,17 @@ export type Database = {
           author_bio?: string | null
           author_name?: string
           author_website?: string | null
+          auto_publish?: boolean | null
           category?: string
           content?: string
           created_at?: string | null
           excerpt?: string | null
           id?: string
           published_at?: string | null
+          scheduled_for?: string | null
           status?: string
           tags?: string[] | null
+          timezone?: string | null
           title?: string
           updated_at?: string | null
           user_id?: string
@@ -336,6 +375,10 @@ export type Database = {
           p_key_value: string
         }
         Returns: undefined
+      }
+      get_category_usage_count: {
+        Args: { category_name: string }
+        Returns: number
       }
       get_user_role: {
         Args: { _user_id: string }

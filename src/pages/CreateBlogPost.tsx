@@ -10,33 +10,20 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, Eye, X, Plus } from 'lucide-react';
+import { Save, Eye, X, Plus, Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
-// Pre-defined categories (can be moved to database later)
-const CATEGORIES = [
-  'Technology',
-  'Business', 
-  'Marketing',
-  'Design',
-  'Development',
-  'Lifestyle',
-  'Health',
-  'Travel',
-  'Food',
-  'Fashion',
-  'Sports',
-  'Entertainment',
-  'Education',
-  'Finance',
-  'Science',
-  'Politics',
-  'Art',
-  'Music',
-  'Photography',
-  'Gaming'
-];
+interface Category {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string;
+}
 
 const CreateBlogPost = () => {
   const { id } = useParams();
@@ -45,6 +32,10 @@ const CreateBlogPost = () => {
   const [loading, setLoading] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [scheduledDate, setScheduledDate] = useState<Date>();
+  const [scheduledTime, setScheduledTime] = useState('');
+  const [publishType, setPublishType] = useState('now'); // 'now' or 'schedule'
 
   const [formData, setFormData] = useState({
     title: '',
@@ -54,14 +45,30 @@ const CreateBlogPost = () => {
     author_name: '',
     author_bio: '',
     author_website: '',
-    status: 'pending'
+    status: 'pending',
+    timezone: 'UTC'
   });
 
   useEffect(() => {
+    fetchCategories();
     if (id) {
       fetchBlogPost();
     }
   }, [id]);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const fetchBlogPost = async () => {
     if (!id) return;
@@ -84,9 +91,18 @@ const CreateBlogPost = () => {
           author_name: postData.author_name || '',
           author_bio: postData.author_bio || '',
           author_website: postData.author_website || '',
-          status: postData.status || 'pending'
+          status: postData.status || 'pending',
+          timezone: postData.timezone || 'UTC'
         });
         setSelectedTags(postData.tags || []);
+        
+        // Set scheduled date and time if exists
+        if (postData.scheduled_for) {
+          const scheduledDate = new Date(postData.scheduled_for);
+          setScheduledDate(scheduledDate);
+          setScheduledTime(format(scheduledDate, 'HH:mm'));
+          setPublishType('schedule');
+        }
       }
     } catch (error) {
       console.error('Error fetching blog post:', error);
@@ -122,23 +138,52 @@ const CreateBlogPost = () => {
     setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
   };
 
-  const saveBlogPost = async (status: string) => {
+  const saveBlogPost = async (action: 'draft' | 'publish' | 'schedule') => {
     setLoading(true);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Determine status based on action
+      let status = 'pending';
+      let scheduledFor = null;
+      let publishedAt = null;
+
+      if (action === 'draft') {
+        status = 'pending';
+      } else if (action === 'publish') {
+        status = 'published';
+        publishedAt = new Date().toISOString();
+      } else if (action === 'schedule') {
+        if (!scheduledDate || !scheduledTime) {
+          throw new Error('Please select a date and time for scheduling');
+        }
+        
+        const [hours, minutes] = scheduledTime.split(':');
+        const combinedDateTime = new Date(scheduledDate);
+        combinedDateTime.setHours(parseInt(hours), parseInt(minutes));
+        
+        if (combinedDateTime <= new Date()) {
+          throw new Error('Scheduled time must be in the future');
+        }
+        
+        status = 'pending';
+        scheduledFor = combinedDateTime.toISOString();
+      }
+
       const postData: any = {
         ...formData,
         status,
         tags: selectedTags,
         user_id: user.id,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        scheduled_for: scheduledFor,
+        auto_publish: action === 'schedule'
       };
 
-      if (status === 'published') {
-        postData.published_at = new Date().toISOString();
+      if (publishedAt) {
+        postData.published_at = publishedAt;
       }
 
       if (id) {
@@ -158,9 +203,20 @@ const CreateBlogPost = () => {
         if (error) throw error;
       }
 
+      let toastTitle = "Post saved!";
+      let toastDescription = "Your blog post has been saved as draft.";
+      
+      if (action === 'publish') {
+        toastTitle = "Post published!";
+        toastDescription = "Your blog post has been published.";
+      } else if (action === 'schedule') {
+        toastTitle = "Post scheduled!";
+        toastDescription = `Your blog post has been scheduled for ${format(scheduledDate!, 'PPP')} at ${scheduledTime}.`;
+      }
+
       toast({
-        title: status === 'published' ? "Post published!" : "Post saved!",
-        description: `Your blog post has been ${status === 'published' ? 'published' : 'saved'}.`
+        title: toastTitle,
+        description: toastDescription
       });
 
       navigate('/admin-dashboard');
@@ -190,30 +246,43 @@ const CreateBlogPost = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto py-8 px-4 max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="container mx-auto py-4 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-6xl">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   {id ? 'Edit Blog Post' : 'Create New Blog Post'}
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Button
                       variant="outline"
-                      onClick={() => saveBlogPost('pending')}
+                      onClick={() => saveBlogPost('draft')}
                       disabled={loading}
+                      className="w-full sm:w-auto"
                     >
                       <Save className="w-4 h-4 mr-2" />
                       Save Draft
                     </Button>
-                    <Button
-                      onClick={() => saveBlogPost('published')}
-                      disabled={loading}
-                    >
-                      <Eye className="w-4 h-4 mr-2" />
-                      Publish
-                    </Button>
+                    {publishType === 'now' ? (
+                      <Button
+                        onClick={() => saveBlogPost('publish')}
+                        disabled={loading}
+                        className="w-full sm:w-auto"
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        Publish Now
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => saveBlogPost('schedule')}
+                        disabled={loading || !scheduledDate || !scheduledTime}
+                        className="w-full sm:w-auto"
+                      >
+                        <Clock className="w-4 h-4 mr-2" />
+                        Schedule Post
+                      </Button>
+                    )}
                   </div>
                 </CardTitle>
               </CardHeader>
@@ -294,15 +363,90 @@ const CreateBlogPost = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Publish Settings */}
             <Card>
               <CardHeader>
-                <CardTitle>Publish</CardTitle>
+                <CardTitle>Publish Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label>Status</Label>
+                  <Label>Publish Type</Label>
+                  <Select value={publishType} onValueChange={setPublishType}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="now">Publish Now</SelectItem>
+                      <SelectItem value="schedule">Schedule for Later</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {publishType === 'schedule' && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Scheduled Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !scheduledDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {scheduledDate ? format(scheduledDate, "PPP") : "Pick a date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={scheduledDate}
+                            onSelect={setScheduledDate}
+                            disabled={(date) => date < new Date()}
+                            initialFocus
+                            className="pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="scheduled-time">Scheduled Time</Label>
+                      <Input
+                        id="scheduled-time"
+                        type="time"
+                        value={scheduledTime}
+                        onChange={(e) => setScheduledTime(e.target.value)}
+                        className="w-full"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Timezone</Label>
+                      <Select value={formData.timezone} onValueChange={(value) => setFormData({ ...formData, timezone: value })}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="UTC">UTC</SelectItem>
+                          <SelectItem value="America/New_York">Eastern Time</SelectItem>
+                          <SelectItem value="America/Chicago">Central Time</SelectItem>
+                          <SelectItem value="America/Denver">Mountain Time</SelectItem>
+                          <SelectItem value="America/Los_Angeles">Pacific Time</SelectItem>
+                          <SelectItem value="Europe/London">London Time</SelectItem>
+                          <SelectItem value="Europe/Paris">Paris Time</SelectItem>
+                          <SelectItem value="Asia/Tokyo">Tokyo Time</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <Label>Current Status</Label>
                   <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
                     <SelectTrigger>
                       <SelectValue />
@@ -328,9 +472,15 @@ const CreateBlogPost = () => {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.name}>
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: category.color }}
+                          />
+                          {category.name}
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>

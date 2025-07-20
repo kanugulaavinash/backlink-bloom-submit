@@ -12,6 +12,14 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
+import { useEffect } from "react";
+
+interface Category {
+  id: string;
+  name: string;
+  description: string | null;
+  color: string;
+}
 
 const SubmitPost = () => {
   const [formData, setFormData] = useState({
@@ -25,27 +33,28 @@ const SubmitPost = () => {
     authorWebsite: ""
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const categories = [
-    "Technology",
-    "Business",
-    "Health & Wellness",
-    "Lifestyle",
-    "Education",
-    "Travel",
-    "Food & Cooking",
-    "Fashion",
-    "Finance",
-    "Entertainment",
-    "Sports",
-    "Science",
-    "Environment",
-    "Politics",
-    "Art & Culture"
-  ];
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -149,11 +158,11 @@ const SubmitPost = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="pt-20 pb-12">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
             <Button 
               variant="outline" 
@@ -164,8 +173,8 @@ const SubmitPost = () => {
               Back to Dashboard
             </Button>
             
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Submit Guest Post</h1>
-            <p className="text-gray-600">Share your expertise with our community</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Submit Guest Post</h1>
+            <p className="text-muted-foreground">Share your expertise with our community</p>
           </div>
 
           <Card>
@@ -178,7 +187,7 @@ const SubmitPost = () => {
             
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="title">Post Title *</Label>
                     <Input
@@ -201,8 +210,14 @@ const SubmitPost = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
+                          <SelectItem key={category.id} value={category.name}>
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="w-3 h-3 rounded-full" 
+                                style={{ backgroundColor: category.color }}
+                              />
+                              {category.name}
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -235,7 +250,7 @@ const SubmitPost = () => {
                     required
                     disabled={isLoading}
                   />
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     Minimum 500 words recommended. You can use markdown formatting.
                   </p>
                 </div>
@@ -253,10 +268,10 @@ const SubmitPost = () => {
                   />
                 </div>
 
-                <div className="border-t pt-6">
+                  <div className="border-t pt-6">
                   <h3 className="text-lg font-semibold mb-4">Author Information</h3>
                   
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="authorName">Author Name *</Label>
                       <Input
@@ -299,9 +314,9 @@ const SubmitPost = () => {
                   </div>
                 </div>
 
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-blue-900 mb-2">Submission Guidelines</h4>
-                  <ul className="text-sm text-blue-800 space-y-1">
+                <div className="bg-primary/5 p-4 rounded-lg border border-primary/10">
+                  <h4 className="font-medium text-primary mb-2">Submission Guidelines</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
                     <li>• Your post will be reviewed within 2-3 business days</li>
                     <li>• Original content only - no plagiarism</li>
                     <li>• Minimum 500 words for approval</li>
@@ -312,7 +327,7 @@ const SubmitPost = () => {
 
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className="w-full"
                   disabled={isLoading}
                 >
                   {isLoading ? (

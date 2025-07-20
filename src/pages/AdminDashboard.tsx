@@ -14,12 +14,13 @@ import PaymentLogs from "@/components/admin/PaymentLogs";
 import ValidationQueue from "@/components/admin/ValidationQueue";
 import ApiKeysSettings from "@/components/admin/ApiKeysSettings";
 import WordPressImport from "@/components/admin/WordPressImport";
+import CategoryManagement from "@/components/admin/CategoryManagement";
 
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="pt-20 pb-12">
@@ -41,8 +42,9 @@ const AdminDashboard = () => {
 
           {/* Main Content Tabs */}
           <Tabs defaultValue="posts" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-8">
+            <TabsList className="grid w-full grid-cols-9">
               <TabsTrigger value="posts">Posts</TabsTrigger>
+              <TabsTrigger value="categories">Categories</TabsTrigger>
               <TabsTrigger value="users">Users</TabsTrigger>
               <TabsTrigger value="import">Import</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -54,6 +56,10 @@ const AdminDashboard = () => {
             
             <TabsContent value="posts">
               <PostsManagement />
+            </TabsContent>
+            
+            <TabsContent value="categories">
+              <CategoryManagement />
             </TabsContent>
             
             <TabsContent value="users">
