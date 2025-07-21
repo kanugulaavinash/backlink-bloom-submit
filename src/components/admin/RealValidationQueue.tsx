@@ -1,17 +1,22 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AlertTriangle, Check, X, Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertTriangle, Eye, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ContentValidationResults } from "@/components/ContentValidationResults";
+import { AdminApprovalActions } from "./AdminApprovalActions";
 
 interface ValidationQueueItem {
   id: string;
   title: string;
+  content: string;
   author_name: string;
   validation_status: string;
+  status: string;
   plagiarism_score?: number;
   ai_content_score?: number;
   created_at: string;
@@ -20,11 +25,14 @@ interface ValidationQueueItem {
 
 const RealValidationQueue = () => {
   const [flaggedPosts, setFlaggedPosts] = useState<ValidationQueueItem[]>([]);
+  const [pendingPosts, setPendingPosts] = useState<ValidationQueueItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedValidation, setSelectedValidation] = useState<any>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchFlaggedPosts();
+    fetchPendingPosts();
   }, []);
 
   const fetchFlaggedPosts = async () => {
@@ -35,8 +43,10 @@ const RealValidationQueue = () => {
         .select(`
           id,
           title,
+          content,
           author_name,
           validation_status,
+          status,
           created_at,
           user_id,
           validation_results (
@@ -54,8 +64,10 @@ const RealValidationQueue = () => {
         const formattedPosts = data?.map(post => ({
           id: post.id,
           title: post.title,
+          content: post.content,
           author_name: post.author_name,
           validation_status: post.validation_status,
+          status: post.status,
           plagiarism_score: post.validation_results?.[0]?.plagiarism_score,
           ai_content_score: post.validation_results?.[0]?.ai_content_score,
           created_at: post.created_at,
@@ -100,28 +112,61 @@ const RealValidationQueue = () => {
     }
   };
 
-  const updatePostStatus = async (postId: string, newStatus: string) => {
+  const fetchPendingPosts = async () => {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('guest_posts')
-        .update({ validation_status: newStatus })
-        .eq('id', postId);
+        .select(`
+          id,
+          title,
+          content,
+          author_name,
+          validation_status,
+          status,
+          created_at,
+          user_id,
+          validation_results (
+            plagiarism_score,
+            ai_content_score
+          )
+        `)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: `Post ${newStatus} successfully`,
-      });
-
-      fetchFlaggedPosts(); // Refresh the list
+      const formattedPosts = data?.map(post => ({
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        author_name: post.author_name,
+        validation_status: post.validation_status,
+        status: post.status,
+        plagiarism_score: post.validation_results?.[0]?.plagiarism_score,
+        ai_content_score: post.validation_results?.[0]?.ai_content_score,
+        created_at: post.created_at,
+        user_id: post.user_id
+      })) || [];
+      
+      setPendingPosts(formattedPosts);
     } catch (error) {
-      console.error('Error updating post status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update post status",
-        variant: "destructive"
-      });
+      console.error('Error fetching pending posts:', error);
+    }
+  };
+
+  const fetchValidationDetails = async (postId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('validation_results')
+        .select('*')
+        .eq('post_id', postId)
+        .single();
+
+      if (error) throw error;
+      setSelectedValidation(data);
+    } catch (error) {
+      console.error('Error fetching validation details:', error);
+      setSelectedValidation(null);
     }
   };
 
@@ -135,18 +180,20 @@ const RealValidationQueue = () => {
     );
   }
 
+  const allPosts = [...flaggedPosts, ...pendingPosts];
+  
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center">
           <AlertTriangle className="h-5 w-5 mr-2 text-orange-600" />
-          Validation Queue ({flaggedPosts.length})
+          Validation Queue ({allPosts.length})
         </CardTitle>
-        <CardDescription>Posts flagged for manual review due to validation issues</CardDescription>
+        <CardDescription>Posts requiring manual review and validation issues</CardDescription>
       </CardHeader>
       
       <CardContent>
-        {flaggedPosts.length === 0 ? (
+        {allPosts.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             No posts in validation queue
           </div>
@@ -156,6 +203,7 @@ const RealValidationQueue = () => {
               <TableRow>
                 <TableHead>Post Title</TableHead>
                 <TableHead>Author</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Issue</TableHead>
                 <TableHead>Severity</TableHead>
                 <TableHead>Date</TableHead>
@@ -163,7 +211,7 @@ const RealValidationQueue = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {flaggedPosts.map((post) => {
+              {allPosts.map((post) => {
                 const severity = getSeverityLevel(post);
                 return (
                   <TableRow key={post.id}>
@@ -171,6 +219,11 @@ const RealValidationQueue = () => {
                       <div className="truncate">{post.title}</div>
                     </TableCell>
                     <TableCell>{post.author_name}</TableCell>
+                    <TableCell>
+                      <Badge variant={post.status === 'pending' ? 'secondary' : 'outline'}>
+                        {post.status}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="max-w-xs">
                       <div className="truncate text-sm">{getIssueDescription(post)}</div>
                     </TableCell>
@@ -182,29 +235,48 @@ const RealValidationQueue = () => {
                     <TableCell>{new Date(post.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => window.open(`/blog-post/${post.id}`, '_blank')}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="text-green-600"
-                          onClick={() => updatePostStatus(post.id, 'approved')}
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="text-red-600"
-                          onClick={() => updatePostStatus(post.id, 'rejected')}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => fetchValidationDetails(post.id)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>{post.title}</DialogTitle>
+                              <DialogDescription>
+                                Validation details and content review
+                              </DialogDescription>
+                            </DialogHeader>
+                            
+                            <div className="space-y-6">
+                              <ContentValidationResults
+                                validationResult={selectedValidation}
+                                isValidating={false}
+                                onRetryValidation={() => {}}
+                                content={post.content}
+                              />
+                              
+                              <AdminApprovalActions
+                                postId={post.id}
+                                currentStatus={post.status}
+                                onStatusUpdate={fetchPendingPosts}
+                              />
+                              
+                              <div className="border rounded-lg p-4">
+                                <h4 className="font-medium mb-2">Post Content</h4>
+                                <div 
+                                  className="prose max-w-none text-sm"
+                                  dangerouslySetInnerHTML={{ __html: post.content }}
+                                />
+                              </div>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </TableCell>
                   </TableRow>

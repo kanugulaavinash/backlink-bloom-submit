@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { ContentValidationResults } from "@/components/ContentValidationResults";
+import { usePaymentSuccess } from "@/hooks/usePaymentSuccess";
 import React, { useState, useEffect } from "react";
 
 interface Category {
@@ -30,6 +31,9 @@ const CreateBlogPost = () => {
   const { toast } = useToast();
   const { userRole } = useAuth();
   const isAdmin = userRole === 'admin';
+  
+  // Handle payment success/failure
+  usePaymentSuccess();
 
   const [post, setPost] = useState({
     title: "",
