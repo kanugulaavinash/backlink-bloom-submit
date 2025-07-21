@@ -14,32 +14,79 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_key_configurations: {
+        Row: {
+          api_key_id: string | null
+          configuration_key: string
+          configuration_value: string
+          created_at: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          api_key_id?: string | null
+          configuration_key: string
+          configuration_value: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          api_key_id?: string | null
+          configuration_key?: string
+          configuration_value?: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_key_configurations_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_keys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       api_keys: {
         Row: {
           created_at: string | null
           id: string
+          integration_status: string | null
           is_configured: boolean | null
           key_name: string
           key_value: string
+          last_test_at: string | null
           service_name: string
+          service_type: string | null
+          test_result: Json | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
+          integration_status?: string | null
           is_configured?: boolean | null
           key_name: string
           key_value: string
+          last_test_at?: string | null
           service_name: string
+          service_type?: string | null
+          test_result?: Json | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
+          integration_status?: string | null
           is_configured?: boolean | null
           key_name?: string
           key_value?: string
+          last_test_at?: string | null
           service_name?: string
+          service_type?: string | null
+          test_result?: Json | null
           updated_at?: string | null
         }
         Relationships: []
@@ -482,6 +529,16 @@ export type Database = {
         }
         Returns: undefined
       }
+      custom_upsert_api_key_with_config: {
+        Args: {
+          p_service_name: string
+          p_key_name: string
+          p_key_value: string
+          p_service_type?: string
+          p_configurations?: Json
+        }
+        Returns: string
+      }
       get_category_usage_count: {
         Args: { category_name: string }
         Returns: number
@@ -493,6 +550,10 @@ export type Database = {
       has_role: {
         Args: { _user_id: string; _role: string }
         Returns: boolean
+      }
+      update_api_key_test_result: {
+        Args: { p_id: string; p_status: string; p_result: Json }
+        Returns: undefined
       }
     }
     Enums: {
