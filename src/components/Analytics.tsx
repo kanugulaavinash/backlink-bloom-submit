@@ -5,6 +5,14 @@ import { useLocation } from 'react-router-dom';
 // Google Analytics tracking ID
 const GA_TRACKING_ID = 'G-XXXXXXXXXX'; // Replace with your actual tracking ID
 
+// Extend Window interface for dataLayer
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
 // Initialize Google Analytics
 export const initGA = () => {
   if (typeof window !== 'undefined' && GA_TRACKING_ID) {

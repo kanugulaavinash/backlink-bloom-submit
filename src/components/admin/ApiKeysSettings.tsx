@@ -19,13 +19,15 @@ interface ApiKey {
 }
 
 const COMMON_INTEGRATIONS = [
-  { name: "OpenAI", key: "OPENAI_API_KEY", description: "For AI chat functionality" },
+  { name: "Resend", key: "RESEND_API_KEY", description: "For email notifications and delivery", priority: true },
+  { name: "OpenAI", key: "OPENAI_API_KEY", description: "For AI content validation" },
+  { name: "Plagiarism Check", key: "PLAGIARISM_CHECK_API_KEY", description: "For plagiarism detection" },
   { name: "Razorpay", key: "RAZORPAY_KEY_ID", description: "For payment processing (Key ID)" },
   { name: "Razorpay Secret", key: "RAZORPAY_KEY_SECRET", description: "For payment processing (Secret)" },
-  { name: "SendGrid", key: "SENDGRID_API_KEY", description: "For email notifications" },
+  { name: "SendGrid", key: "SENDGRID_API_KEY", description: "For email notifications (alternative)" },
   { name: "Twilio", key: "TWILIO_AUTH_TOKEN", description: "For SMS notifications" },
-  { name: "Google Maps", key: "GOOGLE_MAPS_API_KEY", description: "For location services" },
-  { name: "Resend", key: "RESEND_API_KEY", description: "For email delivery" }
+  { name: "Google Analytics", key: "GOOGLE_ANALYTICS_ID", description: "For website analytics tracking" },
+  { name: "Google Search Console", key: "GOOGLE_SEARCH_CONSOLE_VERIFICATION", description: "For search console verification" }
 ];
 
 const ApiKeysSettings = () => {
