@@ -35,9 +35,9 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <Analytics />
           <GoogleSearchConsole />
           <BrowserRouter>
+            <Analytics />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/blog" element={<Blog />} />
