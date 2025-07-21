@@ -1,7 +1,9 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { CheckCircle, XCircle, AlertTriangle, Loader2, Eye, EyeOff } from 'lucide-react';
+import { ContentHighlighter } from './ContentHighlighter';
 
 interface ValidationResult {
   plagiarism_score?: number;
@@ -26,13 +28,16 @@ interface ContentValidationResultsProps {
   validationResult: ValidationResult | null;
   isValidating: boolean;
   onRetryValidation: () => void;
+  content?: string;
 }
 
 export const ContentValidationResults: React.FC<ContentValidationResultsProps> = ({
   validationResult,
   isValidating,
-  onRetryValidation
+  onRetryValidation,
+  content = ""
 }) => {
+  const [showHighlights, setShowHighlights] = React.useState(false);
   if (isValidating) {
     return (
       <Card className="border-blue-200">
@@ -178,6 +183,43 @@ export const ContentValidationResults: React.FC<ContentValidationResultsProps> =
             <p className="text-sm text-yellow-700 mt-2">
               Please review and edit your content before proceeding with payment.
             </p>
+          </div>
+        )}
+
+        {/* Content Highlights */}
+        {((plagiarism_highlights && plagiarism_highlights.length > 0) || 
+          (ai_content_highlights && ai_content_highlights.length > 0)) && content && (
+          <div className="mt-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-medium">Content Analysis</h4>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowHighlights(!showHighlights)}
+              >
+                {showHighlights ? <EyeOff className="h-4 w-4 mr-1" /> : <Eye className="h-4 w-4 mr-1" />}
+                {showHighlights ? 'Hide' : 'Show'} Highlights
+              </Button>
+            </div>
+            {showHighlights && (
+              <div className="border rounded-lg p-4 max-h-96 overflow-y-auto">
+                <ContentHighlighter
+                  content={content}
+                  highlights={[
+                    ...(plagiarism_highlights?.map(h => ({ ...h, type: 'plagiarism' as const })) || []),
+                    ...(ai_content_highlights?.map(h => ({ 
+                      start: h.sentence_index * 100, // Approximate positioning
+                      end: h.sentence_index * 100 + h.text.length,
+                      text: h.text,
+                      confidence: h.confidence,
+                      reason: h.reason,
+                      type: 'ai_content' as const 
+                    })) || [])
+                  ]}
+                  className="text-sm leading-relaxed"
+                />
+              </div>
+            )}
           </div>
         )}
 

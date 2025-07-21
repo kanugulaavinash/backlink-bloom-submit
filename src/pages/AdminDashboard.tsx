@@ -11,7 +11,7 @@ import PostsManagement from "@/components/admin/PostsManagement";
 import UsersManagement from "@/components/admin/UsersManagement";
 import PricingSettings from "@/components/admin/PricingSettings";
 import PaymentLogs from "@/components/admin/PaymentLogs";
-import ValidationQueue from "@/components/admin/ValidationQueue";
+import RealValidationQueue from "@/components/admin/RealValidationQueue";
 import ApiKeysSettings from "@/components/admin/ApiKeysSettings";
 import WordPressImport from "@/components/admin/WordPressImport";
 import CategoryManagement from "@/components/admin/CategoryManagement";
@@ -84,7 +84,7 @@ const AdminDashboard = () => {
             </TabsContent>
             
             <TabsContent value="validation">
-              <ValidationQueue />
+              <RealValidationQueue />
             </TabsContent>
             
             <TabsContent value="notifications">

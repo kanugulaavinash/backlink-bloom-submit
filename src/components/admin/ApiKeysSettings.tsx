@@ -20,7 +20,8 @@ interface ApiKey {
 
 const COMMON_INTEGRATIONS = [
   { name: "OpenAI", key: "OPENAI_API_KEY", description: "For AI chat functionality" },
-  { name: "Stripe", key: "STRIPE_SECRET_KEY", description: "For payment processing" },
+  { name: "Razorpay", key: "RAZORPAY_KEY_ID", description: "For payment processing (Key ID)" },
+  { name: "Razorpay Secret", key: "RAZORPAY_KEY_SECRET", description: "For payment processing (Secret)" },
   { name: "SendGrid", key: "SENDGRID_API_KEY", description: "For email notifications" },
   { name: "Twilio", key: "TWILIO_AUTH_TOKEN", description: "For SMS notifications" },
   { name: "Google Maps", key: "GOOGLE_MAPS_API_KEY", description: "For location services" },
