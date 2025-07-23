@@ -1,65 +1,81 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, FileText, Globe, TrendingUp, Award } from "lucide-react";
+import { ArrowRight, FileText, Shield, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
-import TrustIndicators from "@/components/TrustIndicators";
 
 const HeroSection = () => {
-  const stats = [
-    { number: "1000+", label: "Posts Published", icon: FileText },
-    { number: "Stuffedition", label: "Platform", icon: Globe },
-    { number: "85+", label: "Average DA Score", icon: TrendingUp },
-    { number: "98%", label: "Approval Rate", icon: Award }
-  ];
-
   return (
     <section className="pt-32 pb-20 px-4 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-pink-400/20 to-orange-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       </div>
       
-      <div className="max-w-7xl mx-auto text-center relative z-10">
-        <Badge variant="secondary" className="mb-6 px-6 py-3 text-sm bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          🚀 #1 Trusted Guest Posting Platform • Stuffedition Success Stories
-        </Badge>
-        
-        <h1 className="text-6xl md:text-8xl font-bold text-gray-900 mb-8 leading-tight">
-          Scale Your Authority with
-          <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent block mt-4">
-            Premium Guest Posts
-          </span>
-        </h1>
-        
-        <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
-          Get published on high-authority sites with Stuffedition's AI-powered submission platform. 
-          Guaranteed do-follow backlinks, 98% approval rate, and results that drive real traffic.
-        </p>
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Content */}
+          <div className="text-left">
+            <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm">
+              💎 Premium Guest Posting Platform
+            </Badge>
+            
+            <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
+              Get Your Content Published on 
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent block mt-2">
+                High-Quality Blogs
+              </span>
+            </h1>
+            
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl leading-relaxed">
+              Submit guest posts starting at just $5. Guaranteed dofollow backlink & SEO boost with our trusted publishing network.
+            </p>
 
-        {/* Stats Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12 max-w-4xl mx-auto">
-          {stats.map((stat, index) => (
-            <div key={index} className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-0">
-              <stat.icon className="h-8 w-8 text-blue-600 mx-auto mb-3" />
-              <div className="text-3xl font-bold text-gray-900 mb-1">{stat.number}</div>
-              <div className="text-sm text-gray-600">{stat.label}</div>
+            {/* Trust Indicators */}
+            <div className="flex flex-wrap items-center gap-6 mb-8 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-primary" />
+                <span>AI & Plagiarism Checked</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary" />
+                <span>Dofollow Backlinks</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-primary" />
+                <span>Instant Publishing</span>
+              </div>
             </div>
-          ))}
-        </div>
-        
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-          <Link to="/signin">
-            <Button size="lg" className="px-10 py-6 text-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 rounded-2xl">
-              Start Publishing Now
-              <ArrowRight className="ml-3 h-6 w-6" />
-            </Button>
-          </Link>
-        </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link to="/signin">
+                <Button size="lg" className="px-8 py-4 text-lg">
+                  Submit Your Guest Post
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link to="/blog">
+                <Button variant="outline" size="lg" className="px-8 py-4 text-lg">
+                  View Submission Guidelines
+                </Button>
+              </Link>
+            </div>
+          </div>
 
-        {/* Trust Indicators */}
-        <TrustIndicators />
+          {/* Right Image */}
+          <div className="relative">
+            <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 p-8 backdrop-blur-sm border border-border">
+              <div className="w-full h-full bg-card rounded-xl shadow-2xl flex items-center justify-center">
+                <div className="text-center">
+                  <FileText className="h-24 w-24 text-primary mx-auto mb-4" />
+                  <h3 className="text-2xl font-semibold text-foreground mb-2">Content Marketing</h3>
+                  <p className="text-muted-foreground">Professional guest posting made simple</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

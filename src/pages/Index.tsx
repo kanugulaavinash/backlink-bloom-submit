@@ -5,10 +5,11 @@ import { ArrowRight, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
-import PricingSection from "@/components/PricingSection";
-import SamplePostsCarousel from "@/components/SamplePostsCarousel";
 import HowItWorksSection from "@/components/HowItWorksSection";
+import FeaturesSection from "@/components/FeaturesSection";
+import SamplePostsCarousel from "@/components/SamplePostsCarousel";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import FAQSection from "@/components/FAQSection";
 import FinalCTASection from "@/components/FinalCTASection";
 import SEO from "@/components/SEO";
 import SitemapGenerator from "@/components/SitemapGenerator";
@@ -42,13 +43,14 @@ const Index = () => {
         }}
       />
       <SitemapGenerator />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+      <div className="min-h-screen bg-background">
         <Header />
         <HeroSection />
         <HowItWorksSection />
-        <PricingSection />
+        <FeaturesSection />
         <SamplePostsCarousel />
         <TestimonialsSection />
+        <FAQSection />
         <FinalCTASection />
       </div>
     </>

@@ -6,55 +6,55 @@ import { Star, Quote, TrendingUp, Users, BarChart3 } from "lucide-react";
 const TestimonialsSection = () => {
   const testimonials = [
     {
-      name: "Sarah Johnson",
-      role: "Digital Marketing Director",
-      company: "TechFlow Solutions",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b332c5fd?w=100&h=100&fit=crop&crop=face",
-      rating: 5,
-      text: "GuestPost Pro transformed our content strategy completely. We saw a 300% increase in organic traffic within 3 months. The quality of sites in their network is unmatched.",
-      results: {
-        metric: "Organic Traffic",
-        increase: "+300%",
-        timeframe: "3 months"
-      }
-    },
-    {
-      name: "Michael Chen",
-      role: "Founder & CEO",
-      company: "Growth Hackers Inc",
+      name: "DigitalMarketerX",
+      role: "SEO Specialist",
+      company: "Marketing Agency",
       image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
       rating: 5,
-      text: "The ROI on guest posting through this platform is incredible. Every dollar spent has returned at least $8 in new business. Their targeting is spot-on.",
+      text: "Great ROI for just $5. My article ranked within weeks and is still driving organic traffic months later!",
       results: {
-        metric: "ROI",
-        increase: "800%",
-        timeframe: "6 months"
+        metric: "Keyword Ranking",
+        increase: "#3 Position",
+        timeframe: "3 weeks"
       }
     },
     {
-      name: "Emily Rodriguez",
-      role: "Content Marketing Manager",
-      company: "StartupBoost",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+      name: "Sarah",
+      role: "SEO Specialist", 
+      company: "Content Marketing Pro",
+      image: "https://images.unsplash.com/photo-1494790108755-2616b332c5fd?w=100&h=100&fit=crop&crop=face",
       rating: 5,
-      text: "What impressed me most is the speed and quality. Our articles get published on high-DA sites within days, not weeks. Customer support is exceptional too.",
+      text: "Clean interface and helpful team. The submission process is straightforward and I love the instant publishing. Will use again!",
       results: {
-        metric: "Domain Authority",
-        increase: "+45 pts",
-        timeframe: "4 months"
+        metric: "Publications",
+        increase: "8 Quality Blogs",
+        timeframe: "2 months"
       }
     },
     {
-      name: "David Park",
-      role: "SEO Specialist",
-      company: "Digital Dynamo",
+      name: "Content Creator Mike",
+      role: "Blogger",
+      company: "Tech Reviews Hub",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
       rating: 5,
-      text: "I've tried many guest posting services, but none come close to this level of quality and results. Our keyword rankings improved dramatically.",
+      text: "Finally found a guest posting platform that actually delivers. No waiting periods, just instant results after payment.",
       results: {
-        metric: "Keyword Rankings",
-        increase: "+67%",
-        timeframe: "2 months"
+        metric: "Traffic Increase",
+        increase: "+250%",
+        timeframe: "1 month"
+      }
+    },
+    {
+      name: "Lisa M.",
+      role: "Marketing Manager",
+      company: "SaaS Startup",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+      rating: 5,
+      text: "The AI content checks are thorough but fair. Helped me improve my writing and get better engagement rates.",
+      results: {
+        metric: "Approval Rate",
+        increase: "90%",
+        timeframe: "Overall"
       }
     }
   ];
@@ -67,17 +67,17 @@ const TestimonialsSection = () => {
   ];
 
   return (
-    <section className="py-24 px-4 bg-gradient-to-br from-gray-50 to-blue-50 relative">
+    <section className="py-24 px-4 bg-muted/30 relative">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <Badge className="mb-6 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white">
-            ⭐ Client Success Stories
+          <Badge variant="secondary" className="mb-4 px-4 py-2">
+            💬 Trusted By
           </Badge>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            What Our Clients <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Say</span>
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+            What Our Users Are Saying
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Join thousands of marketers who've accelerated their growth with our premium guest posting platform
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Join successful marketers and content creators who trust our platform
           </p>
         </div>
 

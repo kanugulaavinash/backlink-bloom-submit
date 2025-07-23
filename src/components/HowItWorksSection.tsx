@@ -7,98 +7,98 @@ const HowItWorksSection = () => {
   const steps = [
     {
       number: "01",
-      title: "Submit Your Content",
-      description: "Upload your high-quality article with target keywords and preferred niches. Our AI instantly validates content quality and originality.",
+      title: "Write SEO-Friendly Content",
+      description: "Create original, engaging content with minimum 650 words that provides real value to readers.",
       icon: FileText,
-      color: "from-blue-500 to-cyan-500",
-      features: ["AI plagiarism check", "SEO optimization scan", "Quality score analysis"],
-      timeline: "Instant validation"
+      color: "from-primary to-primary/70",
+      features: ["Minimum 650 words", "Original content only", "SEO-optimized structure"],
+      timeline: "Your time"
     },
     {
       number: "02", 
-      title: "Smart Site Matching",
-      description: "Our algorithm matches your content with the most relevant high-authority sites in our premium network based on niche and audience.",
+      title: "Submit & AI Check",
+      description: "Upload your post and let our AI system run plagiarism and content quality checks automatically.",
       icon: Search,
-      color: "from-purple-500 to-pink-500",
-      features: ["DA 50+ sites only", "Niche relevance scoring", "Audience alignment"],
-      timeline: "Within 2 hours"
+      color: "from-accent to-accent/70",
+      features: ["AI content detection", "Plagiarism check via PlagiarismCheck.org", "Quality scoring"],
+      timeline: "2-5 minutes"
     },
     {
       number: "03",
-      title: "Editorial Review",
-      description: "Expert editors review your content for quality, relevance, and compliance with site guidelines before publication approval.",
+      title: "Pay Securely",
+      description: "Complete your submission with secure PayPal payment. Only $5 per post with instant confirmation.",
       icon: CheckCircle,
-      color: "from-green-500 to-emerald-500", 
-      features: ["Human expert review", "Guidelines compliance", "Final optimization"],
-      timeline: "24-48 hours"
+      color: "from-primary to-accent", 
+      features: ["Secure PayPal payment", "Just $5 per post", "Instant confirmation"],
+      timeline: "30 seconds"
     },
     {
       number: "04",
-      title: "Live Publication",
-      description: "Your content goes live with permanent do-follow backlinks. Track performance with our comprehensive analytics dashboard.",
+      title: "Get Published & Shared",
+      description: "Your post goes live immediately with guaranteed dofollow backlink and gets shared across our network.",
       icon: Rocket,
-      color: "from-orange-500 to-red-500",
-      features: ["Permanent placement", "Do-follow backlinks", "Performance tracking"],
-      timeline: "Publication confirmed"
+      color: "from-accent to-primary",
+      features: ["Instant publishing", "Guaranteed dofollow link", "Social sharing"],
+      timeline: "Immediate"
     }
   ];
 
   return (
-    <section className="py-24 px-4 bg-white relative">
+    <section className="py-24 px-4 bg-muted/30 relative">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <Badge className="mb-6 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-            ⚡ Streamlined Process
+          <Badge variant="secondary" className="mb-6 px-4 py-2">
+            ⚡ Simple Process
           </Badge>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            How It <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Works</span>
+          <h2 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
+            How It <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Works</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            From submission to publication in just 4 simple steps. Our streamlined process ensures quality while maximizing your content's reach and impact.
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            From content creation to live publication in just 4 simple steps. Transparent process with instant results.
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           {steps.map((step, index) => (
             <div key={index} className="relative">
-              <Card className="p-8 h-full bg-white border-0 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 relative overflow-hidden">
-                {/* Background gradient */}
-                <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${step.color}`}></div>
-                
-                {/* Step number */}
-                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r ${step.color} text-white text-2xl font-bold mb-6`}>
-                  {step.number}
-                </div>
+                <Card className="p-8 h-full bg-card border shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-105 relative overflow-hidden">
+                 {/* Background gradient */}
+                 <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${step.color}`}></div>
+                 
+                 {/* Step number */}
+                 <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r ${step.color} text-primary-foreground text-2xl font-bold mb-6`}>
+                   {step.number}
+                 </div>
 
-                {/* Icon */}
-                <step.icon className={`h-12 w-12 mb-6 bg-gradient-to-r ${step.color} bg-clip-text text-transparent`} />
+                 {/* Icon */}
+                 <step.icon className="h-12 w-12 mb-6 text-primary" />
 
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">{step.title}</h3>
-                <p className="text-gray-600 mb-6 leading-relaxed">{step.description}</p>
+                <h3 className="text-2xl font-bold text-foreground mb-4">{step.title}</h3>
+                <p className="text-muted-foreground mb-6 leading-relaxed">{step.description}</p>
 
-                {/* Features */}
-                <ul className="space-y-2 mb-6">
-                  {step.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-center text-sm text-gray-600">
-                      <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${step.color} mr-3`}></div>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+                 {/* Features */}
+                 <ul className="space-y-2 mb-6">
+                   {step.features.map((feature, idx) => (
+                     <li key={idx} className="flex items-center text-sm text-muted-foreground">
+                       <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${step.color} mr-3`}></div>
+                       {feature}
+                     </li>
+                   ))}
+                 </ul>
 
-                {/* Timeline */}
-                <div className="flex items-center text-sm font-medium text-gray-800">
-                  <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                  {step.timeline}
-                </div>
+                 {/* Timeline */}
+                 <div className="flex items-center text-sm font-medium text-foreground">
+                   <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                   {step.timeline}
+                 </div>
               </Card>
 
-              {/* Arrow connector (hidden on last item) */}
-              {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
-                  <ArrowRight className="h-8 w-8 text-gray-300" />
-                </div>
-              )}
+               {/* Arrow connector (hidden on last item) */}
+               {index < steps.length - 1 && (
+                 <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                   <ArrowRight className="h-8 w-8 text-muted-foreground" />
+                 </div>
+               )}
             </div>
           ))}
         </div>

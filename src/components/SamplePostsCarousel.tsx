@@ -98,34 +98,41 @@ const SamplePostsCarousel = () => {
   }
 
   return (
-    <section className="py-20 px-4 bg-white">
+    <section className="py-20 px-4 bg-background">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Latest Published Posts</h2>
-          <p className="text-xl text-gray-600">See what our community of writers has been sharing</p>
+        <div className="text-center mb-16">
+          <Badge variant="secondary" className="mb-4 px-4 py-2">
+            📰 Live Content
+          </Badge>
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+            Recently Published Guest Posts
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Real examples of content that's been published on our platform - proof of our quality standards and active community
+          </p>
         </div>
         
         <div className="grid md:grid-cols-3 gap-8">
           {samplePosts.map((post) => (
-            <Card key={post.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg overflow-hidden">
+            <Card key={post.id} className="group hover:shadow-xl transition-all duration-300 border shadow-lg overflow-hidden">
               <div className="relative">
                 <img
                   src={post.imageUrl}
                   alt={post.title}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <Badge className="absolute top-4 left-4 bg-blue-600 hover:bg-blue-700">
+                <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
                   {post.category}
                 </Badge>
                 {post.id.startsWith('imported-') && (
-                  <Badge className="absolute top-4 right-4 bg-green-500 text-white">
+                  <Badge className="absolute top-4 right-4 bg-accent text-accent-foreground">
                     NEW
                   </Badge>
                 )}
               </div>
               
               <CardContent className="p-6">
-                <div className="flex items-center text-sm text-gray-500 mb-3 space-x-4">
+                <div className="flex items-center text-sm text-muted-foreground mb-3 space-x-4">
                   <div className="flex items-center">
                     <User className="h-4 w-4 mr-1" />
                     {post.author}
@@ -136,19 +143,19 @@ const SamplePostsCarousel = () => {
                   </div>
                 </div>
                 
-                <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">
                   {post.title}
                 </h3>
                 
-                <p className="text-gray-600 mb-4 line-clamp-3">
+                <p className="text-muted-foreground mb-4 line-clamp-3">
                   {post.excerpt}
                 </p>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-blue-600 font-medium">{post.readTime} min read</span>
+                  <span className="text-sm text-primary font-medium">{post.readTime} min read</span>
                   <Link 
                     to={`/blog/post/${post.id}`}
-                    className="flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                    className="flex items-center text-primary hover:text-primary/80 font-medium transition-colors"
                   >
                     Read More
                     <ExternalLink className="h-4 w-4 ml-1" />
