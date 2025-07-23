@@ -4,13 +4,15 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
-import HeroSection from "@/components/HeroSection";
-import HowItWorksSection from "@/components/HowItWorksSection";
-import FeaturesSection from "@/components/FeaturesSection";
-import SamplePostsCarousel from "@/components/SamplePostsCarousel";
-import TestimonialsSection from "@/components/TestimonialsSection";
+import ModernHeroSection from "@/components/modern/ModernHeroSection";
+import TrustIndicatorsSection from "@/components/modern/TrustIndicatorsSection";
+import ProblemSolutionSection from "@/components/modern/ProblemSolutionSection";
+import ModernHowItWorksSection from "@/components/modern/ModernHowItWorksSection";
+import ModernFeaturesSection from "@/components/modern/ModernFeaturesSection";
+import SocialProofSection from "@/components/modern/SocialProofSection";
+import PricingValueSection from "@/components/modern/PricingValueSection";
 import FAQSection from "@/components/FAQSection";
-import FinalCTASection from "@/components/FinalCTASection";
+import FinalConversionSection from "@/components/modern/FinalConversionSection";
 import SEO from "@/components/SEO";
 import SitemapGenerator from "@/components/SitemapGenerator";
 import { usePagePerformance } from "@/hooks/useAnalytics";
@@ -45,13 +47,15 @@ const Index = () => {
       <SitemapGenerator />
       <div className="min-h-screen bg-background">
         <Header />
-        <HeroSection />
-        <HowItWorksSection />
-        <FeaturesSection />
-        <SamplePostsCarousel />
-        <TestimonialsSection />
+        <ModernHeroSection />
+        <TrustIndicatorsSection />
+        <ProblemSolutionSection />
+        <ModernHowItWorksSection />
+        <ModernFeaturesSection />
+        <SocialProofSection />
+        <PricingValueSection />
         <FAQSection />
-        <FinalCTASection />
+        <FinalConversionSection />
       </div>
     </>
   );
