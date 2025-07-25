@@ -17,6 +17,7 @@ import ApiKeysSettings from "@/components/admin/ApiKeysSettings";
 import WordPressImport from "@/components/admin/WordPressImport";
 import CategoryManagement from "@/components/admin/CategoryManagement";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
+import Footer from "@/components/Footer";
 import { usePagePerformance } from "@/hooks/useAnalytics";
 
 const AdminDashboard = () => {
@@ -117,6 +118,7 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

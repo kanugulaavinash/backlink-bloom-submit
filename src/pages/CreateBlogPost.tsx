@@ -16,6 +16,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { ContentValidationResults } from "@/components/ContentValidationResults";
 import { usePaymentSuccess } from "@/hooks/usePaymentSuccess";
+import Footer from "@/components/Footer";
 import React, { useState, useEffect } from "react";
 
 interface Category {
@@ -149,6 +150,8 @@ const CreateBlogPost = () => {
       });
     }
   };
+
+  
 
   const addTag = () => {
     if (!newTag.trim()) return;
@@ -502,190 +505,193 @@ const CreateBlogPost = () => {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {id ? "Edit Blog Post" : "Create New Blog Post"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Content Section */}
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="title">Title *</Label>
-              <Input
-                id="title"
-                value={post.title}
-                onChange={(e) => setPost({ ...post, title: e.target.value })}
-                placeholder="Enter post title"
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="content">Content *</Label>
-              <ReactQuill
-                theme="snow"
-                value={post.content}
-                onChange={(content) => setPost({ ...post, content })}
-                modules={modules}
-                style={{ height: '300px', marginBottom: '50px' }}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="excerpt">Excerpt</Label>
-              <Textarea
-                id="excerpt"
-                value={post.excerpt}
-                onChange={(e) => setPost({ ...post, excerpt: e.target.value })}
-                placeholder="Brief description of the post"
-                rows={3}
-              />
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Author Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Author Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <div className="container mx-auto py-8 px-4 max-w-4xl">
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              {id ? "Edit Blog Post" : "Create New Blog Post"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Content Section */}
+            <div className="space-y-4">
               <div>
-                <Label htmlFor="author_name">Author Name *</Label>
+                <Label htmlFor="title">Title *</Label>
                 <Input
-                  id="author_name"
-                  value={post.author_name}
-                  onChange={(e) => setPost({ ...post, author_name: e.target.value })}
-                  placeholder="Author name"
+                  id="title"
+                  value={post.title}
+                  onChange={(e) => setPost({ ...post, title: e.target.value })}
+                  placeholder="Enter post title"
                   required
                 />
               </div>
+
               <div>
-                <Label htmlFor="author_website">Author Website</Label>
-                <Input
-                  id="author_website"
-                  value={post.author_website}
-                  onChange={(e) => setPost({ ...post, author_website: e.target.value })}
-                  placeholder="https://..."
+                <Label htmlFor="content">Content *</Label>
+                <ReactQuill
+                  theme="snow"
+                  value={post.content}
+                  onChange={(content) => setPost({ ...post, content })}
+                  modules={modules}
+                  style={{ height: '300px', marginBottom: '50px' }}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="excerpt">Excerpt</Label>
+                <Textarea
+                  id="excerpt"
+                  value={post.excerpt}
+                  onChange={(e) => setPost({ ...post, excerpt: e.target.value })}
+                  placeholder="Brief description of the post"
+                  rows={3}
                 />
               </div>
             </div>
-            <div>
-              <Label htmlFor="author_bio">Author Bio *</Label>
-              <Textarea
-                id="author_bio"
-                value={post.author_bio}
-                onChange={(e) => setPost({ ...post, author_bio: e.target.value })}
-                placeholder="Brief bio of the author"
-                rows={3}
-                required
-              />
-            </div>
-          </div>
 
-          <Separator />
+            <Separator />
 
-          {/* Publishing Settings */}
-          {isAdmin && (
+            {/* Author Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Publishing Settings</h3>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="scheduled"
-                  checked={isScheduled}
-                  onCheckedChange={setIsScheduled}
-                />
-                <Label htmlFor="scheduled">Schedule for later</Label>
-              </div>
-              
-              {isScheduled && (
+              <h3 className="text-lg font-semibold">Author Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="scheduled_datetime">Scheduled Date & Time</Label>
+                  <Label htmlFor="author_name">Author Name *</Label>
                   <Input
-                    id="scheduled_datetime"
-                    type="datetime-local"
-                    value={scheduledDateTime}
-                    onChange={(e) => setScheduledDateTime(e.target.value)}
+                    id="author_name"
+                    value={post.author_name}
+                    onChange={(e) => setPost({ ...post, author_name: e.target.value })}
+                    placeholder="Author name"
+                    required
                   />
                 </div>
-              )}
-            </div>
-          )}
-
-          <Separator />
-
-          {/* Category and Tags */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <Label htmlFor="category">Category *</Label>
-              <Select value={post.category} onValueChange={(value) => setPost({ ...post, category: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.name}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Tags</Label>
-              <div className="space-y-2">
-                <div className="flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="flex items-center gap-1">
-                      {tag}
-                      <button
-                        onClick={() => removeTag(tag)}
-                        className="ml-1 hover:text-destructive"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-                <div className="flex gap-2">
+                <div>
+                  <Label htmlFor="author_website">Author Website</Label>
                   <Input
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    placeholder="Add tag"
-                    onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                    id="author_website"
+                    value={post.author_website}
+                    onChange={(e) => setPost({ ...post, author_website: e.target.value })}
+                    placeholder="https://..."
                   />
-                  <Button onClick={addTag} size="sm">
-                    <Plus className="w-4 h-4" />
-                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="author_bio">Author Bio *</Label>
+                <Textarea
+                  id="author_bio"
+                  value={post.author_bio}
+                  onChange={(e) => setPost({ ...post, author_bio: e.target.value })}
+                  placeholder="Brief bio of the author"
+                  rows={3}
+                  required
+                />
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Publishing Settings */}
+            {isAdmin && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Publishing Settings</h3>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="scheduled"
+                    checked={isScheduled}
+                    onCheckedChange={setIsScheduled}
+                  />
+                  <Label htmlFor="scheduled">Schedule for later</Label>
+                </div>
+                
+                {isScheduled && (
+                  <div>
+                    <Label htmlFor="scheduled_datetime">Scheduled Date & Time</Label>
+                    <Input
+                      id="scheduled_datetime"
+                      type="datetime-local"
+                      value={scheduledDateTime}
+                      onChange={(e) => setScheduledDateTime(e.target.value)}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            <Separator />
+
+            {/* Category and Tags */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="category">Category *</Label>
+                <Select value={post.category} onValueChange={(value) => setPost({ ...post, category: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.name}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Tags</Label>
+                <div className="space-y-2">
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                        {tag}
+                        <button
+                          onClick={() => removeTag(tag)}
+                          className="ml-1 hover:text-destructive"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      placeholder="Add tag"
+                      onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                    />
+                    <Button onClick={addTag} size="sm">
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Content Validation Results - only for guest users after submission */}
-          {!isAdmin && submissionStep >= 2 && (
-            <div className="mt-6">
-              <ContentValidationResults
-                validationResult={validationResult}
-                isValidating={isValidating}
-                onRetryValidation={() => id && validateContent(id)}
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Action Buttons at Bottom */}
-      <div className="mt-6 sticky bottom-4">
-        <Card className="border-2 border-primary/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <CardContent className="p-4">
-            {getActionButtons()}
+            {/* Content Validation Results - only for guest users after submission */}
+            {!isAdmin && submissionStep >= 2 && (
+              <div className="mt-6">
+                <ContentValidationResults
+                  validationResult={validationResult}
+                  isValidating={isValidating}
+                  onRetryValidation={() => id && validateContent(id)}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* Action Buttons at Bottom */}
+        <div className="mt-6 sticky bottom-4">
+          <Card className="border-2 border-primary/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <CardContent className="p-4">
+              {getActionButtons()}
+            </CardContent>
+          </Card>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 };

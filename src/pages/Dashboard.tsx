@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
 import { Plus, FileText, DollarSign, User, Download, Eye } from "lucide-react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const Dashboard = () => {
   const [posts] = useState([
@@ -246,6 +247,7 @@ const Dashboard = () => {
           </Tabs>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

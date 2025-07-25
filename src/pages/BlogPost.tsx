@@ -10,6 +10,7 @@ import RelatedPosts from "@/components/blog/RelatedPosts";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { SocialShare } from "@/components/blog/SocialShare";
 import { InlineReactions } from "@/components/blog/InlineReactions";
+import Footer from "@/components/Footer";
 import { format } from "date-fns";
 import { createSafeHTML, sanitizer } from "@/lib/sanitization";
 
@@ -187,6 +188,7 @@ const BlogPostPage = () => {
         {/* Related Posts Section */}
         <RelatedPosts currentPost={post} />
       </div>
+      <Footer />
     </div>
   );
 };

@@ -9,6 +9,7 @@ import DashboardStats from "@/components/dashboard/DashboardStats";
 import PostsList from "@/components/dashboard/PostsList";
 import PaymentHistory from "@/components/dashboard/PaymentHistory";
 import NotificationsList from "@/components/dashboard/NotificationsList";
+import Footer from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const UserDashboard = () => {
@@ -72,6 +73,7 @@ const UserDashboard = () => {
           </Tabs>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

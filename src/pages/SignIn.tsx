@@ -9,6 +9,7 @@ import { Mail, Lock, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { signInSchema, validateAndSanitize } from "@/lib/validationSchemas";
+import Footer from "@/components/Footer";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
@@ -195,6 +196,7 @@ const SignIn = () => {
           </CardContent>
         </Card>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { Calendar, Clock, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { format } from "date-fns";
 
 const BlogCategory = () => {
@@ -136,6 +137,7 @@ const BlogCategory = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

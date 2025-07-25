@@ -8,6 +8,7 @@ import { Mail, Lock, User, ArrowLeft, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { signUpSchema, validateAndSanitize, sanitizeInput } from "@/lib/validationSchemas";
 import { useAuthErrorHandler } from "@/components/auth/AuthErrorHandler";
+import Footer from "@/components/Footer";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -289,6 +290,7 @@ const SignUp = () => {
           </CardContent>
         </Card>
       </div>
+      <Footer />
     </div>
   );
 };
