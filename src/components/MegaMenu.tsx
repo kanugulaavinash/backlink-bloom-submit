@@ -37,7 +37,7 @@ const MegaMenu = ({ category }: MegaMenuProps) => {
             {getSubCategories(category).map((subCategory) => (
               <li key={subCategory}>
                 <Link
-                  to={`/category/${category.toLowerCase().replace(/\s+/g, '-')}/${subCategory.toLowerCase().replace(/\s+/g, '-')}`}
+                  to={`/blog/category/${category.toLowerCase().replace(/\s+/g, '-')}`}
                   className="text-gray-600 hover:text-blue-600 transition-colors"
                 >
                   {subCategory}
@@ -53,7 +53,7 @@ const MegaMenu = ({ category }: MegaMenuProps) => {
           <div className="space-y-4">
             {getFeaturedPosts().map((post, index) => (
               <Card key={index} className="p-4 hover:shadow-md transition-shadow">
-                <Link to={`/post/${post.toLowerCase().replace(/\s+/g, '-')}`}>
+                <Link to={`/blog/post/${post.toLowerCase().replace(/\s+/g, '-')}`}>
                   <div className="flex space-x-4">
                     <img
                       src={`https://images.unsplash.com/photo-148859252850${index}5-98d2b5aba04b?w=80&h=60&fit=crop`}
