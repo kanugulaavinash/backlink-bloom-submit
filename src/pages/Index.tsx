@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import ModernHeroSection from "@/components/modern/ModernHeroSection";
 import TrustIndicatorsSection from "@/components/modern/TrustIndicatorsSection";
 import ProblemSolutionSection from "@/components/modern/ProblemSolutionSection";
@@ -57,6 +58,7 @@ const Index = () => {
         <FAQSection />
         <FinalConversionSection />
       </div>
+      <Footer />
     </>
   );
 };
