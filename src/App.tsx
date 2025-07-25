@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from "@/hooks/useAuth";
+import { ThemeProvider } from "@/hooks/useTheme";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Analytics from "@/components/Analytics";
 import GoogleSearchConsole from "@/components/GoogleSearchConsole";
@@ -31,8 +32,9 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <HelmetProvider>
-      <AuthProvider>
-        <TooltipProvider>
+      <ThemeProvider defaultTheme="light" storageKey="blog-theme">
+        <AuthProvider>
+          <TooltipProvider>
           <Toaster />
           <Sonner />
           <GoogleSearchConsole />
@@ -131,8 +133,9 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
-    </HelmetProvider>
-  </QueryClientProvider>
+    </ThemeProvider>
+  </HelmetProvider>
+</QueryClientProvider>
 );
 
 export default App;

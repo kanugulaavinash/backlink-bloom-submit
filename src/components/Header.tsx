@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useAuth } from "@/hooks/useAuth";
 import UserDropdown from "./UserDropdown";
+import { ThemeToggle } from "./ui/theme-toggle";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -43,7 +44,7 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 w-full bg-white/90 backdrop-blur-md shadow-lg z-50 border-b border-gray-100">
+    <header className="fixed top-0 w-full bg-background/90 backdrop-blur-md shadow-lg z-50 border-b border-border">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -65,7 +66,7 @@ const Header = () => {
               <NavigationMenuItem>
                 <Link 
                   to="/blog" 
-                  className="px-6 py-3 text-gray-700 hover:text-blue-600 transition-all duration-300 rounded-xl hover:bg-blue-50 font-medium flex items-center gap-2"
+                  className="px-6 py-3 text-foreground hover:text-primary transition-all duration-300 rounded-xl hover:bg-primary/10 font-medium flex items-center gap-2"
                 >
                   <Search className="w-4 h-4" />
                   Explore
@@ -73,7 +74,7 @@ const Header = () => {
               </NavigationMenuItem>
               
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="text-gray-700 hover:text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-xl font-medium">
+                <NavigationMenuTrigger className="text-foreground hover:text-primary hover:bg-primary/10 px-6 py-3 rounded-xl font-medium">
                   Categories
                   <ChevronDown className="w-4 h-4 ml-1" />
                 </NavigationMenuTrigger>
@@ -112,7 +113,8 @@ const Header = () => {
           </NavigationMenu>
 
           {/* Auth Section */}
-          <div className="hidden lg:flex items-center">
+          <div className="hidden lg:flex items-center space-x-3">
+            <ThemeToggle />
             {user ? (
               <UserDropdown />
             ) : (
