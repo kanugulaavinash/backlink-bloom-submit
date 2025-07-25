@@ -6,6 +6,7 @@ import { Calendar, Clock, User, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
+import RelatedPosts from "@/components/blog/RelatedPosts";
 import { format } from "date-fns";
 import { createSafeHTML, sanitizer } from "@/lib/sanitization";
 
@@ -154,6 +155,9 @@ const BlogPostPage = () => {
             </div>
           </div>
         </article>
+
+        {/* Related Posts Section */}
+        <RelatedPosts currentPost={post} />
       </div>
     </div>
   );
