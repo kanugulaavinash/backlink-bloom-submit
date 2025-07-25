@@ -55,8 +55,16 @@ export function CommentsSystem({ postId }: CommentsSystemProps) {
       const { data, error } = await supabase
         .from('comments')
         .select(`
-          *,
-          profiles (
+          id,
+          content,
+          user_id,
+          parent_id,
+          created_at,
+          updated_at,
+          is_approved,
+          is_deleted,
+          post_id,
+          profiles!inner (
             full_name,
             email,
             avatar_url
@@ -67,15 +75,19 @@ export function CommentsSystem({ postId }: CommentsSystemProps) {
         .eq('is_deleted', false)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase query error:', error)
+        throw error
+      }
 
       // Organize comments into threaded structure
       const commentMap = new Map()
       const rootComments: Comment[] = []
 
-      // Add replies array and ensure proper typing
+      // Ensure proper typing and handle potential null profiles
       const commentsWithReplies = (data || []).map(comment => ({
         ...comment,
+        profiles: comment.profiles || null,
         replies: [] as Comment[]
       }))
 
