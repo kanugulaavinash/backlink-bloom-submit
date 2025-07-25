@@ -247,24 +247,24 @@ const Blog = () => {
                   categoryName="Technology" 
                   categoryColor="#3B82F6"
                   displayName="TECH UPDATES"
-                  layoutType="grid"
-                  maxPosts={6}
+                  layoutType="mixed"
+                  maxPosts={4}
                 />
                 
                 <ModernCategorySection 
                   categoryName="Business" 
                   categoryColor="#10B981"
                   displayName="BUSINESS UPDATES"
-                  layoutType="grid"
-                  maxPosts={6}
+                  layoutType="mixed"
+                  maxPosts={4}
                 />
                 
                 <ModernCategorySection 
                   categoryName="Health" 
                   categoryColor="#10B981"
                   displayName="HEALTH & WELLNESS"
-                  layoutType="grid"
-                  maxPosts={6}
+                  layoutType="mixed"
+                  maxPosts={4}
                 />
               </>
             )}
