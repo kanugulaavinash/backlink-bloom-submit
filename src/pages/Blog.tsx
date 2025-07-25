@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import ModernHeroSection from "@/components/blog/ModernHeroSection";
 import ModernCategorySection from "@/components/blog/ModernCategorySection";
+import AllPostsSection from "@/components/blog/AllPostsSection";
 import { 
   searchAllPosts, 
   getLatestPosts, 
@@ -266,6 +267,11 @@ const Blog = () => {
                   layoutType="mixed"
                   maxPosts={4}
                 />
+                
+                {/* All Posts Section with Infinite Scrolling */}
+                <div className="mt-16 pt-16 border-t border-border">
+                  <AllPostsSection />
+                </div>
               </>
             )}
           </div>

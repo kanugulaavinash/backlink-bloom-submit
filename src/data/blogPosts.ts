@@ -444,6 +444,33 @@ export const getDynamicCategories = async () => {
   }
 };
 
+// Function to get paginated posts for infinite scrolling
+export const getAllPostsWithPagination = async (page: number = 1, limit: number = 9): Promise<{
+  posts: BlogPost[];
+  hasMore: boolean;
+  totalCount: number;
+  nextPage: number | null;
+}> => {
+  console.log(`Fetching paginated posts: page ${page}, limit ${limit}`);
+  
+  const allPosts = await getAllPosts();
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  
+  const paginatedPosts = allPosts.slice(startIndex, endIndex);
+  const hasMore = endIndex < allPosts.length;
+  const nextPage = hasMore ? page + 1 : null;
+  
+  console.log(`Paginated results: ${paginatedPosts.length} posts, hasMore: ${hasMore}, nextPage: ${nextPage}`);
+  
+  return {
+    posts: paginatedPosts,
+    hasMore,
+    totalCount: allPosts.length,
+    nextPage
+  };
+};
+
 // Update existing functions to work with new async functions
 export const getLatestPosts = async (count: number = 5): Promise<BlogPost[]> => {
   const allPosts = await getAllPosts();
