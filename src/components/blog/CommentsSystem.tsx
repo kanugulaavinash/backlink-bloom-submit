@@ -22,7 +22,9 @@ interface Comment {
   parent_id: string | null
   created_at: string
   updated_at: string
-  is_approved: boolean
+  is_approved: boolean | null
+  is_deleted: boolean | null
+  post_id: string
   profiles: {
     full_name: string | null
     email: string
