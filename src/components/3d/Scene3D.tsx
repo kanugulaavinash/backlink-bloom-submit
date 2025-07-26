@@ -9,6 +9,9 @@ export const Scene3D = () => {
       <Canvas
         camera={{ position: [0, 0, 5], fov: 75 }}
         style={{ background: 'transparent' }}
+        onCreated={(state) => {
+          state.gl.setClearColor('transparent');
+        }}
       >
         <Suspense fallback={null}>
           <FloatingElements />
@@ -18,6 +21,7 @@ export const Scene3D = () => {
             enablePan={false}
             autoRotate
             autoRotateSpeed={0.5}
+            enableDamping={false}
           />
         </Suspense>
       </Canvas>

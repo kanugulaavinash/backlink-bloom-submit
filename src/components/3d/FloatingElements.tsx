@@ -11,17 +11,17 @@ export const FloatingElements = () => {
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
     
-    if (sphereRef.current) {
+    if (sphereRef.current?.position && sphereRef.current?.rotation) {
       sphereRef.current.position.y = Math.sin(time * 2) * 0.5;
       sphereRef.current.rotation.x = time * 0.5;
     }
     
-    if (boxRef.current) {
+    if (boxRef.current?.position && boxRef.current?.rotation) {
       boxRef.current.position.y = Math.cos(time * 1.5) * 0.3;
       boxRef.current.rotation.y = time * 0.3;
     }
     
-    if (textRef.current) {
+    if (textRef.current?.position) {
       textRef.current.position.y = Math.sin(time * 1.8) * 0.2;
     }
   });
