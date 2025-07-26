@@ -7,9 +7,117 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { CreditCard, Shield, Bot, CheckCircle, XCircle } from "lucide-react";
+import { CreditCard, Shield, Bot, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 const PricingSettings = () => {
+  const queryClient = useQueryClient();
+  const [formData, setFormData] = useState({
+    basePrice: 5,
+    currency: "USD",
+    dynamicPricing: false,
+    plagiarismThreshold: 5,
+    aiContentThreshold: 20,
+    minBacklinks: 1,
+    maxBacklinks: 2,
+    minImages: 2
+  });
+
+  // Fetch current API keys and settings
+  const { data: apiKeys, isLoading } = useQuery({
+    queryKey: ["api-keys"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('custom_select', { query: 'api_keys' });
+      if (error) throw error;
+      return data || [];
+    }
+  });
+
+  // Fetch system settings
+  const { data: systemSettings } = useQuery({
+    queryKey: ["system-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('system_settings')
+        .select('setting_key, setting_value');
+      if (error) throw error;
+      
+      const settings: Record<string, string> = {};
+      data?.forEach(setting => {
+        settings[setting.setting_key] = setting.setting_value;
+      });
+      return settings;
+    }
+  });
+
+  // Update system settings mutation
+  const updateSettingsMutation = useMutation({
+    mutationFn: async (newSettings: Record<string, string>) => {
+      const promises = Object.entries(newSettings).map(([key, value]) =>
+        supabase
+          .from('system_settings')
+          .upsert({ setting_key: key, setting_value: value })
+      );
+      await Promise.all(promises);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["system-settings"] });
+      toast({
+        title: "Settings Updated",
+        description: "System settings have been successfully updated.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update settings. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleSaveSettings = () => {
+    updateSettingsMutation.mutate({
+      base_price: formData.basePrice.toString(),
+      currency: formData.currency,
+      dynamic_pricing: formData.dynamicPricing.toString(),
+      plagiarism_threshold: formData.plagiarismThreshold.toString(),
+      ai_content_threshold: formData.aiContentThreshold.toString(),
+      min_backlinks: formData.minBacklinks.toString(),
+      max_backlinks: formData.maxBacklinks.toString(),
+      min_images: formData.minImages.toString()
+    });
+  };
+
+  const getApiKeyStatus = (serviceName: string, keyName: string) => {
+    if (!apiKeys) return false;
+    
+    const key = apiKeys.find((k: any) => {
+      const result = k.result;
+      if (typeof result === 'object' && result !== null && !Array.isArray(result)) {
+        return (result as any).service_name === serviceName && (result as any).key_name === keyName;
+      }
+      return false;
+    });
+    
+    if (key && typeof key.result === 'object' && key.result !== null && !Array.isArray(key.result)) {
+      return (key.result as any).is_configured || false;
+    }
+    
+    return false;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Pricing Configuration */}
@@ -22,20 +130,38 @@ const PricingSettings = () => {
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="basePrice">Base Submission Price</Label>
-              <Input id="basePrice" type="number" defaultValue="5" />
+              <Input 
+                id="basePrice" 
+                type="number" 
+                value={formData.basePrice}
+                onChange={(e) => setFormData({...formData, basePrice: Number(e.target.value)})}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="currency">Currency</Label>
-              <Input id="currency" defaultValue="USD" />
+              <Input 
+                id="currency" 
+                value={formData.currency}
+                onChange={(e) => setFormData({...formData, currency: e.target.value})}
+              />
             </div>
           </div>
           
           <div className="flex items-center space-x-2">
-            <Switch id="dynamicPricing" />
+            <Switch 
+              id="dynamicPricing" 
+              checked={formData.dynamicPricing}
+              onCheckedChange={(checked) => setFormData({...formData, dynamicPricing: checked})}
+            />
             <Label htmlFor="dynamicPricing">Enable dynamic pricing based on category</Label>
           </div>
           
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button 
+            onClick={handleSaveSettings}
+            disabled={updateSettingsMutation.isPending}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            {updateSettingsMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save Pricing Settings
           </Button>
         </CardContent>
@@ -51,31 +177,61 @@ const PricingSettings = () => {
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="plagiarismThreshold">Max Plagiarism Score (%)</Label>
-              <Input id="plagiarismThreshold" type="number" defaultValue="5" />
+              <Input 
+                id="plagiarismThreshold" 
+                type="number" 
+                value={formData.plagiarismThreshold}
+                onChange={(e) => setFormData({...formData, plagiarismThreshold: Number(e.target.value)})}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="aiContentThreshold">Max AI Content Score (%)</Label>
-              <Input id="aiContentThreshold" type="number" defaultValue="20" />
+              <Input 
+                id="aiContentThreshold" 
+                type="number" 
+                value={formData.aiContentThreshold}
+                onChange={(e) => setFormData({...formData, aiContentThreshold: Number(e.target.value)})}
+              />
             </div>
           </div>
           
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="minBacklinks">Minimum Backlinks</Label>
-              <Input id="minBacklinks" type="number" defaultValue="1" />
+              <Input 
+                id="minBacklinks" 
+                type="number" 
+                value={formData.minBacklinks}
+                onChange={(e) => setFormData({...formData, minBacklinks: Number(e.target.value)})}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="maxBacklinks">Maximum Backlinks</Label>
-              <Input id="maxBacklinks" type="number" defaultValue="2" />
+              <Input 
+                id="maxBacklinks" 
+                type="number" 
+                value={formData.maxBacklinks}
+                onChange={(e) => setFormData({...formData, maxBacklinks: Number(e.target.value)})}
+              />
             </div>
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="minImages">Minimum Images Required</Label>
-            <Input id="minImages" type="number" defaultValue="2" />
+            <Input 
+              id="minImages" 
+              type="number" 
+              value={formData.minImages}
+              onChange={(e) => setFormData({...formData, minImages: Number(e.target.value)})}
+            />
           </div>
           
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button 
+            onClick={handleSaveSettings}
+            disabled={updateSettingsMutation.isPending}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            {updateSettingsMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save Validation Rules
           </Button>
         </CardContent>
@@ -96,9 +252,10 @@ const PricingSettings = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h4 className="font-medium">PayPal</h4>
-                <Badge variant="outline" className="text-blue-600">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Connected
+                <Badge variant={getApiKeyStatus('paypal', 'client_id') ? "outline" : "destructive"} 
+                       className={getApiKeyStatus('paypal', 'client_id') ? "text-green-600" : "text-red-600"}>
+                  {getApiKeyStatus('paypal', 'client_id') ? <CheckCircle className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
+                  {getApiKeyStatus('paypal', 'client_id') ? 'Connected' : 'Not Connected'}
                 </Badge>
               </div>
               <Switch defaultChecked />
@@ -106,11 +263,11 @@ const PricingSettings = () => {
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="paypalClientId">Client ID</Label>
-                <Input id="paypalClientId" placeholder="PayPal Client ID" defaultValue="AeA..." />
+                <Input id="paypalClientId" placeholder="PayPal Client ID" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="paypalClientSecret">Client Secret</Label>
-                <Input id="paypalClientSecret" type="password" placeholder="PayPal Client Secret" defaultValue="••••••••" />
+                <Input id="paypalClientSecret" type="password" placeholder="PayPal Client Secret" />
               </div>
             </div>
             <div className="space-y-2">
@@ -132,9 +289,10 @@ const PricingSettings = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <h4 className="font-medium">Stripe</h4>
-                <Badge variant="destructive" className="text-red-600">
-                  <XCircle className="h-3 w-3 mr-1" />
-                  Not Connected
+                <Badge variant={getApiKeyStatus('stripe', 'publishable_key') ? "outline" : "destructive"} 
+                       className={getApiKeyStatus('stripe', 'publishable_key') ? "text-green-600" : "text-red-600"}>
+                  {getApiKeyStatus('stripe', 'publishable_key') ? <CheckCircle className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
+                  {getApiKeyStatus('stripe', 'publishable_key') ? 'Connected' : 'Not Connected'}
                 </Badge>
               </div>
               <Switch />
@@ -177,7 +335,7 @@ const PricingSettings = () => {
                   Active
                 </Badge>
               </div>
-              <Switch defaultChecked />
+              <Switch checked={getApiKeyStatus('paypal', 'client_id')} />
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -205,7 +363,7 @@ const PricingSettings = () => {
                   Inactive
                 </Badge>
               </div>
-              <Switch />
+              <Switch checked={getApiKeyStatus('stripe', 'publishable_key')} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="grammarlyApiKey">API Key</Label>
