@@ -48,17 +48,19 @@ serve(async (req) => {
     // Test with sample text
     const testText = "This is a sample text to test the plagiarism detection API integration."
     
+    // Prepare form data
+    const formData = new URLSearchParams()
+    formData.append('text', testText)
+    formData.append('language', 'en')
+    formData.append('type', apiType === 'multi' ? 'multi' : 'single')
+
     const plagiarismResponse = await fetch('https://plagiarismcheck.org/api/v1/text', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
         'X-API-TOKEN': apiToken
       },
-      body: JSON.stringify({
-        text: testText,
-        language: 'en',
-        type: apiType === 'multi' ? 'multi' : 'single'
-      })
+      body: formData.toString()
     })
 
     if (!plagiarismResponse.ok) {
