@@ -67,9 +67,8 @@ serve(async (req) => {
           analysis_model: "AI Detection Demo v1.0",
           scan_date: new Date().toISOString()
         },
+        validation_status: validationStatus,
         updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'post_id'
       });
 
     if (insertError) {

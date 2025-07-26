@@ -595,7 +595,7 @@ export type Database = {
           {
             foreignKeyName: "validation_results_post_id_fkey"
             columns: ["post_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "guest_posts"
             referencedColumns: ["id"]
           },

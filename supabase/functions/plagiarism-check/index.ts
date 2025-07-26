@@ -67,8 +67,6 @@ serve(async (req) => {
         },
         validation_status: validationStatus,
         updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'post_id'
       });
 
     if (insertError) {
