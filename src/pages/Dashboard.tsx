@@ -50,16 +50,16 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <div className="pt-20 pb-12">
-        <div className="max-w-7xl mx-auto px-4">
+      <div className="pt-24 sm:pt-28 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-            <p className="text-gray-600">Manage your guest posts and track your submissions</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Dashboard</h1>
+            <p className="text-muted-foreground">Manage your guest posts and track your submissions</p>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
@@ -115,10 +115,10 @@ const Dashboard = () => {
 
           {/* Main Content */}
           <Tabs defaultValue="posts" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="posts">My Posts</TabsTrigger>
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="payments">Payments</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 h-auto p-1">
+              <TabsTrigger value="posts" className="whitespace-nowrap text-xs sm:text-sm">My Posts</TabsTrigger>
+              <TabsTrigger value="profile" className="whitespace-nowrap text-xs sm:text-sm">Profile</TabsTrigger>
+              <TabsTrigger value="payments" className="whitespace-nowrap text-xs sm:text-sm">Payments</TabsTrigger>
             </TabsList>
             
             <TabsContent value="posts" className="space-y-6">

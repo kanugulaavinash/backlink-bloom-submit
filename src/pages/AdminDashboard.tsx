@@ -35,17 +35,18 @@ const AdminDashboard = () => {
       <div className="min-h-screen bg-background">
         <Header />
         
-        <div className="pt-20 pb-12">
-          <div className="max-w-7xl mx-auto px-4">
+        <div className="pt-24 sm:pt-28 pb-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-                <p className="text-gray-600">Manage posts, users, and platform settings</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Admin Dashboard</h1>
+                <p className="text-muted-foreground">Manage posts, users, and platform settings</p>
               </div>
-              <Button onClick={() => navigate('/create-blog-post')} className="flex items-center gap-2">
+              <Button onClick={() => navigate('/create-blog-post')} className="flex items-center gap-2 shrink-0">
                 <Plus className="w-4 h-4" />
-                Add New Blog Post
+                <span className="hidden sm:inline">Add New Blog Post</span>
+                <span className="sm:hidden">Add Post</span>
               </Button>
             </div>
 
@@ -54,18 +55,20 @@ const AdminDashboard = () => {
 
             {/* Main Content Tabs */}
             <Tabs defaultValue="posts" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-10">
-                <TabsTrigger value="posts">Posts</TabsTrigger>
-                <TabsTrigger value="categories">Categories</TabsTrigger>
-                <TabsTrigger value="users">Users</TabsTrigger>
-                <TabsTrigger value="import">Import</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
-                <TabsTrigger value="api-keys">API Keys</TabsTrigger>
-                <TabsTrigger value="payments">Payments</TabsTrigger>
-                <TabsTrigger value="validation">Validation</TabsTrigger>
-                <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                <TabsTrigger value="notifications">Notifications</TabsTrigger>
-              </TabsList>
+              <div className="overflow-x-auto">
+                <TabsList className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground min-w-full sm:min-w-0">
+                  <TabsTrigger value="posts" className="whitespace-nowrap">Posts</TabsTrigger>
+                  <TabsTrigger value="categories" className="whitespace-nowrap">Categories</TabsTrigger>
+                  <TabsTrigger value="users" className="whitespace-nowrap">Users</TabsTrigger>
+                  <TabsTrigger value="import" className="whitespace-nowrap">Import</TabsTrigger>
+                  <TabsTrigger value="settings" className="whitespace-nowrap">Settings</TabsTrigger>
+                  <TabsTrigger value="api-keys" className="whitespace-nowrap">API Keys</TabsTrigger>
+                  <TabsTrigger value="payments" className="whitespace-nowrap">Payments</TabsTrigger>
+                  <TabsTrigger value="validation" className="whitespace-nowrap">Validation</TabsTrigger>
+                  <TabsTrigger value="analytics" className="whitespace-nowrap">Analytics</TabsTrigger>
+                  <TabsTrigger value="notifications" className="whitespace-nowrap">Notifications</TabsTrigger>
+                </TabsList>
+              </div>
               
               <TabsContent value="posts">
                 <PostsManagement />

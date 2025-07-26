@@ -54,7 +54,7 @@ const DashboardStats = () => {
 
   if (isLoading) {
     return (
-      <div className="grid md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         {[...Array(4)].map((_, i) => (
           <Card key={i}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -72,53 +72,53 @@ const DashboardStats = () => {
   }
 
   return (
-    <div className="grid md:grid-cols-4 gap-6 mb-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
-          <FileText className="h-4 w-4 text-muted-foreground" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+      <Card className="overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
+          <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Total Posts</CardTitle>
+          <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats?.totalPosts || 0}</div>
+        <CardContent className="px-4 sm:px-6 pb-4">
+          <div className="text-xl sm:text-2xl font-bold text-card-foreground">{stats?.totalPosts || 0}</div>
           <p className="text-xs text-muted-foreground">
             +{stats?.monthlyGrowth || 0} this month
           </p>
         </CardContent>
       </Card>
       
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Approved</CardTitle>
-          <CheckCircle className="h-4 w-4 text-muted-foreground" />
+      <Card className="overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
+          <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Approved</CardTitle>
+          <CheckCircle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats?.approvedPosts || 0}</div>
+        <CardContent className="px-4 sm:px-6 pb-4">
+          <div className="text-xl sm:text-2xl font-bold text-card-foreground">{stats?.approvedPosts || 0}</div>
           <p className="text-xs text-muted-foreground">
             {stats?.approvalRate || 0}% approval rate
           </p>
         </CardContent>
       </Card>
       
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Wallet Balance</CardTitle>
-          <Wallet className="h-4 w-4 text-muted-foreground" />
+      <Card className="overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
+          <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Wallet Balance</CardTitle>
+          <Wallet className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">${(stats?.walletBalance || 0).toFixed(2)}</div>
+        <CardContent className="px-4 sm:px-6 pb-4">
+          <div className="text-xl sm:text-2xl font-bold text-card-foreground">${(stats?.walletBalance || 0).toFixed(2)}</div>
           <p className="text-xs text-muted-foreground">
             Available for future submissions
           </p>
         </CardContent>
       </Card>
       
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
+      <Card className="overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 sm:px-6">
+          <CardTitle className="text-xs sm:text-sm font-medium text-card-foreground">Total Spent</CardTitle>
+          <DollarSign className="h-4 w-4 text-muted-foreground flex-shrink-0" />
         </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">${(stats?.totalSpent || 0).toFixed(2)}</div>
+        <CardContent className="px-4 sm:px-6 pb-4">
+          <div className="text-xl sm:text-2xl font-bold text-card-foreground">${(stats?.totalSpent || 0).toFixed(2)}</div>
           <p className="text-xs text-muted-foreground">
             Across all submissions
           </p>

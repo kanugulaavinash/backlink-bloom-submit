@@ -47,14 +47,14 @@ const Index = () => {
           <VideoBackground />
           <SimpleScene3D />
           
-          <div className="relative z-10 max-w-4xl mx-auto text-center px-4">
+          <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
             {/* Premium Badge */}
             <Badge variant="secondary" className="mb-8 px-6 py-3 text-sm animate-fade-in">
               💎 Premium Guest Posting Platform
             </Badge>
             
             {/* Main Headline */}
-            <h1 className="text-6xl md:text-8xl font-bold mb-8 animate-fade-in">
+            <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold mb-8 animate-fade-in leading-tight">
               Get Published for
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent block mt-2">
                 Only $5
@@ -62,12 +62,12 @@ const Index = () => {
             </h1>
             
             {/* Simple Description */}
-            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto animate-fade-in">
+            <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto animate-fade-in leading-relaxed">
               High-quality guest posts with guaranteed dofollow backlinks. Start building your SEO presence today.
             </p>
             
             {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-8 mb-12 animate-fade-in">
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mb-12 animate-fade-in">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Shield className="h-5 w-5 text-primary" />
                 <span>AI Validated</span>
@@ -87,10 +87,11 @@ const Index = () => {
               <Link to="/signin">
                 <Button 
                   size="lg" 
-                  className="px-12 py-6 text-xl hover:scale-105 transition-all duration-300 shadow-2xl"
+                  className="px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-2xl w-full sm:w-auto"
                 >
-                  Get Started Now - Only $5
-                  <ArrowRight className="ml-3 h-6 w-6" />
+                  <span className="hidden sm:inline">Get Started Now - Only $5</span>
+                  <span className="sm:hidden">Get Started - $5</span>
+                  <ArrowRight className="ml-2 sm:ml-3 h-5 w-5 sm:h-6 sm:w-6" />
                 </Button>
               </Link>
               
@@ -101,7 +102,7 @@ const Index = () => {
           </div>
           
           {/* Subtle Stats */}
-          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex gap-8 text-center">
+          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex gap-4 sm:gap-8 text-center px-4">
             <div className="animate-fade-in">
               <div className="text-2xl font-bold text-primary">2,847</div>
               <div className="text-sm text-muted-foreground">Posts Published</div>
@@ -118,7 +119,7 @@ const Index = () => {
         </section>
         
         {/* Minimal FAQ Section */}
-        <section className="py-20 px-4 relative">
+        <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 relative">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-12">Quick Answers</h2>
             <div className="space-y-6 text-left">

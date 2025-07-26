@@ -29,8 +29,8 @@ const Header = () => {
   return (
     <header className="fixed top-0 w-full bg-background/95 backdrop-blur-md shadow-sm z-50 border-b border-border">
       {/* Top Bar */}
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-18">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
@@ -90,8 +90,9 @@ const Header = () => {
 
       {/* Navigation Categories Bar */}
       <div className="border-t border-border bg-background/95">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center gap-1 py-2 overflow-x-auto scrollbar-hide">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2 py-3 overflow-x-auto scrollbar-hide"
+               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {/* Mobile Menu Toggle */}
             <button
               className="lg:hidden flex items-center p-2 mr-2 rounded-lg hover:bg-muted transition-colors"
@@ -105,7 +106,7 @@ const Header = () => {
               <Link
                 key={category}
                 to={category === "Discover" ? "/blog" : `/blog/category/${category.toLowerCase().replace(/\s+/g, '-')}`}
-                className="flex items-center px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors whitespace-nowrap"
+                className="flex items-center px-3 sm:px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors whitespace-nowrap min-w-fit"
               >
                 {category}
               </Link>
@@ -116,10 +117,10 @@ const Header = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden py-4 border-t bg-background/95 backdrop-blur-md">
+        <div className="lg:hidden py-4 border-t bg-background/95 backdrop-blur-md max-h-[calc(100vh-120px)] overflow-y-auto">
           <nav className="space-y-2">
             {/* Search on mobile */}
-            <div className="px-4 mb-4">
+            <div className="px-4 sm:px-6 mb-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <input
@@ -135,7 +136,7 @@ const Header = () => {
               <Link
                 key={category}
                 to={category === "Discover" ? "/blog" : `/blog/category/${category.toLowerCase().replace(/\s+/g, '-')}`}
-                className="block px-4 py-3 text-foreground hover:text-primary hover:bg-muted transition-all duration-300 font-medium"
+                className="block px-4 sm:px-6 py-3 text-foreground hover:text-primary hover:bg-muted transition-all duration-300 font-medium min-h-[44px] flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {category}
@@ -143,7 +144,7 @@ const Header = () => {
             ))}
             
             {/* Auth Section */}
-            <div className="border-t pt-4 mt-4 px-4 space-y-2">
+            <div className="border-t pt-4 mt-4 px-4 sm:px-6 space-y-3">
               {user ? (
                 <div className="space-y-2">
                   <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
