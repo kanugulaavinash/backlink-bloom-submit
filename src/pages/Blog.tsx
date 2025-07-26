@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ModernHeroSection from "@/components/blog/ModernHeroSection";
+import MSNStyleHomepage from "@/components/blog/MSNStyleHomepage";
 import ModernCategorySection from "@/components/blog/ModernCategorySection";
 import AllPostsSection from "@/components/blog/AllPostsSection";
 import { 
@@ -151,8 +151,8 @@ const Blog = () => {
       <div className="min-h-screen bg-background">
         <Header />
         
-        {/* Modern Hero Section */}
-        <ModernHeroSection 
+        {/* MSN Style Homepage */}
+        <MSNStyleHomepage 
           posts={heroContent} 
           categories={categories.map(cat => ({
             name: cat.name,
