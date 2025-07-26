@@ -7,7 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import SitemapGenerator from "@/components/SitemapGenerator";
-import { Scene3D } from "@/components/3d/Scene3D";
+import { SimpleScene3D } from "@/components/3d/SimpleScene3D";
 import { VideoBackground } from "@/components/VideoBackground";
 import { usePagePerformance } from "@/hooks/useAnalytics";
 
@@ -45,7 +45,7 @@ const Index = () => {
         {/* Main Hero Section with 3D and Video */}
         <section className="relative min-h-screen flex items-center justify-center">
           <VideoBackground />
-          <Scene3D />
+          <SimpleScene3D />
           
           <div className="relative z-10 max-w-4xl mx-auto text-center px-4">
             {/* Premium Badge */}
