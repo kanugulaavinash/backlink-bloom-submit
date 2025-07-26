@@ -45,8 +45,8 @@ serve(async (req) => {
     const apiToken = apiKey.key_value
     const apiType = configMap.api_type || 'single'
     
-    // Test with sample text
-    const testText = "This is a sample text to test the plagiarism detection API integration."
+    // Test with sample text (minimum 80 characters excluding spaces/special chars)
+    const testText = "This is a comprehensive sample text to test the plagiarism detection API integration functionality. The text contains multiple sentences and provides sufficient content for the plagiarism check algorithm to analyze properly and return accurate results."
     
     // Prepare form data
     const formData = new URLSearchParams()
