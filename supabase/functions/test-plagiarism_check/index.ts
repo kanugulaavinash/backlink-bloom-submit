@@ -45,8 +45,16 @@ serve(async (req) => {
     const apiToken = apiKey.key_value
     const apiType = configMap.api_type || 'single'
     
-    // Test with sample text (minimum 80 characters excluding spaces/special chars)
-    const testText = "This is a comprehensive sample text to test the plagiarism detection API integration functionality. The text contains multiple sentences and provides sufficient content for the plagiarism check algorithm to analyze properly and return accurate results."
+    // Test with longer sample text to ensure minimum 80 alphanumeric characters
+    const testText = "The modern digital landscape requires sophisticated content analysis tools to maintain academic integrity and original writing standards. Plagiarism detection systems utilize advanced algorithms to compare submitted text against vast databases of published works, identifying potential similarities and ensuring proper attribution of sources. These technological solutions have become essential components in educational institutions and professional publishing environments worldwide."
+    
+    // Count alphanumeric characters (excluding spaces and special characters)
+    const alphanumericCount = testText.replace(/[^a-zA-Z0-9]/g, '').length
+    console.log(`Test text alphanumeric character count: ${alphanumericCount}`)
+    
+    if (alphanumericCount < 80) {
+      throw new Error(`Test text too short: ${alphanumericCount} characters (minimum 80 required)`)
+    }
     
     // Prepare form data
     const formData = new URLSearchParams()
