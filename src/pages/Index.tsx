@@ -148,18 +148,18 @@ const Index = () => {
             </div>
             
             {/* Stats Section */}
-            <div className="flex justify-center gap-8 mt-16 pt-8 border-t border-gray-200">
+            <div className="flex justify-center gap-8 mt-16 pt-8 bg-primary rounded-lg p-8">
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary">2,847</div>
-                <div className="text-sm text-muted-foreground">Posts Published</div>
+                <div className="text-2xl font-bold text-primary-foreground">2,847</div>
+                <div className="text-sm text-primary-foreground/80">Posts Published</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary">98%</div>
-                <div className="text-sm text-muted-foreground">Approval Rate</div>
+                <div className="text-2xl font-bold text-primary-foreground">98%</div>
+                <div className="text-sm text-primary-foreground/80">Approval Rate</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary">24h</div>
-                <div className="text-sm text-muted-foreground">Avg Response</div>
+                <div className="text-2xl font-bold text-primary-foreground">24h</div>
+                <div className="text-sm text-primary-foreground/80">Avg Response</div>
               </div>
             </div>
           </div>

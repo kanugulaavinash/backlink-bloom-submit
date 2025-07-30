@@ -51,16 +51,16 @@ const FAQSection = () => {
   ];
 
   return (
-    <section className="py-20 px-4">
+    <section className="py-20 px-4 bg-primary">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <Badge variant="secondary" className="mb-4 px-4 py-2">
+          <Badge variant="outline" className="mb-4 px-4 py-2 bg-primary-foreground text-primary border-primary-foreground">
             ❓ Frequently Asked Questions (FAQs)
           </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
             Everything You Need to Know
           </h2>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-primary-foreground/80">
             Complete guide to using Stuffedition for your guest posting needs
           </p>
         </div>
@@ -70,15 +70,15 @@ const FAQSection = () => {
             <AccordionItem 
               key={index} 
               value={`item-${index}`}
-              className="border border-border rounded-lg px-6 data-[state=open]:bg-muted/30"
+              className="border border-primary-foreground/30 rounded-lg px-6 data-[state=open]:bg-primary-foreground/10 bg-primary-foreground/5"
             >
               <AccordionTrigger className="text-left hover:no-underline py-6">
-                <span className="text-lg font-semibold text-foreground pr-4">
+                <span className="text-lg font-semibold text-primary-foreground pr-4">
                   {faq.question}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="pb-6">
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-primary-foreground/80 leading-relaxed">
                   {faq.answer}
                 </p>
               </AccordionContent>
