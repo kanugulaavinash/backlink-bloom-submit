@@ -180,7 +180,7 @@ const PostsList = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => navigate(`/create-blog-post?edit=${post.id}`)}
+                        onClick={() => navigate(`/create-blog-post/${post.id}`)}
                       >
                         <Edit className="h-4 w-4 mr-1" />
                         Edit
