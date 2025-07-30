@@ -116,7 +116,7 @@ serve(async (req) => {
     const validationStatus = plagiarismScore > 20 ? 'failed' : 'passed';
     
     // Store results in database
-    const { error: insertError } = await supabaseService
+    const { error: upsertError } = await supabaseService
       .from('validation_results')
       .upsert({
         post_id: postId,
@@ -131,8 +131,8 @@ serve(async (req) => {
         updated_at: new Date().toISOString()
       });
 
-    if (insertError) {
-      console.error('Error storing plagiarism results:', insertError);
+    if (upsertError) {
+      console.error('Error storing plagiarism results:', upsertError);
       throw new Error('Failed to store validation results');
     }
 

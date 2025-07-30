@@ -163,7 +163,7 @@ serve(async (req) => {
     const validationStatus = aiScore > 30 ? 'failed' : 'passed';
     
     // Store results in database
-    const { error: insertError } = await supabaseService
+    const { error: upsertError } = await supabaseService
       .from('validation_results')
       .upsert({
         post_id: postId,
@@ -185,8 +185,8 @@ serve(async (req) => {
         updated_at: new Date().toISOString()
       });
 
-    if (insertError) {
-      console.error('Error storing AI detection results:', insertError);
+    if (upsertError) {
+      console.error('Error storing AI detection results:', upsertError);
       throw new Error('Failed to store validation results');
     }
 
