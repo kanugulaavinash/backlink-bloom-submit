@@ -395,8 +395,11 @@ export type Database = {
           amount: number
           created_at: string | null
           currency: string | null
+          gateway: string | null
           id: string
           post_id: string | null
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
           status: string | null
           stripe_payment_intent_id: string | null
           stripe_session_id: string | null
@@ -407,8 +410,11 @@ export type Database = {
           amount: number
           created_at?: string | null
           currency?: string | null
+          gateway?: string | null
           id?: string
           post_id?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
           status?: string | null
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
@@ -419,8 +425,11 @@ export type Database = {
           amount?: number
           created_at?: string | null
           currency?: string | null
+          gateway?: string | null
           id?: string
           post_id?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
           status?: string | null
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null

@@ -19,6 +19,13 @@ import { usePaymentSuccess } from "@/hooks/usePaymentSuccess";
 import Footer from "@/components/Footer";
 import React, { useState, useEffect } from "react";
 
+// Extend Window interface for Razorpay
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 interface Category {
   id: string;
   name: string;
@@ -35,6 +42,17 @@ const CreateBlogPost = () => {
   
   // Handle payment success/failure
   usePaymentSuccess();
+  
+  // Get current user
+  const [user, setUser] = useState<any>(null);
+  
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getCurrentUser();
+  }, []);
 
   const [post, setPost] = useState({
     title: "",
@@ -260,7 +278,7 @@ const CreateBlogPost = () => {
   const processPayment = async (postId: string) => {
     setPaymentProcessing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-payment', {
+      const { data, error } = await supabase.functions.invoke('create-razorpay-payment', {
         body: { 
           postId, 
           amount: submissionFee 
@@ -269,9 +287,80 @@ const CreateBlogPost = () => {
 
       if (error) throw error;
 
-      // Redirect to Stripe checkout
-      if (data.url) {
-        window.open(data.url, '_blank');
+      if (data?.order && data?.keyId) {
+        // Load Razorpay script if not already loaded
+        if (!window.Razorpay) {
+          const script = document.createElement('script');
+          script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+          document.head.appendChild(script);
+          
+          await new Promise((resolve) => {
+            script.onload = resolve;
+          });
+        }
+
+        // Configure Razorpay options
+        const options = {
+          key: data.keyId,
+          amount: data.order.amount,
+          currency: data.order.currency,
+          name: 'Guest Post Submission',
+          description: 'Payment for guest post submission and review',
+          order_id: data.order.id,
+          handler: async (response: any) => {
+            try {
+              // Verify payment on backend
+              const { error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
+                body: {
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  postId: postId
+                }
+              });
+
+              if (verifyError) {
+                throw verifyError;
+              }
+
+              toast({
+                title: "Payment Successful!",
+                description: "Your post has been submitted for review. You'll be notified once it's approved.",
+              });
+
+              // Move to next step
+              setSubmissionStep(4);
+              setPost(prev => prev ? { ...prev, payment_status: 'completed' } : null);
+            } catch (error) {
+              console.error('Payment verification error:', error);
+              toast({
+                title: "Payment Verification Error",
+                description: "Payment was successful but verification failed. Please contact support.",
+                variant: "destructive",
+              });
+            }
+          },
+          prefill: {
+            name: post.author_name || '',
+            email: user?.email || ''
+          },
+          theme: {
+            color: '#3B82F6'
+          },
+          modal: {
+            ondismiss: () => {
+              toast({
+                title: "Payment Cancelled",
+                description: "Payment was cancelled. Please try again to submit your post.",
+                variant: "destructive",
+              });
+            }
+          }
+        };
+
+        // Open Razorpay checkout
+        const rzp = new window.Razorpay(options);
+        rzp.open();
       }
     } catch (error) {
       console.error("Payment error:", error);
@@ -520,7 +609,7 @@ const CreateBlogPost = () => {
             <div className="space-y-4">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-2">
-                  Submission fee: <span className="font-semibold">${(submissionFee / 100).toFixed(2)}</span>
+                  Submission fee: <span className="font-semibold">₹{submissionFee}</span>
                 </p>
               </div>
               <Button 
@@ -529,7 +618,7 @@ const CreateBlogPost = () => {
                 className="w-full"
               >
                 {paymentProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                {paymentProcessing ? "Processing..." : `Pay $${(submissionFee / 100).toFixed(2)} & Submit`}
+                {paymentProcessing ? "Processing..." : `Pay ₹${submissionFee} & Submit`}
               </Button>
             </div>
           );
