@@ -15,16 +15,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 236 72% 79%;
+    --primary: 357 85% 51%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 0 0% 0%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 280 89% 60%;
+    --accent: 0 0% 20%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -37,16 +37,16 @@
     --radius: 0.75rem;
 
     /* Brand Colors */
-    --brand-primary: 236 72% 79%;
-    --brand-secondary: 280 89% 60%;
+    --brand-primary: 357 85% 51%;
+    --brand-secondary: 0 0% 0%;
     --brand-success: 142 76% 36%;
     --brand-warning: 38 92% 50%;
     --brand-error: 0 84% 60%;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(236 72% 79%) 0%, hsl(280 89% 60%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(280 89% 60%) 0%, hsl(236 72% 79%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(236 72% 79%) 0%, hsl(280 89% 60%) 50%, hsl(220 70% 70%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(357 85% 51%) 0%, hsl(0 0% 0%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(0 0% 0%) 0%, hsl(357 85% 51%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(357 85% 51%) 0%, hsl(0 0% 0%) 50%, hsl(357 85% 51%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 14% 96%) 100%);
 
     /* Glass Effects */
@@ -74,17 +74,17 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 236 72% 79%;
-    --primary-foreground: 222.2 84% 4.9%;
+    --primary: 357 85% 51%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 0%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 280 89% 60%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
@@ -94,16 +94,16 @@
     --ring: 236 72% 79%;
 
     /* Brand Colors for Dark Mode */
-    --brand-primary: 236 72% 79%;
-    --brand-secondary: 280 89% 60%;
+    --brand-primary: 357 85% 51%;
+    --brand-secondary: 0 0% 0%;
     --brand-success: 142 76% 36%;
     --brand-warning: 38 92% 50%;
     --brand-error: 0 84% 60%;
 
     /* Dark Mode Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(236 72% 79%) 0%, hsl(280 89% 60%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(280 89% 60%) 0%, hsl(236 72% 79%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(236 72% 79%) 0%, hsl(280 89% 60%) 50%, hsl(220 70% 70%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(357 85% 51%) 0%, hsl(0 0% 0%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(0 0% 0%) 0%, hsl(357 85% 51%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(357 85% 51%) 0%, hsl(0 0% 0%) 50%, hsl(357 85% 51%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(222.2 84% 4.9%) 0%, hsl(217.2 32.6% 17.5%) 100%);
 
     /* Dark Glass Effects */

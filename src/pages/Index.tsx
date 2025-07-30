@@ -10,6 +10,8 @@ import SitemapGenerator from "@/components/SitemapGenerator";
 import { SimpleScene3D } from "@/components/3d/SimpleScene3D";
 import { VideoBackground } from "@/components/VideoBackground";
 import { usePagePerformance } from "@/hooks/useAnalytics";
+import WhyChooseSection from "@/components/WhyChooseSection";
+import FAQSection from "@/components/FAQSection";
 
 const Index = () => {
   usePagePerformance('Homepage');
@@ -17,24 +19,24 @@ const Index = () => {
   return (
     <>
       <SEO 
-        title="Backlink Bloom - Premium Guest Posting Platform | Get Quality Backlinks"
-        description="Submit high-quality guest posts and get approved backlinks. AI-powered content validation, instant publishing, and SEO-optimized articles. Start building your online presence today."
+        title="Stuffedition - Publish Your Guest Post for Just $5 | Get Permanent Dofollow Backlinks"
+        description="The most affordable guest posting platform on the web. Publish high-quality guest posts for only $5 with permanent dofollow backlinks. Fast approval, human-written content only."
         url="/"
         structuredData={{
           "@context": "https://schema.org",
           "@type": "WebSite",
-          "name": "Backlink Bloom",
-          "description": "Premium guest posting platform with AI-powered content validation",
-          "url": "https://backlinkbloom.com",
+          "name": "Stuffedition",
+          "description": "The most affordable guest posting platform - publish for just $5",
+          "url": "https://stuffedition.com",
           "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://backlinkbloom.com/blog?search={search_term_string}",
+            "target": "https://stuffedition.com/blog?search={search_term_string}",
             "query-input": "required name=search_term_string"
           },
           "provider": {
             "@type": "Organization",
-            "name": "Backlink Bloom",
-            "url": "https://backlinkbloom.com"
+            "name": "Stuffedition",
+            "url": "https://stuffedition.com"
           }
         }}
       />
@@ -47,38 +49,74 @@ const Index = () => {
           <VideoBackground />
           <SimpleScene3D />
           
-          <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <div className="relative z-10 max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8">
             {/* Premium Badge */}
             <Badge variant="secondary" className="mb-8 px-6 py-3 text-sm animate-fade-in">
               💎 Premium Guest Posting Platform
             </Badge>
             
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold mb-8 animate-fade-in leading-tight">
-              Get Published for
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent block mt-2">
-                Only $5
+            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold mb-6 animate-fade-in leading-tight">
+              Publish Your Guest Post for Just 
+              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent block mt-2">
+                $5
               </span>
+              — Get a Permanent Dofollow Backlink
             </h1>
             
-            {/* Simple Description */}
-            <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto animate-fade-in leading-relaxed">
-              High-quality guest posts with guaranteed dofollow backlinks. Start building your SEO presence today.
+            {/* Subtitle */}
+            <p className="text-xl sm:text-2xl lg:text-3xl text-muted-foreground mb-8 max-w-3xl mx-auto animate-fade-in leading-relaxed font-medium">
+              The Most Affordable Guest Posting Platform on the Web — Only at Stuffedition
             </p>
             
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mb-12 animate-fade-in">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Shield className="h-5 w-5 text-primary" />
-                <span>AI Validated</span>
+            {/* Description */}
+            <p className="text-lg sm:text-xl text-muted-foreground mb-12 max-w-3xl mx-auto animate-fade-in leading-relaxed">
+              Are you a blogger, marketer, or SEO expert looking to boost your website's authority and traffic? Stuffedition offers unbeatable value with permanent do-follow backlinks.
+            </p>
+            
+            {/* What You Get Section */}
+            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 sm:p-8 mb-12 border border-border/50 animate-fade-in">
+              <h2 className="text-2xl font-bold mb-6 text-foreground">🔗 What You Get for $5:</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-left">
+                <div className="flex items-center gap-3">
+                  <span className="text-primary font-bold">✅</span>
+                  <span className="text-sm sm:text-base">One Guest Post Publication</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-primary font-bold">✅</span>
+                  <span className="text-sm sm:text-base">Permanent Do-Follow Backlink</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-primary font-bold">✅</span>
+                  <span className="text-sm sm:text-base">Indexed by Search Engines</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-primary font-bold">✅</span>
+                  <span className="text-sm sm:text-base">Fast Approval Process</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-primary font-bold">✅</span>
+                  <span className="text-sm sm:text-base">Live Link Within 24–48 Hours</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Zap className="h-5 w-5 text-primary" />
-                <span>Instant Publishing</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Clock className="h-5 w-5 text-primary" />
-                <span>24h Approval</span>
+            </div>
+            
+            {/* Quality Standards */}
+            <div className="bg-secondary/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 mb-12 border border-secondary/20 animate-fade-in">
+              <h2 className="text-2xl font-bold mb-6 text-foreground">🚫 No Shortcuts. Only Quality.</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
+                <div className="flex items-center gap-3">
+                  <Shield className="h-5 w-5 text-primary" />
+                  <span className="text-sm sm:text-base">100% Original Content</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Zap className="h-5 w-5 text-primary" />
+                  <span className="text-sm sm:text-base">Human-Written Only</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Clock className="h-5 w-5 text-primary" />
+                  <span className="text-sm sm:text-base">600+ Words Minimum</span>
+                </div>
               </div>
             </div>
             
@@ -87,16 +125,15 @@ const Index = () => {
               <Link to="/signin">
                 <Button 
                   size="lg" 
-                  className="px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-2xl w-full sm:w-auto"
+                  className="px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-2xl w-full sm:w-auto bg-primary hover:bg-primary/90"
                 >
-                  <span className="hidden sm:inline">Get Started Now - Only $5</span>
-                  <span className="sm:hidden">Get Started - $5</span>
+                  Submit Your Guest Post
                   <ArrowRight className="ml-2 sm:ml-3 h-5 w-5 sm:h-6 sm:w-6" />
                 </Button>
               </Link>
               
               <p className="text-sm text-muted-foreground">
-                ✓ No hidden fees • ✓ Guaranteed dofollow backlink • ✓ 24/7 support
+                📩 Ready to Submit? Click above to publish your article now for just $5
               </p>
             </div>
           </div>
@@ -118,26 +155,11 @@ const Index = () => {
           </div>
         </section>
         
-        {/* Minimal FAQ Section */}
-        <section className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 relative">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-12">Quick Answers</h2>
-            <div className="space-y-6 text-left">
-              <div className="p-6 rounded-lg bg-card border animate-fade-in">
-                <h3 className="font-semibold mb-2">What do I get for $5?</h3>
-                <p className="text-muted-foreground">A high-quality guest post published on a relevant blog with a guaranteed dofollow backlink to your website.</p>
-              </div>
-              <div className="p-6 rounded-lg bg-card border animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                <h3 className="font-semibold mb-2">How fast is the process?</h3>
-                <p className="text-muted-foreground">Submit your content, get it approved within 24 hours, and see it published instantly.</p>
-              </div>
-              <div className="p-6 rounded-lg bg-card border animate-fade-in" style={{ animationDelay: '0.4s' }}>
-                <h3 className="font-semibold mb-2">What if I'm not satisfied?</h3>
-                <p className="text-muted-foreground">We offer a 100% satisfaction guarantee. Not happy? Get your money back, no questions asked.</p>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Why Choose Section */}
+        <WhyChooseSection />
+        
+        {/* Comprehensive FAQ Section */}
+        <FAQSection />
       </div>
       <Footer />
     </>

@@ -9,28 +9,44 @@ import { Badge } from "@/components/ui/badge";
 const FAQSection = () => {
   const faqs = [
     {
-      question: "What kind of content is accepted?",
-      answer: "We accept high-quality, original content across most niches including technology, business, marketing, lifestyle, health & wellness, and more. We do not accept content related to adult topics, medical advice, gambling, or political content. All content must be at least 650 words and provide genuine value to readers."
+      question: "What is Stuffedition?",
+      answer: "Stuffedition is a guest posting platform that allows users to publish their articles with a permanent do-follow backlink for just $5 USD. It's designed for bloggers, marketers, and SEO professionals looking to boost their online presence affordably."
     },
     {
-      question: "How many backlinks are allowed per post?",
-      answer: "Each post can include 1 dofollow backlink to your target URL, plus 2-3 additional nofollow backlinks. This natural link profile helps maintain SEO value while following best practices. All links must be relevant to the content and provide value to readers."
+      question: "What do I get for $5?",
+      answer: "You get a guest post published on our website with one permanent do-follow backlink. Your content will be reviewed and published within 24–48 hours after approval."
     },
     {
-      question: "How do I know if my content passes the checks?",
-      answer: "Our system uses PlagiarismCheck.org for plagiarism detection and advanced AI for content quality analysis. You'll receive an instant pass/fail report with detailed feedback. If your content doesn't pass, you can revise and resubmit at no additional cost."
+      question: "Are there any content guidelines?",
+      answer: "Yes. Your submission must be 100% original and plagiarism-free, written by a human (AI-generated content is not accepted), be at least 600 words in length, offer real value to readers, and fit into relevant niches like tech, business, marketing, health, etc."
     },
     {
-      question: "Can I get a refund if I'm not satisfied?",
-      answer: "Yes, we offer refunds according to our cashback policy. If your content is rejected due to quality issues that can't be resolved, or if there are technical problems on our end, you're eligible for a full refund. Please review our terms of service for complete refund conditions."
+      question: "Do you check for plagiarism or AI content?",
+      answer: "Absolutely. Stuffedition uses built-in detection tools to scan for both plagiarized and AI-generated content. Any flagged submission will be rejected without a refund."
     },
     {
-      question: "How quickly will my post be published?",
-      answer: "Once your content passes all checks and payment is confirmed, your post goes live immediately. The entire process from submission to publication typically takes 5-10 minutes, making us one of the fastest guest posting platforms available."
+      question: "Is the backlink permanent?",
+      answer: "Yes. Once your post is published, the do-follow backlink is permanent and will not be removed unless the content violates our terms or contains false claims."
     },
     {
-      question: "Do you provide any guarantees?",
-      answer: "Yes! We guarantee that your approved post will be published with the promised dofollow backlink. We also guarantee that your content will be shared across our social media network. If we fail to deliver on these promises, you're eligible for a full refund."
+      question: "Can I include multiple links in my article?",
+      answer: "Each $5 guest post includes one do-follow backlink. Additional links can be included for a small extra fee—contact us for details."
+    },
+    {
+      question: "How long does it take for my post to go live?",
+      answer: "Most approved posts are published within 24 to 48 hours. If there's a delay due to quality review, you'll be notified by our team."
+    },
+    {
+      question: "What topics do you accept?",
+      answer: "We accept a wide range of niches including Technology, Digital Marketing, SEO, Startups, Business, Health & Wellness, Finance, and Productivity. If your topic is different, feel free to contact us for approval before submission."
+    },
+    {
+      question: "What happens if my article is rejected?",
+      answer: "If your content violates our guidelines (e.g., plagiarism, AI content, irrelevant niche), it will be rejected. We recommend reviewing our submission rules carefully to avoid this."
+    },
+    {
+      question: "How can I get started?",
+      answer: "Click on the 'Submit Your Guest Post' button, upload your article, make the $5 payment, and our editorial team will take it from there!"
     }
   ];
 
@@ -39,13 +55,13 @@ const FAQSection = () => {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-4 px-4 py-2">
-            ❓ Frequently Asked Questions
+            ❓ Frequently Asked Questions (FAQs)
           </Badge>
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Got Questions? We've Got Answers
+            Everything You Need to Know
           </h2>
           <p className="text-xl text-muted-foreground">
-            Everything you need to know about our guest posting service
+            Complete guide to using Stuffedition for your guest posting needs
           </p>
         </div>
 
