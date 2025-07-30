@@ -9,6 +9,7 @@ import SEO from "@/components/SEO";
 import SitemapGenerator from "@/components/SitemapGenerator";
 import { usePagePerformance } from "@/hooks/useAnalytics";
 import WhyChooseSection from "@/components/WhyChooseSection";
+import WebTwoBacklinksSection from "@/components/WebTwoBacklinksSection";
 import FAQSection from "@/components/FAQSection";
 
 const Index = () => {
@@ -167,6 +168,9 @@ const Index = () => {
         
         {/* Why Choose Section */}
         <WhyChooseSection />
+        
+        {/* Web 2.0 Backlinks Section */}
+        <WebTwoBacklinksSection />
         
         {/* Comprehensive FAQ Section */}
         <FAQSection />
