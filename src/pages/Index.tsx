@@ -7,8 +7,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import SitemapGenerator from "@/components/SitemapGenerator";
-import { SimpleScene3D } from "@/components/3d/SimpleScene3D";
-import { VideoBackground } from "@/components/VideoBackground";
 import { usePagePerformance } from "@/hooks/useAnalytics";
 import WhyChooseSection from "@/components/WhyChooseSection";
 import FAQSection from "@/components/FAQSection";
@@ -44,113 +42,125 @@ const Index = () => {
       <div className="min-h-screen bg-background relative overflow-hidden">
         <Header />
         
-        {/* Main Hero Section with 3D and Video */}
-        <section className="relative min-h-screen flex items-center justify-center">
-          <VideoBackground />
-          <SimpleScene3D />
-          
-          <div className="relative z-10 max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-            {/* Premium Badge */}
-            <Badge variant="secondary" className="mb-8 px-6 py-3 text-sm animate-fade-in">
-              💎 Premium Guest Posting Platform
-            </Badge>
-            
-            {/* Main Headline */}
-            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold mb-6 animate-fade-in leading-tight">
-              Publish Your Guest Post for Just 
-              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent block mt-2">
-                $5
-              </span>
-              — Get a Permanent Dofollow Backlink
-            </h1>
-            
-            {/* Subtitle */}
-            <p className="text-xl sm:text-2xl lg:text-3xl text-muted-foreground mb-8 max-w-3xl mx-auto animate-fade-in leading-relaxed font-medium">
-              The Most Affordable Guest Posting Platform on the Web — Only at Stuffedition
-            </p>
-            
-            {/* Description */}
-            <p className="text-lg sm:text-xl text-muted-foreground mb-12 max-w-3xl mx-auto animate-fade-in leading-relaxed">
-              Are you a blogger, marketer, or SEO expert looking to boost your website's authority and traffic? Stuffedition offers unbeatable value with permanent do-follow backlinks.
-            </p>
-            
-            {/* What You Get Section */}
-            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 sm:p-8 mb-12 border border-border/50 animate-fade-in">
-              <h2 className="text-2xl font-bold mb-6 text-foreground">🔗 What You Get for $5:</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-left">
-                <div className="flex items-center gap-3">
-                  <span className="text-primary font-bold">✅</span>
-                  <span className="text-sm sm:text-base">One Guest Post Publication</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-primary font-bold">✅</span>
-                  <span className="text-sm sm:text-base">Permanent Do-Follow Backlink</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-primary font-bold">✅</span>
-                  <span className="text-sm sm:text-base">Indexed by Search Engines</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-primary font-bold">✅</span>
-                  <span className="text-sm sm:text-base">Fast Approval Process</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-primary font-bold">✅</span>
-                  <span className="text-sm sm:text-base">Live Link Within 24–48 Hours</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Quality Standards */}
-            <div className="bg-secondary/10 backdrop-blur-sm rounded-2xl p-6 sm:p-8 mb-12 border border-secondary/20 animate-fade-in">
-              <h2 className="text-2xl font-bold mb-6 text-foreground">🚫 No Shortcuts. Only Quality.</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
-                <div className="flex items-center gap-3">
-                  <Shield className="h-5 w-5 text-primary" />
-                  <span className="text-sm sm:text-base">100% Original Content</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Zap className="h-5 w-5 text-primary" />
-                  <span className="text-sm sm:text-base">Human-Written Only</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-primary" />
-                  <span className="text-sm sm:text-base">600+ Words Minimum</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Main CTA */}
-            <div className="space-y-6 animate-scale-in">
-              <Link to="/signin">
-                <Button 
-                  size="lg" 
-                  className="px-8 sm:px-12 py-4 sm:py-6 text-lg sm:text-xl hover:scale-105 transition-all duration-300 shadow-2xl w-full sm:w-auto bg-primary hover:bg-primary/90"
-                >
-                  Submit Your Guest Post
-                  <ArrowRight className="ml-2 sm:ml-3 h-5 w-5 sm:h-6 sm:w-6" />
-                </Button>
-              </Link>
-              
-              <p className="text-sm text-muted-foreground">
-                📩 Ready to Submit? Click above to publish your article now for just $5
-              </p>
-            </div>
+        {/* New Hero Section with Light Grey Background */}
+        <section className="relative bg-gray-50 py-16 lg:py-24">
+          {/* Floating decorative elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-10 left-10 w-4 h-4 bg-primary/20 rounded transform rotate-45"></div>
+            <div className="absolute top-32 right-16 w-6 h-6 bg-primary/30 rounded-full"></div>
+            <div className="absolute bottom-20 left-20 w-3 h-3 bg-primary/25 rounded"></div>
+            <div className="absolute bottom-32 right-12 w-5 h-5 bg-primary/20 rounded transform rotate-45"></div>
           </div>
           
-          {/* Subtle Stats */}
-          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex gap-4 sm:gap-8 text-center px-4">
-            <div className="animate-fade-in">
-              <div className="text-2xl font-bold text-primary">2,847</div>
-              <div className="text-sm text-muted-foreground">Posts Published</div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Left Content */}
+              <div className="text-left">
+                {/* Premium Badge */}
+                <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm">
+                  💎 Premium Guest Posting Platform
+                </Badge>
+                
+                {/* Main Headline */}
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                  <span className="text-primary">Just $5</span>
+                  <br />
+                  <span className="text-primary">Get a Permanent</span>
+                  <br />
+                  <span className="text-foreground">Dofollow Backlink</span>
+                </h1>
+                
+                {/* Subtitle */}
+                <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+                  The Most Affordable Guest Posting Platform on the Web — Only at Stuffedition
+                </p>
+                
+                {/* Description */}
+                <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+                  Are you a blogger, marketer, or SEO expert looking to boost your website's authority and traffic?
+                </p>
+                
+                {/* Main CTA */}
+                <div className="space-y-4">
+                  <Link to="/signin">
+                    <Button 
+                      size="lg" 
+                      className="px-8 py-4 text-lg hover:scale-105 transition-all duration-300 shadow-lg"
+                    >
+                      Submit Your Guest Post
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                  
+                  <p className="text-sm text-muted-foreground">
+                    📩 Ready to Submit? Click above to publish your article now for just $5
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Content - What You Get Card */}
+              <div className="relative">
+                <div className="bg-white rounded-2xl p-8 shadow-xl border border-gray-200">
+                  <h2 className="text-2xl font-bold mb-6 text-foreground">🔗 What You Get for $5:</h2>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-primary font-bold text-lg">✅</span>
+                      <span className="text-base">One Guest Post Publication</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-primary font-bold text-lg">✅</span>
+                      <span className="text-base">Permanent Do-Follow Backlink</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-primary font-bold text-lg">✅</span>
+                      <span className="text-base">Indexed by Search Engines</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-primary font-bold text-lg">✅</span>
+                      <span className="text-base">Fast Approval Process</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-primary font-bold text-lg">✅</span>
+                      <span className="text-base">Live Link Within 24–48 Hours</span>
+                    </div>
+                  </div>
+                  
+                  {/* Quality Standards inside the card */}
+                  <div className="mt-8 pt-6 border-t border-gray-200">
+                    <h3 className="text-lg font-bold mb-4 text-foreground">🚫 No Shortcuts. Only Quality.</h3>
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="flex items-center gap-3">
+                        <Shield className="h-4 w-4 text-primary" />
+                        <span className="text-sm">100% Original Content</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Zap className="h-4 w-4 text-primary" />
+                        <span className="text-sm">Human-Written Only</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Clock className="h-4 w-4 text-primary" />
+                        <span className="text-sm">600+ Words Minimum</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <div className="text-2xl font-bold text-primary">98%</div>
-              <div className="text-sm text-muted-foreground">Approval Rate</div>
-            </div>
-            <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <div className="text-2xl font-bold text-primary">24h</div>
-              <div className="text-sm text-muted-foreground">Avg Response</div>
+            
+            {/* Stats Section */}
+            <div className="flex justify-center gap-8 mt-16 pt-8 border-t border-gray-200">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">2,847</div>
+                <div className="text-sm text-muted-foreground">Posts Published</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">98%</div>
+                <div className="text-sm text-muted-foreground">Approval Rate</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">24h</div>
+                <div className="text-sm text-muted-foreground">Avg Response</div>
+              </div>
             </div>
           </div>
         </section>
