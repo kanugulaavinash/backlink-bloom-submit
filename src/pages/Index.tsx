@@ -43,7 +43,7 @@ const Index = () => {
         <Header />
         
         {/* New Hero Section with Light Grey Background */}
-        <section className="relative bg-gray-50 py-16 lg:py-24">
+        <section className="relative bg-gray-50 py-16 lg:py-24 pt-24 sm:pt-28 lg:pt-32">
           {/* Floating decorative elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-10 left-10 w-4 h-4 bg-primary/20 rounded transform rotate-45"></div>
@@ -82,7 +82,7 @@ const Index = () => {
                 
                 {/* Main CTA */}
                 <div className="space-y-4">
-                  <Link to="/signin">
+                  <Link to="/create-blog-post">
                     <Button 
                       size="lg" 
                       className="px-8 py-4 text-lg hover:scale-105 transition-all duration-300 shadow-lg"

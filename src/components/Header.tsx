@@ -33,11 +33,11 @@ const Header = () => {
         <div className="flex items-center justify-between h-16 sm:h-18">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
-              <span className="text-white font-bold text-sm">GP</span>
+            <div className="w-8 h-8 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
+              <span className="text-white font-bold text-sm">S</span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              GuestPost Pro
+            <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              Stuffedition
             </span>
           </Link>
 
@@ -117,7 +117,7 @@ const Header = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden py-4 border-t bg-background/95 backdrop-blur-md max-h-[calc(100vh-120px)] overflow-y-auto">
+        <div className="lg:hidden py-4 border-t bg-background/95 backdrop-blur-md max-h-[calc(100vh-140px)] overflow-y-auto z-40">
           <nav className="space-y-2">
             {/* Search on mobile */}
             <div className="px-4 sm:px-6 mb-4">
