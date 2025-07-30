@@ -247,66 +247,63 @@ const PricingSettings = () => {
           <CardDescription>Configure payment gateways for guest post submissions</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* PayPal Integration */}
-          <div className="border rounded-lg p-4 space-y-4">
+          {/* Razorpay Integration - Priority */}
+          <div className="border rounded-lg p-4 space-y-4 bg-gradient-to-r from-indigo-50 to-blue-50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h4 className="font-medium">PayPal</h4>
-                <Badge variant={getApiKeyStatus('paypal', 'client_id') ? "outline" : "destructive"} 
-                       className={getApiKeyStatus('paypal', 'client_id') ? "text-green-600" : "text-red-600"}>
-                  {getApiKeyStatus('paypal', 'client_id') ? <CheckCircle className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
-                  {getApiKeyStatus('paypal', 'client_id') ? 'Connected' : 'Not Connected'}
+                <h4 className="font-medium text-lg">Razorpay</h4>
+                <Badge variant="outline" className="bg-indigo-100 text-indigo-800 border-indigo-300">
+                  Primary Gateway
+                </Badge>
+                <Badge variant={getApiKeyStatus('Razorpay', 'key_id') ? "outline" : "destructive"} 
+                       className={getApiKeyStatus('Razorpay', 'key_id') ? "text-green-600" : "text-red-600"}>
+                  {getApiKeyStatus('Razorpay', 'key_id') ? <CheckCircle className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
+                  {getApiKeyStatus('Razorpay', 'key_id') ? 'Connected' : 'Not Connected'}
                 </Badge>
               </div>
               <Switch defaultChecked />
             </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="paypalClientId">Client ID</Label>
-                <Input id="paypalClientId" placeholder="PayPal Client ID" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="paypalClientSecret">Client Secret</Label>
-                <Input id="paypalClientSecret" type="password" placeholder="PayPal Client Secret" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="paypalMode">Environment</Label>
-              <Select defaultValue="sandbox">
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sandbox">Sandbox (Testing)</SelectItem>
-                  <SelectItem value="live">Live (Production)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Primary payment gateway for India. Supports INR payments, UPI, cards, and digital wallets.
+            </p>
           </div>
 
-          {/* Stripe Integration */}
-          <div className="border rounded-lg p-4 space-y-4">
+          {/* PayPal Integration - Secondary */}
+          <div className="border rounded-lg p-4 space-y-4 opacity-75">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h4 className="font-medium">Stripe</h4>
-                <Badge variant={getApiKeyStatus('stripe', 'publishable_key') ? "outline" : "destructive"} 
-                       className={getApiKeyStatus('stripe', 'publishable_key') ? "text-green-600" : "text-red-600"}>
-                  {getApiKeyStatus('stripe', 'publishable_key') ? <CheckCircle className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
-                  {getApiKeyStatus('stripe', 'publishable_key') ? 'Connected' : 'Not Connected'}
+                <h4 className="font-medium">PayPal</h4>
+                <Badge variant="secondary">Secondary</Badge>
+                <Badge variant={getApiKeyStatus('PayPal', 'client_id') ? "outline" : "destructive"} 
+                       className={getApiKeyStatus('PayPal', 'client_id') ? "text-green-600" : "text-red-600"}>
+                  {getApiKeyStatus('PayPal', 'client_id') ? <CheckCircle className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
+                  {getApiKeyStatus('PayPal', 'client_id') ? 'Connected' : 'Not Connected'}
                 </Badge>
               </div>
               <Switch />
             </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="stripePublishableKey">Publishable Key</Label>
-                <Input id="stripePublishableKey" placeholder="pk_test_..." />
+            <p className="text-sm text-muted-foreground">
+              Alternative global payment gateway for international submissions.
+            </p>
+          </div>
+
+          {/* Stripe Integration - Secondary */}
+          <div className="border rounded-lg p-4 space-y-4 opacity-75">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h4 className="font-medium">Stripe</h4>
+                <Badge variant="secondary">Secondary</Badge>
+                <Badge variant={getApiKeyStatus('Stripe', 'secret_key') ? "outline" : "destructive"} 
+                       className={getApiKeyStatus('Stripe', 'secret_key') ? "text-green-600" : "text-red-600"}>
+                  {getApiKeyStatus('Stripe', 'secret_key') ? <CheckCircle className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
+                  {getApiKeyStatus('Stripe', 'secret_key') ? 'Connected' : 'Not Connected'}
+                </Badge>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="stripeSecretKey">Secret Key</Label>
-                <Input id="stripeSecretKey" type="password" placeholder="sk_test_..." />
-              </div>
+              <Switch />
             </div>
+            <p className="text-sm text-muted-foreground">
+              Credit card processing for global payments.
+            </p>
           </div>
 
           <Button className="bg-blue-600 hover:bg-blue-700">
