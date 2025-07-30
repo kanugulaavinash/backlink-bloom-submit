@@ -59,6 +59,9 @@ verify_jwt = false
 [functions.test-plagiarism_check]
 verify_jwt = false
 
+[functions.test-razorpay]
+verify_jwt = false
+
 [functions.wordpress-import]
 verify_jwt = false
 

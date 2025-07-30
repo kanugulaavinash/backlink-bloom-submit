@@ -35,6 +35,37 @@ interface IntegrationConfig {
 
 const INTEGRATION_SERVICES = [
   {
+    id: 'razorpay',
+    name: 'Razorpay',
+    type: 'payment',
+    description: 'Payment processing for India - Accept payments in INR',
+    icon: CreditCard,
+    color: 'bg-indigo-600',
+    priority: true,
+    setupUrl: 'https://dashboard.razorpay.com/#/app/keys',
+    fields: [
+      { key: 'key_id', label: 'Key ID', type: 'text', required: true, placeholder: 'rzp_live_xxxxxxxxxx' },
+      { key: 'key_secret', label: 'Key Secret', type: 'password', required: true, placeholder: 'Your secret key' },
+      { key: 'environment', label: 'Environment', type: 'select', required: true, defaultValue: 'live', options: [
+        { value: 'live', label: 'Live (Production)' },
+        { value: 'test', label: 'Test (Sandbox)' }
+      ]},
+      { key: 'currency', label: 'Default Currency', type: 'select', defaultValue: 'INR', options: [
+        { value: 'INR', label: 'INR - Indian Rupee' },
+        { value: 'USD', label: 'USD - US Dollar' }
+      ]}
+    ],
+    instructions: [
+      'Login to your Razorpay Dashboard',
+      'Navigate to Settings > API Keys',
+      'Generate Live API Keys (Download and save securely)',
+      'Copy your Key ID (starts with rzp_live_)',
+      'Copy your Key Secret',
+      'Ensure your account is activated for live transactions',
+      'Test with a small transaction'
+    ]
+  },
+  {
     id: 'plagiarism_check',
     name: 'PlagiarismCheck.org',
     type: 'plagiarism',
@@ -66,7 +97,7 @@ const INTEGRATION_SERVICES = [
     description: 'Global payment processing platform',
     icon: CreditCard,
     color: 'bg-blue-600',
-    priority: true,
+    priority: false,
     setupUrl: 'https://developer.paypal.com/developer/applications/',
     fields: [
       { key: 'client_id', label: 'Client ID', type: 'text', required: true },
