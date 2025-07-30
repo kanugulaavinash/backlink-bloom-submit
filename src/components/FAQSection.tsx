@@ -50,41 +50,74 @@ const FAQSection = () => {
     }
   ];
 
+  // Split FAQs into two columns
+  const leftColumnFaqs = faqs.slice(0, Math.ceil(faqs.length / 2));
+  const rightColumnFaqs = faqs.slice(Math.ceil(faqs.length / 2));
+
   return (
-    <section className="py-20 px-4 bg-primary">
-      <div className="max-w-4xl mx-auto">
+    <section className="py-20 px-4" style={{ backgroundColor: '#eff0f0' }}>
+      <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4 px-4 py-2 bg-primary-foreground text-primary border-primary-foreground">
+          <Badge variant="secondary" className="mb-4 px-4 py-2">
             ❓ Frequently Asked Questions (FAQs)
           </Badge>
-          <h2 className="text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
             Everything You Need to Know
           </h2>
-          <p className="text-xl text-primary-foreground/80">
+          <p className="text-xl text-muted-foreground">
             Complete guide to using Stuffedition for your guest posting needs
           </p>
         </div>
 
-        <Accordion type="single" collapsible className="w-full space-y-4">
-          {faqs.map((faq, index) => (
-            <AccordionItem 
-              key={index} 
-              value={`item-${index}`}
-              className="border border-primary-foreground/30 rounded-lg px-6 data-[state=open]:bg-primary-foreground/10 bg-primary-foreground/5"
-            >
-              <AccordionTrigger className="text-left hover:no-underline py-6">
-                <span className="text-lg font-semibold text-primary-foreground pr-4">
-                  {faq.question}
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="pb-6">
-                <p className="text-primary-foreground/80 leading-relaxed">
-                  {faq.answer}
-                </p>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column */}
+          <div className="space-y-4">
+            <Accordion type="single" collapsible className="w-full space-y-4">
+              {leftColumnFaqs.map((faq, index) => (
+                <AccordionItem 
+                  key={index} 
+                  value={`item-${index}`}
+                  className="border border-border rounded-lg px-6 data-[state=open]:bg-muted/30 bg-white"
+                >
+                  <AccordionTrigger className="text-left hover:no-underline py-6">
+                    <span className="text-lg font-semibold text-foreground pr-4">
+                      {faq.question}
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-6">
+                    <p className="text-muted-foreground leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-4">
+            <Accordion type="single" collapsible className="w-full space-y-4">
+              {rightColumnFaqs.map((faq, index) => (
+                <AccordionItem 
+                  key={index + leftColumnFaqs.length} 
+                  value={`item-${index + leftColumnFaqs.length}`}
+                  className="border border-border rounded-lg px-6 data-[state=open]:bg-muted/30 bg-white"
+                >
+                  <AccordionTrigger className="text-left hover:no-underline py-6">
+                    <span className="text-lg font-semibold text-foreground pr-4">
+                      {faq.question}
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-6">
+                    <p className="text-muted-foreground leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </div>
       </div>
     </section>
   );
