@@ -168,6 +168,8 @@ const CreateBlogPost = () => {
 
   const validateContent = async (postId: string) => {
     setIsValidating(true);
+    console.log(`Starting content validation for post: ${postId}`);
+    
     try {
       // Run both plagiarism and AI detection in parallel
       const [plagiarismResponse, aiResponse] = await Promise.all([
@@ -179,18 +181,51 @@ const CreateBlogPost = () => {
         })
       ]);
 
-      if (plagiarismResponse.error) throw new Error('Plagiarism check failed');
-      if (aiResponse.error) throw new Error('AI detection failed');
+      console.log('Validation responses:', { 
+        plagiarism: plagiarismResponse, 
+        ai: aiResponse 
+      });
 
-      // Fetch combined validation results
-      const { data: validationData, error: fetchError } = await supabase
-        .from('validation_results')
-        .select('*')
-        .eq('post_id', postId)
-        .single();
+      // Check for function invocation errors
+      if (plagiarismResponse.error) {
+        console.error('Plagiarism check error:', plagiarismResponse.error);
+        throw new Error(`Plagiarism check failed: ${plagiarismResponse.error.message}`);
+      }
+      if (aiResponse.error) {
+        console.error('AI detection error:', aiResponse.error);
+        throw new Error(`AI detection failed: ${aiResponse.error.message}`);
+      }
 
-      if (fetchError) throw fetchError;
+      // Wait a moment for database updates to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
+      // Fetch combined validation results with retry
+      let validationData = null;
+      let attempts = 0;
+      const maxAttempts = 3;
+
+      while (attempts < maxAttempts && !validationData) {
+        const { data, error: fetchError } = await supabase
+          .from('validation_results')
+          .select('*')
+          .eq('post_id', postId)
+          .single();
+
+        if (!fetchError && data) {
+          validationData = data;
+          break;
+        }
+
+        attempts++;
+        if (attempts < maxAttempts) {
+          console.log(`Retrying validation fetch (attempt ${attempts + 1})`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } else {
+          throw new Error('Failed to fetch validation results after multiple attempts');
+        }
+      }
+
+      console.log('Validation data fetched:', validationData);
       setValidationResult(validationData);
       
       // Check if validation passed
@@ -214,7 +249,7 @@ const CreateBlogPost = () => {
       console.error("Validation error:", error);
       toast({
         title: "Validation Error",
-        description: "Failed to validate content. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to validate content. Please try again.",
         variant: "destructive",
       });
     } finally {
