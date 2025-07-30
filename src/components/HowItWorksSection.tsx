@@ -7,39 +7,48 @@ const HowItWorksSection = () => {
   const steps = [
     {
       number: "01",
-      title: "Write SEO-Friendly Content",
-      description: "Create original, engaging content with minimum 650 words that provides real value to readers.",
+      title: "Submit Your Guest Post",
+      description: "Write a plagiarism-free, human-written article that offers genuine value to readers. Your content should be at least 600 words and relevant to our approved niches.",
       icon: FileText,
       color: "from-primary to-primary/70",
-      features: ["Minimum 650 words", "Original content only", "SEO-optimized structure"],
+      features: ["Minimum 600+ words", "SEO, tech, marketing, business niches", "Include one anchor text with dofollow link"],
       timeline: "Your time"
     },
     {
       number: "02", 
-      title: "Submit & AI Check",
-      description: "Upload your post and let our AI system run plagiarism and content quality checks automatically.",
+      title: "Content Review & Screening",
+      description: "Our editorial team reviews your content for originality, human-authorship, relevance, quality of writing, and proper link placement.",
       icon: Search,
       color: "from-accent to-accent/70",
-      features: ["AI content detection", "Plagiarism check via PlagiarismCheck.org", "Quality scoring"],
-      timeline: "2-5 minutes"
+      features: ["Plagiarism check", "AI detection tools", "Quality & relevance review"],
+      timeline: "Review process"
     },
     {
       number: "03",
-      title: "Pay Securely",
-      description: "Complete your submission with secure PayPal payment. Only $5 per post with instant confirmation.",
+      title: "Make Your Payment",
+      description: "After your content is approved, proceed to make the $5 USD payment. You'll receive a confirmation once the payment is successful.",
       icon: CheckCircle,
       color: "from-primary to-accent", 
-      features: ["Secure PayPal payment", "Just $5 per post", "Instant confirmation"],
+      features: ["Payment after approval", "$5 USD only", "Instant confirmation"],
       timeline: "30 seconds"
     },
     {
       number: "04",
-      title: "Get Published & Shared",
-      description: "Your post goes live immediately with guaranteed dofollow backlink and gets shared across our network.",
+      title: "Publication",
+      description: "Your article is published on Stuffedition with a permanent dofollow backlink. The post will be indexed by search engines and made publicly accessible.",
       icon: Rocket,
       color: "from-accent to-primary",
-      features: ["Instant publishing", "Guaranteed dofollow link", "Social sharing"],
-      timeline: "Immediate"
+      features: ["Permanent dofollow backlink", "Search engine indexing", "Live link via email"],
+      timeline: "24-48 hours"
+    },
+    {
+      number: "05",
+      title: "Permanent Link Placement",
+      description: "Your backlink remains live forever — unless the article violates our terms. Otherwise, it's a one-time investment for permanent SEO value.",
+      icon: Award,
+      color: "from-primary to-accent",
+      features: ["Forever guarantee", "One-time investment", "Permanent SEO value"],
+      timeline: "Lifetime"
     }
   ];
 
@@ -48,17 +57,17 @@ const HowItWorksSection = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-6 px-4 py-2">
-            ⚡ Simple Process
+            🔗 Link Building Process
           </Badge>
           <h2 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
-            How It <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Works</span>
+            Our Link Building Process – <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Simple, Transparent, Effective</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            From content creation to live publication in just 4 simple steps. Transparent process with instant results.
+            At Stuffedition, we make link building affordable, efficient, and quality-focused. Here's a step-by-step look at how our guest posting and dofollow backlink system works.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 mb-16">
           {steps.map((step, index) => (
             <div key={index} className="relative">
                 <Card className="p-8 h-full bg-card border shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-105 relative overflow-hidden">
@@ -103,24 +112,39 @@ const HowItWorksSection = () => {
           ))}
         </div>
 
-        {/* Process guarantees */}
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl">
-            <Target className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-            <h4 className="text-xl font-semibold text-gray-900 mb-2">98% Approval Rate</h4>
-            <p className="text-gray-600">Our quality-first approach ensures your content gets published</p>
-          </div>
+        {/* Results Section */}
+        <div className="text-center mb-16">
+          <h3 className="text-4xl font-bold text-foreground mb-8">
+            🎯 <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Results</span>: Boost SEO & Authority
+          </h3>
+          <p className="text-lg text-muted-foreground mb-12">
+            Once published, your backlink starts helping immediately:
+          </p>
           
-          <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl">
-            <Clock className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-            <h4 className="text-xl font-semibold text-gray-900 mb-2">Fast Turnaround</h4>
-            <p className="text-gray-600">Most submissions reviewed and published within 48 hours</p>
-          </div>
-          
-          <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl">
-            <Award className="h-12 w-12 text-green-600 mx-auto mb-4" />
-            <h4 className="text-xl font-semibold text-gray-900 mb-2">Premium Quality</h4>
-            <p className="text-gray-600">Only high-authority sites with DA 50+ in our network</p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 rounded-2xl">
+              <Target className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+              <h4 className="text-xl font-semibold text-foreground mb-2">Improve Domain Authority</h4>
+              <p className="text-muted-foreground">Boost your website's authority with quality backlinks</p>
+            </div>
+            
+            <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-2xl">
+              <Clock className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+              <h4 className="text-xl font-semibold text-foreground mb-2">Increase Referral Traffic</h4>
+              <p className="text-muted-foreground">Drive targeted visitors to your website</p>
+            </div>
+            
+            <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-2xl">
+              <Award className="h-12 w-12 text-green-600 mx-auto mb-4" />
+              <h4 className="text-xl font-semibold text-foreground mb-2">Enhance Search Visibility</h4>
+              <p className="text-muted-foreground">Improve organic search rankings and visibility</p>
+            </div>
+            
+            <div className="text-center p-6 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20 rounded-2xl">
+              <Rocket className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+              <h4 className="text-xl font-semibold text-foreground mb-2">Strengthen Off-Page SEO</h4>
+              <p className="text-muted-foreground">Build a strong backlink profile for long-term success</p>
+            </div>
           </div>
         </div>
       </div>
