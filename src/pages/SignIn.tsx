@@ -104,98 +104,103 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Link to="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6 transition-colors">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Link>
-        
-        <Card className="shadow-xl border-0">
-          <CardHeader className="text-center pb-6">
-            <CardTitle className="text-2xl font-bold text-gray-900">Welcome Back</CardTitle>
-            <CardDescription className="text-gray-600">
-              Sign in to your account to manage your guest posts
-            </CardDescription>
-          </CardHeader>
+    <div className="flex flex-col min-h-screen">
+      {/* Main Content */}
+      <div className="flex-1 bg-gradient-to-br from-background to-muted flex items-center justify-center p-4 py-8 sm:py-12">
+        <div className="w-full max-w-sm sm:max-w-md">
+          <Link to="/" className="inline-flex items-center text-primary hover:text-primary/80 mb-4 sm:mb-6 transition-colors text-sm sm:text-base">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Link>
           
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700">Email Address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className={`pl-10 h-12 ${fieldErrors.email ? 'border-red-500' : ''}`}
-                    required
-                  />
-                </div>
-                {fieldErrors.email && (
-                  <p className="text-sm text-red-600">{fieldErrors.email}</p>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-700">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className={`pl-10 h-12 ${fieldErrors.password ? 'border-red-500' : ''}`}
-                    required
-                  />
-                </div>
-                {fieldErrors.password && (
-                  <p className="text-sm text-red-600">{fieldErrors.password}</p>
-                )}
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <label className="flex items-center">
-                  <input 
-                    type="checkbox" 
-                    className="rounded border-gray-300"
-                    defaultChecked={true}
-                    title="Sessions will persist for 48 hours"
-                  />
-                  <span className="ml-2 text-sm text-gray-600">Remember me (48 hours)</span>
-                </label>
-                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
-                  Forgot password?
-                </Link>
-              </div>
-              
-              <Button
-                type="submit"
-                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium"
-                disabled={isLoading}
-              >
-                {isLoading ? "Signing In..." : "Sign In"}
-              </Button>
-            </form>
+          <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
+            <CardHeader className="text-center pb-4 sm:pb-6 px-4 sm:px-6">
+              <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">Welcome Back to Stuffedition</CardTitle>
+              <CardDescription className="text-muted-foreground text-sm sm:text-base">
+                Sign in to your account to manage your guest posts
+              </CardDescription>
+            </CardHeader>
             
-            <div className="mt-6 text-center">
-              <p className="text-gray-600">
-                Don't have an account?{" "}
-                <Link to="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
-                  Sign up
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+            <CardContent className="px-4 sm:px-6 pb-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-foreground text-sm">Email Address</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className={`pl-9 sm:pl-10 h-11 sm:h-12 text-sm sm:text-base ${fieldErrors.email ? 'border-destructive' : ''}`}
+                      required
+                    />
+                  </div>
+                  {fieldErrors.email && (
+                    <p className="text-sm text-destructive">{fieldErrors.email}</p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-foreground text-sm">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      placeholder="Enter your password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className={`pl-9 sm:pl-10 h-11 sm:h-12 text-sm sm:text-base ${fieldErrors.password ? 'border-destructive' : ''}`}
+                      required
+                    />
+                  </div>
+                  {fieldErrors.password && (
+                    <p className="text-sm text-destructive">{fieldErrors.password}</p>
+                  )}
+                </div>
+                
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+                  <label className="flex items-center">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-border h-4 w-4"
+                      defaultChecked={true}
+                      title="Sessions will persist for 48 hours"
+                    />
+                    <span className="ml-2 text-xs sm:text-sm text-muted-foreground">Remember me (48 hours)</span>
+                  </label>
+                  <Link to="/forgot-password" className="text-xs sm:text-sm text-primary hover:text-primary/80 self-start sm:self-auto">
+                    Forgot password?
+                  </Link>
+                </div>
+                
+                <Button
+                  type="submit"
+                  className="w-full h-11 sm:h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm sm:text-base"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Signing In..." : "Sign In"}
+                </Button>
+              </form>
+              
+              <div className="mt-4 sm:mt-6 text-center">
+                <p className="text-muted-foreground text-sm">
+                  Don't have an account?{" "}
+                  <Link to="/signup" className="text-primary hover:text-primary/80 font-medium">
+                    Sign up
+                  </Link>
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
+      
+      {/* Footer */}
       <Footer />
     </div>
   );
