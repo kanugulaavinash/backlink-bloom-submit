@@ -1,7 +1,9 @@
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Search, CheckCircle, Rocket, ArrowRight, Clock, Target, Award } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { FileText, Search, CheckCircle, Rocket, Clock, Target, Award } from "lucide-react";
 
 const HowItWorksSection = () => {
   const steps = [
@@ -55,61 +57,72 @@ const HowItWorksSection = () => {
   return (
     <section className="py-24 px-4 bg-muted/30 relative">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <Badge variant="secondary" className="mb-6 px-4 py-2">
-            🔗 Link Building Process
-          </Badge>
-          <h2 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
-            Our Link Building Process – <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Simple, Transparent, Effective</span>
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            At Stuffedition, we make link building affordable, efficient, and quality-focused. Here's a step-by-step look at how our guest posting and dofollow backlink system works.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 mb-16">
-          {steps.map((step, index) => (
-            <div key={index} className="relative">
-                <Card className="p-8 h-full bg-card border shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-105 relative overflow-hidden">
-                 {/* Background gradient */}
-                 <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${step.color}`}></div>
-                 
-                 {/* Step number */}
-                 <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r ${step.color} text-primary-foreground text-2xl font-bold mb-6`}>
-                   {step.number}
-                 </div>
-
-                 {/* Icon */}
-                 <step.icon className="h-12 w-12 mb-6 text-primary" />
-
-                <h3 className="text-2xl font-bold text-foreground mb-4">{step.title}</h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">{step.description}</p>
-
-                 {/* Features */}
-                 <ul className="space-y-2 mb-6">
-                   {step.features.map((feature, idx) => (
-                     <li key={idx} className="flex items-center text-sm text-muted-foreground">
-                       <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${step.color} mr-3`}></div>
-                       {feature}
-                     </li>
-                   ))}
-                 </ul>
-
-                 {/* Timeline */}
-                 <div className="flex items-center text-sm font-medium text-foreground">
-                   <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                   {step.timeline}
-                 </div>
-              </Card>
-
-               {/* Arrow connector (hidden on last item) */}
-               {index < steps.length - 1 && (
-                 <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
-                   <ArrowRight className="h-8 w-8 text-muted-foreground" />
-                 </div>
-               )}
+        {/* Two-column layout */}
+        <div className="grid lg:grid-cols-2 gap-16 items-start mb-16">
+          {/* Left Column */}
+          <div className="space-y-8">
+            <Badge variant="secondary" className="px-4 py-2">
+              🔗 Link Building Process
+            </Badge>
+            
+            <div>
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+                Stuffedition Link Building Process
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                Start your journey to boost your website visibility with our simple, transparent, and effective guest posting process. Get permanent dofollow backlinks for just $5.
+              </p>
+              <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 py-3 text-lg font-semibold">
+                Link Building Process
+              </Button>
             </div>
-          ))}
+          </div>
+
+          {/* Right Column - Accordion */}
+          <div className="space-y-4">
+            <Accordion type="single" collapsible defaultValue="step1" className="w-full">
+              {steps.map((step, index) => (
+                <AccordionItem key={index} value={`step${index + 1}`} className="border rounded-lg mb-4 bg-card">
+                  <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                    <div className="flex items-center gap-4 text-left">
+                      <div className={`flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-r ${step.color} text-primary-foreground text-lg font-bold`}>
+                        {step.number}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-foreground">
+                          Step {step.number} - {step.title}
+                        </h3>
+                      </div>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-6 pb-6">
+                    <div className="flex items-start gap-4">
+                      <step.icon className="h-8 w-8 text-primary mt-1 flex-shrink-0" />
+                      <div className="space-y-4">
+                        <p className="text-muted-foreground leading-relaxed">
+                          {step.description}
+                        </p>
+                        
+                        <ul className="space-y-2">
+                          {step.features.map((feature, idx) => (
+                            <li key={idx} className="flex items-center text-sm text-muted-foreground">
+                              <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${step.color} mr-3 flex-shrink-0`}></div>
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                        
+                        <div className="flex items-center text-sm font-medium text-foreground">
+                          <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                          {step.timeline}
+                        </div>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
         </div>
 
         {/* Results Section */}
