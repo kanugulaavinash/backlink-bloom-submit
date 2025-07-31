@@ -53,11 +53,17 @@ serve(async (req) => {
 
     console.log('Creating Razorpay order for amount:', amount);
 
-    // Create Razorpay order
+    // Create Razorpay order with shortened receipt ID (max 40 chars)
+    const shortPostId = postId.substring(0, 8);
+    const shortTimestamp = Date.now().toString().slice(-8);
+    const receiptId = `rcpt_${shortPostId}_${shortTimestamp}`;
+    
+    console.log('Generated receipt ID:', receiptId, 'Length:', receiptId.length);
+    
     const orderData = {
       amount: amount * 100, // Convert to paisa (like cents for USD)
       currency: 'INR',
-      receipt: `receipt_${postId}_${Date.now()}`,
+      receipt: receiptId,
       notes: {
         post_id: postId,
         user_id: user.id,
@@ -79,7 +85,8 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Razorpay API error:', errorText);
-      throw new Error(`Razorpay API error: ${response.status}`);
+      console.error('Request data:', JSON.stringify(orderData, null, 2));
+      throw new Error(`Razorpay API error: ${response.status} - ${errorText}`);
     }
 
     const order = await response.json();

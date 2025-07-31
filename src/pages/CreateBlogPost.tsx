@@ -116,12 +116,20 @@ const CreateBlogPost = () => {
         .eq("setting_key", "guest_post_submission_fee")
         .single();
 
-      if (error) throw error;
-      if (data) {
-        setSubmissionFee(parseInt(data.setting_value));
+      if (error) {
+        console.error("Error fetching submission fee:", error);
+        // Use default value if setting not found
+        return;
+      }
+      
+      if (data && data.setting_value) {
+        const feeValue = parseInt(data.setting_value);
+        console.log("Fetched submission fee:", feeValue);
+        setSubmissionFee(feeValue);
       }
     } catch (error) {
       console.error("Error fetching submission fee:", error);
+      // Keep default value of 500
     }
   };
 
@@ -277,6 +285,8 @@ const CreateBlogPost = () => {
 
   const processPayment = async (postId: string) => {
     setPaymentProcessing(true);
+    console.log("Starting payment process for post:", postId, "Amount:", submissionFee);
+    
     try {
       const { data, error } = await supabase.functions.invoke('create-razorpay-payment', {
         body: { 
@@ -285,7 +295,12 @@ const CreateBlogPost = () => {
         }
       });
 
-      if (error) throw error;
+      console.log("Payment function response:", { data, error });
+
+      if (error) {
+        console.error("Payment function error:", error);
+        throw error;
+      }
 
       if (data?.order && data?.keyId) {
         // Load Razorpay script if not already loaded
@@ -364,9 +379,10 @@ const CreateBlogPost = () => {
       }
     } catch (error) {
       console.error("Payment error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to process payment. Please try again.";
       toast({
         title: "Payment Error",
-        description: "Failed to process payment. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
