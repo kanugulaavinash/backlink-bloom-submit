@@ -17,6 +17,17 @@ export interface BlogPost {
   views: number;
   likes: number;
   postType?: 'static' | 'imported' | 'guest';
+  metaTitle?: string;
+  metaDescription?: string;
+  lastUpdated?: string;
+  authorBio?: string;
+  authorWebsite?: string;
+  authorAvatar?: string;
+  tableOfContents?: Array<{
+    id: string;
+    title: string;
+    level: number;
+  }>;
 }
 
 export const blogPosts: BlogPost[] = [
