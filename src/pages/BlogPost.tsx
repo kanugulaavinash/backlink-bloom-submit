@@ -15,7 +15,7 @@ import { TableOfContents } from "@/components/blog/TableOfContents";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { ArticleCTA } from "@/components/blog/ArticleCTA";
 import { ContentFormatter } from "@/components/blog/ContentFormatter";
-import SEO from "@/components/SEO";
+import { default as SEO } from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { format } from "date-fns";
