@@ -198,8 +198,13 @@ export type Database = {
           category: string
           content: string
           created_at: string | null
+          custom_permalink: string | null
           excerpt: string | null
+          featured_image_url: string | null
+          focus_keyword: string | null
           id: string
+          meta_description: string | null
+          meta_title: string | null
           payment_status: string | null
           published_at: string | null
           scheduled_for: string | null
@@ -220,8 +225,13 @@ export type Database = {
           category: string
           content: string
           created_at?: string | null
+          custom_permalink?: string | null
           excerpt?: string | null
+          featured_image_url?: string | null
+          focus_keyword?: string | null
           id?: string
+          meta_description?: string | null
+          meta_title?: string | null
           payment_status?: string | null
           published_at?: string | null
           scheduled_for?: string | null
@@ -242,8 +252,13 @@ export type Database = {
           category?: string
           content?: string
           created_at?: string | null
+          custom_permalink?: string | null
           excerpt?: string | null
+          featured_image_url?: string | null
+          focus_keyword?: string | null
           id?: string
+          meta_description?: string | null
+          meta_title?: string | null
           payment_status?: string | null
           published_at?: string | null
           scheduled_for?: string | null
@@ -302,11 +317,15 @@ export type Database = {
           categories: string[] | null
           content: string
           created_at: string | null
+          custom_permalink: string | null
           excerpt: string | null
           featured_image_url: string | null
+          focus_keyword: string | null
           id: string
           import_session_id: string
           imported_by: string
+          meta_description: string | null
+          meta_title: string | null
           published_date: string | null
           slug: string | null
           status: string | null
@@ -320,11 +339,15 @@ export type Database = {
           categories?: string[] | null
           content: string
           created_at?: string | null
+          custom_permalink?: string | null
           excerpt?: string | null
           featured_image_url?: string | null
+          focus_keyword?: string | null
           id?: string
           import_session_id: string
           imported_by: string
+          meta_description?: string | null
+          meta_title?: string | null
           published_date?: string | null
           slug?: string | null
           status?: string | null
@@ -338,11 +361,15 @@ export type Database = {
           categories?: string[] | null
           content?: string
           created_at?: string | null
+          custom_permalink?: string | null
           excerpt?: string | null
           featured_image_url?: string | null
+          focus_keyword?: string | null
           id?: string
           import_session_id?: string
           imported_by?: string
+          meta_description?: string | null
+          meta_title?: string | null
           published_date?: string | null
           slug?: string | null
           status?: string | null

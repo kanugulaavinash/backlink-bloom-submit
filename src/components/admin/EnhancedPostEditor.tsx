@@ -168,44 +168,54 @@ const EnhancedPostEditor = () => {
     
     try {
       // Try guest_posts first, then imported_posts
-      let { data, error } = await supabase
+      let { data: guestData, error: guestError } = await supabase
         .from("guest_posts")
         .select("*")
         .eq("id", id)
         .single();
 
-      if (error && error.code === "PGRST116") {
+      let data: any = null;
+      let isImportedPost = false;
+
+      if (guestError && guestError.code === "PGRST116") {
         // Try imported_posts if not found in guest_posts
-        const importedResponse = await supabase
+        const { data: importedData, error: importedError } = await supabase
           .from("imported_posts")
           .select("*")
           .eq("id", id)
           .single();
         
-        data = importedResponse.data;
-        error = importedResponse.error;
+        if (importedError) throw importedError;
+        data = importedData;
+        isImportedPost = true;
+      } else if (guestError) {
+        throw guestError;
+      } else {
+        data = guestData;
       }
 
-      if (error) throw error;
-
       if (data) {
+        // Validate status or set default
+        const validStatuses: ("draft" | "published" | "scheduled" | "pending")[] = ["draft", "published", "scheduled", "pending"];
+        const status = validStatuses.includes(data.status) ? data.status : "draft";
+
         setPost({
           title: data.title || "",
           content: data.content || "",
           excerpt: data.excerpt || "",
-          category: data.category || "",
-          author_name: data.author_name || "",
+          category: isImportedPost ? (Array.isArray(data.categories) ? data.categories[0] || "" : "") : (data.category || ""),
+          author_name: data.author_name || (isImportedPost ? "Imported Author" : ""),
           author_bio: data.author_bio || "",
           author_website: data.author_website || "",
-          status: data.status || "draft",
-          scheduled_for: data.scheduled_for,
+          status: status,
+          scheduled_for: data.scheduled_for || null,
           timezone: data.timezone || "UTC",
           auto_publish: data.auto_publish || false,
           featured_image_url: data.featured_image_url || "",
           meta_title: data.meta_title || "",
           meta_description: data.meta_description || "",
           focus_keyword: data.focus_keyword || "",
-          custom_permalink: data.custom_permalink || "",
+          custom_permalink: data.custom_permalink || data.slug || "",
         });
         setTags(data.tags || []);
         
