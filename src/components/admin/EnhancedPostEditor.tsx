@@ -847,6 +847,8 @@ const EnhancedPostEditor = () => {
           </div>
         </div>
       </div>
+      
+      <MediaSelectorComponent />
     </div>
   );
 };

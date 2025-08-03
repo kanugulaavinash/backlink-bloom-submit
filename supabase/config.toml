@@ -79,3 +79,6 @@ verify_jwt = false
 
 [functions.content-recommendations]
 verify_jwt = false
+
+[functions.media-processor]
+verify_jwt = false

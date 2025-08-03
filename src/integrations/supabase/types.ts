@@ -381,6 +381,180 @@ export type Database = {
         }
         Relationships: []
       }
+      media_folders: {
+        Row: {
+          bucket_id: string
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          parent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          bucket_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bucket_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          parent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "media_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_library: {
+        Row: {
+          alt_text: string | null
+          bucket_id: string
+          caption: string | null
+          created_at: string
+          duration: number | null
+          file_path: string
+          file_size: number
+          filename: string
+          folder_id: string | null
+          height: number | null
+          id: string
+          metadata: Json | null
+          mime_type: string
+          original_filename: string
+          tags: string[] | null
+          thumbnail_path: string | null
+          updated_at: string
+          uploaded_by: string
+          usage_count: number | null
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          bucket_id: string
+          caption?: string | null
+          created_at?: string
+          duration?: number | null
+          file_path: string
+          file_size: number
+          filename: string
+          folder_id?: string | null
+          height?: number | null
+          id?: string
+          metadata?: Json | null
+          mime_type: string
+          original_filename: string
+          tags?: string[] | null
+          thumbnail_path?: string | null
+          updated_at?: string
+          uploaded_by: string
+          usage_count?: number | null
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          bucket_id?: string
+          caption?: string | null
+          created_at?: string
+          duration?: number | null
+          file_path?: string
+          file_size?: number
+          filename?: string
+          folder_id?: string | null
+          height?: number | null
+          id?: string
+          metadata?: Json | null
+          mime_type?: string
+          original_filename?: string
+          tags?: string[] | null
+          thumbnail_path?: string | null
+          updated_at?: string
+          uploaded_by?: string
+          usage_count?: number | null
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_library_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "media_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_tags: {
+        Row: {
+          color: string | null
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      media_usage: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string
+          id: string
+          media_id: string
+          usage_context: string | null
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string
+          id?: string
+          media_id: string
+          usage_context?: string | null
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          media_id?: string
+          usage_context?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_usage_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "media_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       newsletter_subscribers: {
         Row: {
           confirmation_token: string | null
