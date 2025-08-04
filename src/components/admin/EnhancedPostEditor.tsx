@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { MediaSelector } from "@/components/media/MediaSelector";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Calendar, Clock, Loader2, Plus, X, Eye, Save, Upload, Image, Edit, Globe, BarChart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -848,7 +849,6 @@ const EnhancedPostEditor = () => {
         </div>
       </div>
       
-      <MediaSelectorComponent />
     </div>
   );
 };

@@ -31,6 +31,31 @@ export const signUpSchema = z.object({
   path: ["confirmPassword"],
 });
 
+// Extended sign up form validation schema with separate fields
+export const signUpSchemaExtended = z.object({
+  firstName: z
+    .string()
+    .min(2, "First name must be at least 2 characters long")
+    .max(25, "First name must be less than 25 characters")
+    .regex(/^[a-zA-Z\s]+$/, "First name can only contain letters and spaces"),
+  lastName: z
+    .string()
+    .min(2, "Last name must be at least 2 characters long")
+    .max(25, "Last name must be less than 25 characters")
+    .regex(/^[a-zA-Z\s]+$/, "Last name can only contain letters and spaces"),
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters long")
+    .max(20, "Username must be less than 20 characters")
+    .regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, underscores, and dashes"),
+  email: emailSchema,
+  password: passwordSchema,
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 // Sign in form validation schema
 export const signInSchema = z.object({
   email: emailSchema,

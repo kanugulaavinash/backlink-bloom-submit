@@ -4,19 +4,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, User, ArrowLeft, AlertCircle } from "lucide-react";
+import { Mail, Lock, User, ArrowLeft, AlertCircle, AtSign } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { signUpSchema, validateAndSanitize, sanitizeInput } from "@/lib/validationSchemas";
+import { signUpSchemaExtended, validateAndSanitize, sanitizeInput } from "@/lib/validationSchemas";
 import { useAuthErrorHandler } from "@/components/auth/AuthErrorHandler";
 import Footer from "@/components/Footer";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: ""
   });
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const { handleAuthError, handleSuccess } = useAuthErrorHandler();
@@ -29,13 +33,15 @@ const SignUp = () => {
     setFieldErrors({});
     
     // Validate form data
-    const validation = validateAndSanitize(signUpSchema, formData);
+    const validation = validateAndSanitize(signUpSchemaExtended, formData);
     
     if (!validation.success) {
       const errors: Record<string, string> = {};
       const validationErrors = (validation as { success: false; errors: string[] }).errors;
       validationErrors.forEach(error => {
-        if (error.includes("Name")) errors.name = error;
+        if (error.includes("First name")) errors.firstName = error;
+        if (error.includes("Last name")) errors.lastName = error;
+        if (error.includes("Username")) errors.username = error;
         if (error.includes("Email")) errors.email = error;
         if (error.includes("Password") && !error.includes("confirm")) errors.password = error;
         if (error.includes("match")) errors.confirmPassword = error;
@@ -49,7 +55,9 @@ const SignUp = () => {
     try {
       // Sanitize inputs
       const sanitizedData = {
-        name: sanitizeInput(validation.data.name),
+        firstName: sanitizeInput(validation.data.firstName),
+        lastName: sanitizeInput(validation.data.lastName),
+        username: sanitizeInput(validation.data.username),
         email: validation.data.email.toLowerCase().trim(),
         password: validation.data.password
       };
@@ -61,7 +69,10 @@ const SignUp = () => {
         password: sanitizedData.password,
         options: {
           data: {
-            full_name: sanitizedData.name,
+            full_name: `${sanitizedData.firstName} ${sanitizedData.lastName}`,
+            first_name: sanitizedData.firstName,
+            last_name: sanitizedData.lastName,
+            username: sanitizedData.username,
           },
           emailRedirectTo: `${window.location.origin}/`
         }
@@ -145,26 +156,76 @@ const SignUp = () => {
             
             <CardContent className="px-4 sm:px-6 pb-6">
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-foreground text-sm">First Name</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                      <Input
+                        id="firstName"
+                        name="firstName"
+                        type="text"
+                        placeholder="Enter your first name"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        className={`pl-9 sm:pl-10 h-11 sm:h-12 text-sm sm:text-base ${fieldErrors.firstName ? 'border-destructive' : ''}`}
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                    {fieldErrors.firstName && (
+                      <div className="flex items-center text-sm text-destructive">
+                        <AlertCircle className="h-4 w-4 mr-1 flex-shrink-0" />
+                        {fieldErrors.firstName}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-foreground text-sm">Last Name</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                      <Input
+                        id="lastName"
+                        name="lastName"
+                        type="text"
+                        placeholder="Enter your last name"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        className={`pl-9 sm:pl-10 h-11 sm:h-12 text-sm sm:text-base ${fieldErrors.lastName ? 'border-destructive' : ''}`}
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                    {fieldErrors.lastName && (
+                      <div className="flex items-center text-sm text-destructive">
+                        <AlertCircle className="h-4 w-4 mr-1 flex-shrink-0" />
+                        {fieldErrors.lastName}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-foreground text-sm">Full Name</Label>
+                  <Label htmlFor="username" className="text-foreground text-sm">Username</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                    <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
                     <Input
-                      id="name"
-                      name="name"
+                      id="username"
+                      name="username"
                       type="text"
-                      placeholder="Enter your full name"
-                      value={formData.name}
+                      placeholder="Choose a username"
+                      value={formData.username}
                       onChange={handleInputChange}
-                      className={`pl-9 sm:pl-10 h-11 sm:h-12 text-sm sm:text-base ${fieldErrors.name ? 'border-destructive' : ''}`}
+                      className={`pl-9 sm:pl-10 h-11 sm:h-12 text-sm sm:text-base ${fieldErrors.username ? 'border-destructive' : ''}`}
                       required
                       disabled={isLoading}
                     />
                   </div>
-                  {fieldErrors.name && (
+                  {fieldErrors.username && (
                     <div className="flex items-center text-sm text-destructive">
                       <AlertCircle className="h-4 w-4 mr-1 flex-shrink-0" />
-                      {fieldErrors.name}
+                      {fieldErrors.username}
                     </div>
                   )}
                 </div>

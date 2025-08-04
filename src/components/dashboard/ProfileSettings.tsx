@@ -53,10 +53,9 @@ const ProfileSettings = () => {
       }
 
       if (data) {
-        const nameParts = data.full_name?.split(' ') || ['', ''];
         setProfileData({
-          firstName: nameParts[0] || '',
-          lastName: nameParts.slice(1).join(' ') || '',
+          firstName: data.first_name || '',
+          lastName: data.last_name || '',
           email: data.email || user.email || '',
           bio: '' // Add bio field to profiles table if needed
         });
@@ -113,7 +112,8 @@ const ProfileSettings = () => {
       const { error } = await supabase
         .from('profiles')
         .update({
-          full_name: fullName,
+          first_name: sanitizedData.firstName,
+          last_name: sanitizedData.lastName,
           email: sanitizedData.email,
           updated_at: new Date().toISOString()
         })
