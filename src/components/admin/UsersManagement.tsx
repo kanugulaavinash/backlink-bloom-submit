@@ -14,6 +14,9 @@ import UserInvitation from "./UserInvitation";
 interface UserProfile {
   id: string;
   email: string;
+  first_name: string | null;
+  last_name: string | null;
+  username: string | null;
   full_name: string | null;
   created_at: string;
   role: 'admin' | 'user';
@@ -36,7 +39,7 @@ const UsersManagement = () => {
       // First get all profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, email, full_name, created_at');
+        .select('id, email, first_name, last_name, username, full_name, created_at');
 
       if (profilesError) throw profilesError;
 
@@ -155,10 +158,16 @@ const UsersManagement = () => {
     }
   };
 
-  const filteredUsers = users.filter(user =>
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const term = searchTerm.toLowerCase();
+  const filteredUsers = users.filter(user => {
+    const name = `${user.first_name ?? ''} ${user.last_name ?? ''} ${user.full_name ?? ''}`.toLowerCase();
+    const handle = user.username?.toLowerCase() ?? '';
+    return (
+      user.email.toLowerCase().includes(term) ||
+      name.includes(term) ||
+      handle.includes(term)
+    );
+  });
 
   const getRoleColor = (role: string) => {
     return role === "admin" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800";
@@ -240,7 +249,16 @@ const UsersManagement = () => {
                       <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                         <User className="h-4 w-4" />
                       </div>
-                      <span className="font-medium">{user.full_name || 'No name'}</span>
+                      <div className="flex flex-col">
+                        <span className="font-medium">
+                          {(user.first_name || user.last_name)
+                            ? `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim()
+                            : (user.full_name || 'No name')}
+                        </span>
+                        {user.username && (
+                          <span className="text-xs text-muted-foreground">@{user.username}</span>
+                        )}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>{user.email}</TableCell>
