@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,10 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Save } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Save, X, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { MediaSelector } from "@/components/media/MediaSelector";
+import { addCustomQuillButtons, getQuillModulesWithMedia, useQuillMediaHandler } from "@/components/media/ReactQuillMediaHandler";
 interface ImportedPost {
   id: string;
   title: string;
@@ -40,6 +44,18 @@ const ImportedPostEdit = () => {
     published_date: '',
     featured_image_url: ''
   });
+
+  // Editor and media states
+  const quillRef = useRef<any>(null);
+  const { openMediaSelector, MediaSelectorComponent } = useQuillMediaHandler(quillRef as any);
+  useEffect(() => {
+    addCustomQuillButtons();
+  }, []);
+  const quillModules = getQuillModulesWithMedia(openMediaSelector);
+
+  const [newTag, setNewTag] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [featuredSelectorOpen, setFeaturedSelectorOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -130,6 +146,50 @@ const ImportedPostEdit = () => {
     setFormData(prev => ({ ...prev, tags }));
   };
 
+  // Enhanced category/tag handlers (badge-style)
+  const addTag = () => {
+    if (!newTag.trim()) return;
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.includes(newTag.trim()) ? prev.tags : [...prev.tags, newTag.trim()]
+    }));
+    setNewTag("");
+  };
+
+  const removeTag = (tag: string) => {
+    setFormData(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }));
+  };
+
+  const addCategory = () => {
+    if (!newCategory.trim()) return;
+    setFormData(prev => ({
+      ...prev,
+      categories: prev.categories.includes(newCategory.trim()) ? prev.categories : [...prev.categories, newCategory.trim()]
+    }));
+    setNewCategory("");
+  };
+
+  const removeCategory = (category: string) => {
+    setFormData(prev => ({ ...prev, categories: prev.categories.filter(c => c !== category) }));
+  };
+
+  type MediaFile = {
+    file_path: string;
+    bucket_id: string;
+    mime_type: string;
+    original_filename: string;
+    alt_text?: string;
+    caption?: string;
+  };
+
+  const handleFeaturedSelect = (file: MediaFile) => {
+    const { data } = supabase.storage.from(file.bucket_id).getPublicUrl(file.file_path);
+    if (data?.publicUrl) {
+      setFormData(prev => ({ ...prev, featured_image_url: data.publicUrl }));
+    }
+    setFeaturedSelectorOpen(false);
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -196,35 +256,61 @@ const ImportedPostEdit = () => {
 
           <div>
             <Label htmlFor="content">Content</Label>
-            <Textarea
-              id="content"
+            <ReactQuill
+              ref={quillRef as any}
+              theme="snow"
               value={formData.content}
-              onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-              placeholder="Post content"
-              rows={12}
-              className="font-mono text-sm"
+              onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
+              modules={quillModules}
             />
+            <MediaSelectorComponent />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="categories">Categories (comma-separated)</Label>
-              <Input
-                id="categories"
-                value={formData.categories.join(', ')}
-                onChange={(e) => handleCategoriesChange(e.target.value)}
-                placeholder="e.g., Technology, News"
-              />
+              <Label>Categories</Label>
+              <div className="flex flex-wrap gap-2 mb-2 mt-2">
+                {formData.categories.map((cat) => (
+                  <Badge key={cat} variant="secondary" className="gap-1">
+                    {cat}
+                    <button type="button" onClick={() => removeCategory(cat)} className="ml-1 inline-flex">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  placeholder="Add category"
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCategory(); } }}
+                />
+                <Button type="button" variant="outline" onClick={addCategory}>Add</Button>
+              </div>
             </div>
 
             <div>
-              <Label htmlFor="tags">Tags (comma-separated)</Label>
-              <Input
-                id="tags"
-                value={formData.tags.join(', ')}
-                onChange={(e) => handleTagsChange(e.target.value)}
-                placeholder="e.g., javascript, react"
-              />
+              <Label>Tags</Label>
+              <div className="flex flex-wrap gap-2 mb-2 mt-2">
+                {formData.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="gap-1">
+                    {tag}
+                    <button type="button" onClick={() => removeTag(tag)} className="ml-1 inline-flex">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  placeholder="Add tag"
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
+                />
+                <Button type="button" variant="outline" onClick={addTag}>Add</Button>
+              </div>
             </div>
           </div>
 
@@ -255,16 +341,52 @@ const ImportedPostEdit = () => {
           </div>
 
           <div>
-            <Label htmlFor="featured_image_url">Featured Image URL</Label>
-            <Input
-              id="featured_image_url"
-              value={formData.featured_image_url}
-              onChange={(e) => setFormData(prev => ({ ...prev, featured_image_url: e.target.value }))}
-              placeholder="https://example.com/image.jpg"
+            <Label htmlFor="featured_image_url">Featured Image</Label>
+            <div className="flex gap-2 mt-2">
+              <Input
+                id="featured_image_url"
+                value={formData.featured_image_url}
+                onChange={(e) => setFormData(prev => ({ ...prev, featured_image_url: e.target.value }))}
+                placeholder="https://example.com/image.jpg"
+              />
+              <Button type="button" variant="outline" className="gap-2" onClick={() => setFeaturedSelectorOpen(true)}>
+                <ImagePlus className="h-4 w-4" /> Choose from Library
+              </Button>
+            </div>
+            {formData.featured_image_url && (
+              <div className="mt-3">
+                <img
+                  src={formData.featured_image_url}
+                  alt="Featured image preview"
+                  loading="lazy"
+                  className="max-h-48 rounded-md object-cover"
+                />
+              </div>
+            )}
+            <MediaSelector
+              open={featuredSelectorOpen}
+              onClose={() => setFeaturedSelectorOpen(false)}
+              onSelect={handleFeaturedSelect}
+              allowedTypes={['image/jpeg','image/png','image/gif','image/webp','image/svg+xml']}
+              bucketFilter="featured-images"
+              title="Select Featured Image"
             />
           </div>
         </CardContent>
       </Card>
+
+      <div className="sticky bottom-0 left-0 right-0 border-t bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-6">
+        <div className="container mx-auto max-w-4xl p-4 flex justify-end">
+          <Button 
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-2"
+          >
+            <Save className="h-4 w-4" />
+            {saving ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
