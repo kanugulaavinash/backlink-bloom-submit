@@ -127,8 +127,8 @@ export const getQuillModulesWithMedia = (openMediaSelector: (type: 'image' | 'vi
       ['bold', 'italic', 'underline', 'strike'],
       [{ list: 'ordered' }, { list: 'bullet' }],
       [{ indent: '-1' }, { indent: '+1' }],
-      [{ align: [] }],
       ['link', 'image', 'video'],
+      [{ align: [] }],
       ['clean']
     ],
     handlers: {

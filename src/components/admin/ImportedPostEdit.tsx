@@ -233,40 +233,43 @@ const ImportedPostEdit = () => {
           <CardTitle>Edit Imported Post</CardTitle>
         </CardHeader>
         
-        <CardContent className="space-y-6">
-          <div>
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-              placeholder="Post title"
-            />
-          </div>
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="title">Title *</Label>
+                <Input
+                  id="title"
+                  value={formData.title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Enter post title"
+                  required
+                />
+              </div>
 
-          <div>
-            <Label htmlFor="content">Content *</Label>
-            <ReactQuill
-              ref={quillRef as any}
-              theme="snow"
-              value={formData.content}
-              onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
-              modules={quillModules}
-              style={{ height: '300px', marginBottom: '50px' }}
-            />
-            <MediaSelectorComponent />
-          </div>
+              <div>
+                <Label htmlFor="content">Content *</Label>
+                <ReactQuill
+                  ref={quillRef as any}
+                  theme="snow"
+                  value={formData.content}
+                  onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
+                  modules={quillModules}
+                  style={{ height: '300px', marginBottom: '50px' }}
+                />
+                <MediaSelectorComponent />
+              </div>
 
-          <div>
-            <Label htmlFor="excerpt">Excerpt</Label>
-            <Textarea
-              id="excerpt"
-              value={formData.excerpt}
-              onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
-              placeholder="Brief description of the post"
-              rows={3}
-            />
-          </div>
+              <div>
+                <Label htmlFor="excerpt">Excerpt</Label>
+                <Textarea
+                  id="excerpt"
+                  value={formData.excerpt}
+                  onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+                  placeholder="Brief description of the post"
+                  rows={3}
+                />
+              </div>
+            </div>
 
           <Separator />
 
