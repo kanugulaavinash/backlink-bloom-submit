@@ -131,32 +131,17 @@ export const getQuillModulesWithMedia = (openMediaSelector: (type: 'image' | 'vi
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       [{ 'indent': '-1'}, { 'indent': '+1' }],
       [{ 'align': [] }],
-      ['link', 'media-image', 'media-video'],
+      ['link', 'image', 'video'],
       ['clean']
     ],
     handlers: {
-      'media-image': () => openMediaSelector('image'),
-      'media-video': () => openMediaSelector('video')
+      'image': () => openMediaSelector('image'),
+      'video': () => openMediaSelector('video')
     }
   }
 });
 
-// Custom button icons for the toolbar
+// Using default Quill icons; no custom registration needed in Vite/ESM
 export const addCustomQuillButtons = () => {
-  const Quill = require('react-quill').Quill;
-  
-  // Add custom image button
-  const ImageIcon = Quill.import('ui/icons')['image'];
-  Quill.register({
-    'ui/icons/media-image': ImageIcon
-  });
-
-  // Add custom video button  
-  const VideoIcon = `<svg viewBox="0 0 18 18">
-    <rect class="ql-stroke" height="12" width="14" x="2" y="3"></rect>
-    <polygon class="ql-fill" points="7 6 11 9 7 12"></polygon>
-  </svg>`;
-  Quill.register({
-    'ui/icons/media-video': VideoIcon
-  });
+  // No-op to avoid require in ESM environments
 };
