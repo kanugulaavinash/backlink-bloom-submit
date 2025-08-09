@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Save, X, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -207,7 +208,7 @@ const ImportedPostEdit = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="flex items-center justify-between mb-6">
         <Button 
           variant="outline" 
@@ -244,17 +245,6 @@ const ImportedPostEdit = () => {
           </div>
 
           <div>
-            <Label htmlFor="excerpt">Excerpt</Label>
-            <Textarea
-              id="excerpt"
-              value={formData.excerpt}
-              onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
-              placeholder="Brief description of the post"
-              rows={3}
-            />
-          </div>
-
-          <div>
             <Label htmlFor="content">Content</Label>
             <ReactQuill
               ref={quillRef as any}
@@ -265,6 +255,19 @@ const ImportedPostEdit = () => {
             />
             <MediaSelectorComponent />
           </div>
+
+          <div>
+            <Label htmlFor="excerpt">Excerpt</Label>
+            <Textarea
+              id="excerpt"
+              value={formData.excerpt}
+              onChange={(e) => setFormData(prev => ({ ...prev, excerpt: e.target.value }))}
+              placeholder="Brief description of the post"
+              rows={3}
+            />
+          </div>
+
+          <Separator />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -314,31 +317,36 @@ const ImportedPostEdit = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="imported">Imported</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Publishing Settings</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="imported">Imported</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="published">Published</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div>
-              <Label htmlFor="published_date">Published Date</Label>
-              <Input
-                id="published_date"
-                type="datetime-local"
-                value={formData.published_date ? new Date(formData.published_date).toISOString().slice(0, 16) : ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, published_date: e.target.value ? new Date(e.target.value).toISOString() : '' }))}
-              />
+              <div>
+                <Label htmlFor="published_date">Published Date</Label>
+                <Input
+                  id="published_date"
+                  type="datetime-local"
+                  value={formData.published_date ? new Date(formData.published_date).toISOString().slice(0, 16) : ''}
+                  onChange={(e) => setFormData(prev => ({ ...prev, published_date: e.target.value ? new Date(e.target.value).toISOString() : '' }))}
+                />
+              </div>
             </div>
           </div>
+
+          <Separator />
 
           <div>
             <Label htmlFor="featured_image_url">Featured Image</Label>
@@ -375,17 +383,19 @@ const ImportedPostEdit = () => {
         </CardContent>
       </Card>
 
-      <div className="sticky bottom-0 left-0 right-0 border-t bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 mt-6">
-        <div className="container mx-auto max-w-4xl p-4 flex justify-end">
-          <Button 
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2"
-          >
-            <Save className="h-4 w-4" />
-            {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </div>
+      <div className="mt-6 sticky bottom-4">
+        <Card className="border-2 border-primary/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <CardContent className="p-4 flex justify-end">
+            <Button 
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
