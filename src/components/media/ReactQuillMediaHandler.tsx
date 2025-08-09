@@ -123,20 +123,17 @@ export const useQuillMediaHandler = (quillRef: React.RefObject<any>) => {
 export const getQuillModulesWithMedia = (openMediaSelector: (type: 'image' | 'video') => void) => ({
   toolbar: {
     container: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'script': 'sub'}, { 'script': 'super' }],
-      ['blockquote', 'code-block'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
-      [{ 'align': [] }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ indent: '-1' }, { indent: '+1' }],
+      [{ align: [] }],
       ['link', 'image', 'video'],
       ['clean']
     ],
     handlers: {
-      'image': () => openMediaSelector('image'),
-      'video': () => openMediaSelector('video')
+      image: () => openMediaSelector('image'),
+      video: () => openMediaSelector('video')
     }
   }
 });

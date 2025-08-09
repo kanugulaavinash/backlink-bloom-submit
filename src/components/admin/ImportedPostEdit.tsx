@@ -245,13 +245,14 @@ const ImportedPostEdit = () => {
           </div>
 
           <div>
-            <Label htmlFor="content">Content</Label>
+            <Label htmlFor="content">Content *</Label>
             <ReactQuill
               ref={quillRef as any}
               theme="snow"
               value={formData.content}
               onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
               modules={quillModules}
+              style={{ height: '300px', marginBottom: '50px' }}
             />
             <MediaSelectorComponent />
           </div>
