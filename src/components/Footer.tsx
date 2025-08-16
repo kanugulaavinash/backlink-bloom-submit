@@ -6,45 +6,42 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Mail, ArrowUp } from "lucide-react";
-
 const Footer = () => {
   const [email, setEmail] = useState("");
   const [agreedToPolicy, setAgreedToPolicy] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleNewsletterSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!email.trim()) {
       toast({
         title: "Error",
         description: "Please enter your email address",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     if (!agreedToPolicy) {
       toast({
-        title: "Error", 
+        title: "Error",
         description: "Please agree to the privacy policy",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setIsLoading(true);
     try {
-      const { error } = await supabase
-        .from('newsletter_subscribers')
-        .insert([{ email: email.trim() }]);
-
+      const {
+        error
+      } = await supabase.from('newsletter_subscribers').insert([{
+        email: email.trim()
+      }]);
       if (error) throw error;
-
       toast({
         title: "Success!",
-        description: "Thank you for subscribing to our newsletter!",
+        description: "Thank you for subscribing to our newsletter!"
       });
       setEmail("");
       setAgreedToPolicy(false);
@@ -53,28 +50,29 @@ const Footer = () => {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
   };
-
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   };
-
-  return (
-    <footer className="bg-muted/30 border-t">
+  return <footer className="bg-muted/30 border-t">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Brand Section */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">BB</span>
+                <span className="text-primary-foreground font-bold text-sm">
+              </span>
               </div>
-              <span className="text-xl font-bold text-foreground">Backlink Bloom</span>
+              <span className="text-xl font-bold text-foreground">Stuffedition</span>
             </div>
             <p className="text-muted-foreground max-w-sm">
               Premium guest posting platform with AI-powered content validation. 
@@ -112,29 +110,14 @@ const Footer = () => {
             </p>
             <form onSubmit={handleNewsletterSignup} className="space-y-3">
               <div className="flex space-x-2">
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
-                  className="flex-1"
-                />
+                <Input type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} disabled={isLoading} className="flex-1" />
                 <Button type="submit" disabled={isLoading} size="icon">
                   <Mail className="h-4 w-4" />
                 </Button>
               </div>
               <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="privacy-policy"
-                  checked={agreedToPolicy}
-                  onCheckedChange={(checked) => setAgreedToPolicy(checked === true)}
-                  disabled={isLoading}
-                />
-                <label 
-                  htmlFor="privacy-policy" 
-                  className="text-xs text-muted-foreground cursor-pointer"
-                >
+                <Checkbox id="privacy-policy" checked={agreedToPolicy} onCheckedChange={checked => setAgreedToPolicy(checked === true)} disabled={isLoading} />
+                <label htmlFor="privacy-policy" className="text-xs text-muted-foreground cursor-pointer">
                   I agree to the{" "}
                   <Link to="/privacy-policy" className="text-primary hover:underline">
                     Privacy Policy
@@ -152,32 +135,19 @@ const Footer = () => {
               © 2024 Backlink Bloom. All rights reserved.
             </p>
             <div className="flex items-center space-x-6">
-              <Link 
-                to="/privacy-policy" 
-                className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-              >
+              <Link to="/privacy-policy" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
                 Privacy Policy
               </Link>
-              <Link 
-                to="/terms-of-service" 
-                className="text-muted-foreground hover:text-foreground text-sm transition-colors"
-              >
+              <Link to="/terms-of-service" className="text-muted-foreground hover:text-foreground text-sm transition-colors">
                 Terms of Service
               </Link>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={scrollToTop}
-                className="h-8 w-8"
-              >
+              <Button variant="ghost" size="icon" onClick={scrollToTop} className="h-8 w-8">
                 <ArrowUp className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
