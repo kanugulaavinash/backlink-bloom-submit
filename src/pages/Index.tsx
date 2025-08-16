@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Shield, Zap, Clock } from "lucide-react";
@@ -12,34 +11,26 @@ import WhyChooseSection from "@/components/WhyChooseSection";
 import WebTwoBacklinksSection from "@/components/WebTwoBacklinksSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import FAQSection from "@/components/FAQSection";
-
 const Index = () => {
   usePagePerformance('Homepage');
-
-  return (
-    <>
-      <SEO 
-        title="Stuffedition - Publish Your Guest Post for Just $5 | Get Permanent Dofollow Backlinks"
-        description="The most affordable guest posting platform on the web. Publish high-quality guest posts for only $5 with permanent dofollow backlinks. Fast approval, human-written content only."
-        url="/"
-        structuredData={{
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          "name": "Stuffedition",
-          "description": "The most affordable guest posting platform - publish for just $5",
-          "url": "https://stuffedition.com",
-          "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://stuffedition.com/blog?search={search_term_string}",
-            "query-input": "required name=search_term_string"
-          },
-          "provider": {
-            "@type": "Organization",
-            "name": "Stuffedition",
-            "url": "https://stuffedition.com"
-          }
-        }}
-      />
+  return <>
+      <SEO title="Stuffedition - Publish Your Guest Post for Just $5 | Get Permanent Dofollow Backlinks" description="The most affordable guest posting platform on the web. Publish high-quality guest posts for only $5 with permanent dofollow backlinks. Fast approval, human-written content only." url="/" structuredData={{
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Stuffedition",
+      "description": "The most affordable guest posting platform - publish for just $5",
+      "url": "https://stuffedition.com",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://stuffedition.com/blog?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "provider": {
+        "@type": "Organization",
+        "name": "Stuffedition",
+        "url": "https://stuffedition.com"
+      }
+    }} />
       <SitemapGenerator />
       <div className="min-h-screen bg-background relative overflow-hidden">
         <Header />
@@ -50,7 +41,7 @@ const Index = () => {
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-10 left-10 w-4 h-4 bg-primary/20 rounded transform rotate-45"></div>
             <div className="absolute top-32 right-16 w-6 h-6 bg-primary/30 rounded-full"></div>
-            <div className="absolute bottom-20 left-20 w-3 h-3 bg-primary/25 rounded"></div>
+            
             <div className="absolute bottom-32 right-12 w-5 h-5 bg-primary/20 rounded transform rotate-45"></div>
           </div>
           
@@ -85,10 +76,7 @@ const Index = () => {
                 {/* Main CTA */}
                 <div className="space-y-4">
                   <Link to="/create-blog-post">
-                    <Button 
-                      size="lg" 
-                      className="px-8 py-4 text-lg hover:scale-105 transition-all duration-300 shadow-lg"
-                    >
+                    <Button size="lg" className="px-8 py-4 text-lg hover:scale-105 transition-all duration-300 shadow-lg">
                       Submit Your Guest Post
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
@@ -180,8 +168,6 @@ const Index = () => {
         <FAQSection />
       </div>
       <Footer />
-    </>
-  );
+    </>;
 };
-
 export default Index;
