@@ -7,682 +7,37 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
-      api_key_configurations: {
-        Row: {
-          api_key_id: string | null
-          configuration_key: string
-          configuration_value: string
-          created_at: string | null
-          id: string
-          updated_at: string | null
-        }
-        Insert: {
-          api_key_id?: string | null
-          configuration_key: string
-          configuration_value: string
-          created_at?: string | null
-          id?: string
-          updated_at?: string | null
-        }
-        Update: {
-          api_key_id?: string | null
-          configuration_key?: string
-          configuration_value?: string
-          created_at?: string | null
-          id?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "api_key_configurations_api_key_id_fkey"
-            columns: ["api_key_id"]
-            isOneToOne: false
-            referencedRelation: "api_keys"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      api_keys: {
-        Row: {
-          created_at: string | null
-          id: string
-          integration_status: string | null
-          is_configured: boolean | null
-          key_name: string
-          key_value: string
-          last_test_at: string | null
-          service_name: string
-          service_type: string | null
-          test_result: Json | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          integration_status?: string | null
-          is_configured?: boolean | null
-          key_name: string
-          key_value: string
-          last_test_at?: string | null
-          service_name: string
-          service_type?: string | null
-          test_result?: Json | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          integration_status?: string | null
-          is_configured?: boolean | null
-          key_name?: string
-          key_value?: string
-          last_test_at?: string | null
-          service_name?: string
-          service_type?: string | null
-          test_result?: Json | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      bookmarks: {
-        Row: {
-          created_at: string
-          id: string
-          post_id: string
-          post_type: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          post_id: string
-          post_type?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          post_id?: string
-          post_type?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      categories: {
-        Row: {
-          color: string | null
-          created_at: string | null
-          created_by: string | null
-          description: string | null
-          id: string
-          name: string
-          Test: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          color?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          name: string
-          Test?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          color?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          name?: string
-          Test?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      comments: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          is_approved: boolean | null
-          is_deleted: boolean | null
-          parent_id: string | null
-          post_id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          is_approved?: boolean | null
-          is_deleted?: boolean | null
-          parent_id?: string | null
-          post_id: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          is_approved?: boolean | null
-          is_deleted?: boolean | null
-          parent_id?: string | null
-          post_id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "comments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      guest_posts: {
-        Row: {
-          author_bio: string | null
-          author_name: string
-          author_website: string | null
-          auto_publish: boolean | null
-          category: string
-          content: string
-          created_at: string | null
-          custom_permalink: string | null
-          excerpt: string | null
-          featured_image_url: string | null
-          focus_keyword: string | null
-          id: string
-          meta_description: string | null
-          meta_title: string | null
-          payment_status: string | null
-          published_at: string | null
-          scheduled_for: string | null
-          status: string
-          submission_step: number | null
-          tags: string[] | null
-          timezone: string | null
-          title: string
-          updated_at: string | null
-          user_id: string
-          validation_status: string | null
-        }
-        Insert: {
-          author_bio?: string | null
-          author_name: string
-          author_website?: string | null
-          auto_publish?: boolean | null
-          category: string
-          content: string
-          created_at?: string | null
-          custom_permalink?: string | null
-          excerpt?: string | null
-          featured_image_url?: string | null
-          focus_keyword?: string | null
-          id?: string
-          meta_description?: string | null
-          meta_title?: string | null
-          payment_status?: string | null
-          published_at?: string | null
-          scheduled_for?: string | null
-          status?: string
-          submission_step?: number | null
-          tags?: string[] | null
-          timezone?: string | null
-          title: string
-          updated_at?: string | null
-          user_id: string
-          validation_status?: string | null
-        }
-        Update: {
-          author_bio?: string | null
-          author_name?: string
-          author_website?: string | null
-          auto_publish?: boolean | null
-          category?: string
-          content?: string
-          created_at?: string | null
-          custom_permalink?: string | null
-          excerpt?: string | null
-          featured_image_url?: string | null
-          focus_keyword?: string | null
-          id?: string
-          meta_description?: string | null
-          meta_title?: string | null
-          payment_status?: string | null
-          published_at?: string | null
-          scheduled_for?: string | null
-          status?: string
-          submission_step?: number | null
-          tags?: string[] | null
-          timezone?: string | null
-          title?: string
-          updated_at?: string | null
-          user_id?: string
-          validation_status?: string | null
-        }
-        Relationships: []
-      }
-      import_sessions: {
-        Row: {
-          completed_at: string | null
-          created_at: string | null
-          errors: Json | null
-          failed_imports: number | null
-          filename: string
-          id: string
-          imported_by: string
-          status: string | null
-          successful_imports: number | null
-          total_posts: number | null
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string | null
-          errors?: Json | null
-          failed_imports?: number | null
-          filename: string
-          id?: string
-          imported_by: string
-          status?: string | null
-          successful_imports?: number | null
-          total_posts?: number | null
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string | null
-          errors?: Json | null
-          failed_imports?: number | null
-          filename?: string
-          id?: string
-          imported_by?: string
-          status?: string | null
-          successful_imports?: number | null
-          total_posts?: number | null
-        }
-        Relationships: []
-      }
-      imported_posts: {
-        Row: {
-          categories: string[] | null
-          content: string
-          created_at: string | null
-          custom_permalink: string | null
-          excerpt: string | null
-          featured_image_url: string | null
-          focus_keyword: string | null
-          id: string
-          import_session_id: string
-          imported_by: string
-          meta_description: string | null
-          meta_title: string | null
-          published_date: string | null
-          slug: string | null
-          status: string | null
-          tags: string[] | null
-          title: string
-          updated_at: string | null
-          wordpress_id: string | null
-          wordpress_url: string | null
-        }
-        Insert: {
-          categories?: string[] | null
-          content: string
-          created_at?: string | null
-          custom_permalink?: string | null
-          excerpt?: string | null
-          featured_image_url?: string | null
-          focus_keyword?: string | null
-          id?: string
-          import_session_id: string
-          imported_by: string
-          meta_description?: string | null
-          meta_title?: string | null
-          published_date?: string | null
-          slug?: string | null
-          status?: string | null
-          tags?: string[] | null
-          title: string
-          updated_at?: string | null
-          wordpress_id?: string | null
-          wordpress_url?: string | null
-        }
-        Update: {
-          categories?: string[] | null
-          content?: string
-          created_at?: string | null
-          custom_permalink?: string | null
-          excerpt?: string | null
-          featured_image_url?: string | null
-          focus_keyword?: string | null
-          id?: string
-          import_session_id?: string
-          imported_by?: string
-          meta_description?: string | null
-          meta_title?: string | null
-          published_date?: string | null
-          slug?: string | null
-          status?: string | null
-          tags?: string[] | null
-          title?: string
-          updated_at?: string | null
-          wordpress_id?: string | null
-          wordpress_url?: string | null
-        }
-        Relationships: []
-      }
-      media_folders: {
-        Row: {
-          bucket_id: string
-          created_at: string
-          created_by: string
-          id: string
-          name: string
-          parent_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          bucket_id: string
-          created_at?: string
-          created_by: string
-          id?: string
-          name: string
-          parent_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          bucket_id?: string
-          created_at?: string
-          created_by?: string
-          id?: string
-          name?: string
-          parent_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "media_folders_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "media_folders"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      media_library: {
-        Row: {
-          alt_text: string | null
-          bucket_id: string
-          caption: string | null
-          created_at: string
-          duration: number | null
-          file_path: string
-          file_size: number
-          filename: string
-          folder_id: string | null
-          height: number | null
-          id: string
-          metadata: Json | null
-          mime_type: string
-          original_filename: string
-          tags: string[] | null
-          thumbnail_path: string | null
-          updated_at: string
-          uploaded_by: string
-          usage_count: number | null
-          width: number | null
-        }
-        Insert: {
-          alt_text?: string | null
-          bucket_id: string
-          caption?: string | null
-          created_at?: string
-          duration?: number | null
-          file_path: string
-          file_size: number
-          filename: string
-          folder_id?: string | null
-          height?: number | null
-          id?: string
-          metadata?: Json | null
-          mime_type: string
-          original_filename: string
-          tags?: string[] | null
-          thumbnail_path?: string | null
-          updated_at?: string
-          uploaded_by: string
-          usage_count?: number | null
-          width?: number | null
-        }
-        Update: {
-          alt_text?: string | null
-          bucket_id?: string
-          caption?: string | null
-          created_at?: string
-          duration?: number | null
-          file_path?: string
-          file_size?: number
-          filename?: string
-          folder_id?: string | null
-          height?: number | null
-          id?: string
-          metadata?: Json | null
-          mime_type?: string
-          original_filename?: string
-          tags?: string[] | null
-          thumbnail_path?: string | null
-          updated_at?: string
-          uploaded_by?: string
-          usage_count?: number | null
-          width?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "media_library_folder_id_fkey"
-            columns: ["folder_id"]
-            isOneToOne: false
-            referencedRelation: "media_folders"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      media_tags: {
-        Row: {
-          color: string | null
-          created_at: string
-          created_by: string
-          id: string
-          name: string
-        }
-        Insert: {
-          color?: string | null
-          created_at?: string
-          created_by: string
-          id?: string
-          name: string
-        }
-        Update: {
-          color?: string | null
-          created_at?: string
-          created_by?: string
-          id?: string
-          name?: string
-        }
-        Relationships: []
-      }
-      media_usage: {
-        Row: {
-          content_id: string
-          content_type: string
-          created_at: string
-          id: string
-          media_id: string
-          usage_context: string | null
-        }
-        Insert: {
-          content_id: string
-          content_type: string
-          created_at?: string
-          id?: string
-          media_id: string
-          usage_context?: string | null
-        }
-        Update: {
-          content_id?: string
-          content_type?: string
-          created_at?: string
-          id?: string
-          media_id?: string
-          usage_context?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "media_usage_media_id_fkey"
-            columns: ["media_id"]
-            isOneToOne: false
-            referencedRelation: "media_library"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      newsletter_subscribers: {
-        Row: {
-          confirmation_token: string | null
-          confirmed_at: string | null
-          email: string
-          id: string
-          preferences: Json | null
-          status: string
-          subscribed_at: string
-          unsubscribed_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          confirmation_token?: string | null
-          confirmed_at?: string | null
-          email: string
-          id?: string
-          preferences?: Json | null
-          status?: string
-          subscribed_at?: string
-          unsubscribed_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          confirmation_token?: string | null
-          confirmed_at?: string | null
-          email?: string
-          id?: string
-          preferences?: Json | null
-          status?: string
-          subscribed_at?: string
-          unsubscribed_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      payment_transactions: {
-        Row: {
-          amount: number
-          created_at: string | null
-          currency: string | null
-          gateway: string | null
-          id: string
-          post_id: string | null
-          razorpay_order_id: string | null
-          razorpay_payment_id: string | null
-          status: string | null
-          stripe_payment_intent_id: string | null
-          stripe_session_id: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          amount: number
-          created_at?: string | null
-          currency?: string | null
-          gateway?: string | null
-          id?: string
-          post_id?: string | null
-          razorpay_order_id?: string | null
-          razorpay_payment_id?: string | null
-          status?: string | null
-          stripe_payment_intent_id?: string | null
-          stripe_session_id?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          amount?: number
-          created_at?: string | null
-          currency?: string | null
-          gateway?: string | null
-          id?: string
-          post_id?: string | null
-          razorpay_order_id?: string | null
-          razorpay_payment_id?: string | null
-          status?: string | null
-          stripe_payment_intent_id?: string | null
-          stripe_session_id?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "payment_transactions_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "guest_posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           avatar_url: string | null
-          created_at: string | null
+          created_at: string
           email: string
-          first_name: string | null
           full_name: string | null
           id: string
-          last_name: string | null
-          updated_at: string | null
-          username: string | null
+          updated_at: string
         }
         Insert: {
           avatar_url?: string | null
-          created_at?: string | null
+          created_at?: string
           email: string
-          first_name?: string | null
           full_name?: string | null
           id: string
-          last_name?: string | null
-          updated_at?: string | null
-          username?: string | null
+          updated_at?: string
         }
         Update: {
           avatar_url?: string | null
-          created_at?: string | null
+          created_at?: string
           email?: string
-          first_name?: string | null
           full_name?: string | null
           id?: string
-          last_name?: string | null
-          updated_at?: string | null
-          username?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -691,81 +46,42 @@ export type Database = {
           id: string
           setting_key: string
           setting_value: string
-          updated_at: string | null
+          updated_at: string
           updated_by: string | null
         }
         Insert: {
           id?: string
           setting_key: string
           setting_value: string
-          updated_at?: string | null
+          updated_at?: string
           updated_by?: string | null
         }
         Update: {
           id?: string
           setting_key?: string
           setting_value?: string
-          updated_at?: string | null
+          updated_at?: string
           updated_by?: string | null
-        }
-        Relationships: []
-      }
-      user_invitations: {
-        Row: {
-          created_at: string | null
-          email: string
-          expires_at: string | null
-          id: string
-          invited_by: string | null
-          message: string | null
-          role: Database["public"]["Enums"]["app_role"]
-          status: string | null
-          token: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          email: string
-          expires_at?: string | null
-          id?: string
-          invited_by?: string | null
-          message?: string | null
-          role?: Database["public"]["Enums"]["app_role"]
-          status?: string | null
-          token?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          email?: string
-          expires_at?: string | null
-          id?: string
-          invited_by?: string | null
-          message?: string | null
-          role?: Database["public"]["Enums"]["app_role"]
-          status?: string | null
-          token?: string | null
-          updated_at?: string | null
         }
         Relationships: []
       }
       user_roles: {
         Row: {
-          assigned_at: string | null
+          assigned_at: string
           assigned_by: string | null
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
-          assigned_at?: string | null
+          assigned_at?: string
           assigned_by?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
-          assigned_at?: string | null
+          assigned_at?: string
           assigned_by?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
@@ -773,113 +89,18 @@ export type Database = {
         }
         Relationships: []
       }
-      validation_results: {
-        Row: {
-          ai_content_highlights: Json | null
-          ai_content_score: number | null
-          ai_detection_details: Json | null
-          created_at: string | null
-          id: string
-          plagiarism_details: Json | null
-          plagiarism_highlights: Json | null
-          plagiarism_score: number | null
-          post_id: string | null
-          updated_at: string | null
-          validation_status: string | null
-        }
-        Insert: {
-          ai_content_highlights?: Json | null
-          ai_content_score?: number | null
-          ai_detection_details?: Json | null
-          created_at?: string | null
-          id?: string
-          plagiarism_details?: Json | null
-          plagiarism_highlights?: Json | null
-          plagiarism_score?: number | null
-          post_id?: string | null
-          updated_at?: string | null
-          validation_status?: string | null
-        }
-        Update: {
-          ai_content_highlights?: Json | null
-          ai_content_score?: number | null
-          ai_detection_details?: Json | null
-          created_at?: string | null
-          id?: string
-          plagiarism_details?: Json | null
-          plagiarism_highlights?: Json | null
-          plagiarism_score?: number | null
-          post_id?: string | null
-          updated_at?: string | null
-          validation_status?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "validation_results_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: true
-            referencedRelation: "guest_posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      custom_create_invitation: {
-        Args: {
-          p_email: string
-          p_role: string
-          p_message: string
-          p_invited_by: string
-        }
-        Returns: undefined
-      }
-      custom_delete_api_key: {
-        Args: { p_id: string }
-        Returns: undefined
-      }
-      custom_select: {
-        Args: { query: string }
-        Returns: {
-          result: Json
-        }[]
-      }
-      custom_upsert_api_key: {
-        Args: {
-          p_service_name: string
-          p_key_name: string
-          p_key_value: string
-        }
-        Returns: undefined
-      }
-      custom_upsert_api_key_with_config: {
-        Args: {
-          p_service_name: string
-          p_key_name: string
-          p_key_value: string
-          p_service_type?: string
-          p_configurations?: Json
-        }
-        Returns: string
-      }
-      get_category_usage_count: {
-        Args: { category_name: string }
-        Returns: number
-      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: string
       }
       has_role: {
-        Args: { _user_id: string; _role: string }
+        Args: { _role: string; _user_id: string }
         Returns: boolean
-      }
-      update_api_key_test_result: {
-        Args: { p_id: string; p_status: string; p_result: Json }
-        Returns: undefined
       }
     }
     Enums: {
