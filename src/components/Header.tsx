@@ -32,13 +32,12 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-18">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-lg flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
-              <span className="text-white font-bold text-sm">S</span>
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              Stuffedition
-            </span>
+          <Link to="/" className="flex items-center group">
+            <img 
+              src="/lovable-uploads/1f628db2-df4f-4ee1-9408-92bf42a199c2.png" 
+              alt="Stuff Edition Logo" 
+              className="h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+            />
           </Link>
 
           {/* Search Bar - Center */}
